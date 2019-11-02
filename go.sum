@@ -1,0 +1,8 @@
+github.com/barnex/fmath v0.0.0-20150108074215-ec9671f295c2 h1:FOAZHSIFEhocAOfB7LQcZmCEAra7hneHMBPL8Nq/eDk=
+github.com/barnex/fmath v0.0.0-20150108074215-ec9671f295c2/go.mod h1:G7XW+2O6Hk/x6OP8AuwZjI8ZTyXvKDTTKaRK92gapfk=
+github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
+github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
+github.com/ungerik/go3d v0.0.0-20190319220834-8e1a82526839 h1:Z8t06UysW7GpCilIM5b7DAQSM+N9y/rMMHYFCxnrPX8=
+github.com/ungerik/go3d v0.0.0-20190319220834-8e1a82526839/go.mod h1:O2qCNQkuiyYrHasQBpAAeRerRi7SIEzpduul5NvsTy0=
