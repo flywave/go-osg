@@ -4,7 +4,6 @@ type RenderingHint uint32
 type RenderBinMode uint32
 
 type ModeListType map[Glmode]GlmodeValue
-type ParentListType []*Node
 
 type RefAttributePair struct {
 	First  *StateAttribute
@@ -47,7 +46,7 @@ const (
 
 type StateSet struct {
 	Object
-	Parents              ParentListType
+	Parents              []*Node
 	ModeList             ModeListType
 	AttributeList        AttributeListType
 	TextureModeList      TextureModeListType

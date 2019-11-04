@@ -24,8 +24,8 @@ type Node struct {
 	NodeMask      NodeMask
 	Dscriptions   []string
 	InitialBound  Sphere3f
-	// States        *StateSet
-	// Parents       []*group
+	States        *StateSet
+	Parents       []*Group
 
 	Callback       *ComputeBoundingSphereCallback
 	UpdateCallback *Callback
@@ -43,7 +43,7 @@ func (n *Node) Accept(nv *NodeVisitor) {
 	if nv.ValidNodeMask(n) {
 		nv.PushOntoNodePath(n)
 		nv.Apply(n)
-		nv.PopFromNodePath()
+		nv.PopFromNodePath(n)
 	}
 }
 func (n *Node) Ascend(nv *NodeVisitor) {

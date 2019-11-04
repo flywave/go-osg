@@ -50,12 +50,12 @@ func (v *NodeVisitor) PopFromNodePath(n *Node) {
 }
 
 func (v *NodeVisitor) Apply(val interface{}) {
-	switch node := val.(type) {
-	case *Node:
-	case *Lod:
-	case *PagedLod:
-	case *Group:
-	}
+	// switch node := val.(type) {
+	// case *Node:
+	// case *Lod:
+	// case *PagedLod:
+	// case *Group:
+	// }
 }
 
 func (v *NodeVisitor) ValidNodeMask(node *Node) bool {

@@ -82,11 +82,9 @@ const (
 	StateAttributeType string = "osg::StateAttribute"
 )
 
-type ParentListType []*StateSet
-
 type StateAttribute struct {
 	Object
-	Parents        ParentListType
+	Parents        []*StateSet
 	UpdateCallback *Callback
 	EventCallback  *Callback
 }
@@ -102,10 +100,10 @@ type TypeMemberPair struct {
 	Second int32
 }
 
-func (s *StateArribute) GetTypeMember() TypeMemberPair {
+func (s *StateAttribute) GetTypeMember() TypeMemberPair {
 	return TypeMemberPair{First: TEXTURE, Second: 0}
 }
 
-func (s *StateArribute) IsTextureAttribute() bool {
+func (s *StateAttribute) IsTextureAttribute() bool {
 	return false
 }
