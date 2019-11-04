@@ -18,7 +18,7 @@ type Object struct {
 }
 
 func NewObject() Object {
-	return &object{Type: ObjectType, DataVariance: UNSPECIFIED}
+	return Object{Type: ObjectType, DataVariance: UNSPECIFIED}
 }
 
 type Callback struct {

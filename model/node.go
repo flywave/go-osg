@@ -1,9 +1,12 @@
 package model
 
-// import (_"github.com/ungerik/go3d/vec3")
+import "github.com/ungerik/go3d/vec3"
+
+type NodeMask uint32
+type NodePath []*Node
 
 type Sphere3f struct {
-	// Center vec3.T
+	Center vec3.T
 	Radius float32
 }
 
@@ -18,11 +21,11 @@ type ComputeBoundingSphereCallback struct {
 type Node struct {
 	Object
 	CullingActive bool
-	NodeMask      uint
+	NodeMask      NodeMask
 	Dscriptions   []string
 	InitialBound  Sphere3f
-	States        *StateSet
-	Parents       []*group
+	// States        *StateSet
+	// Parents       []*group
 
 	Callback       *ComputeBoundingSphereCallback
 	UpdateCallback *Callback
@@ -32,20 +35,20 @@ type Node struct {
 
 func NewNode() Node {
 	obj := NewObject()
-	obj.ObjectType = NodeType
+	obj.Type = NodeType
 	return Node{Object: obj}
 }
 
-// func Accept(nv *NodeVisitor,){
-//   if (nv.ValidNodeMask(n)) {
-//     nv.push_onto_node_path(n);
-//     nv.apply(n);
-//     nv.pop_from_node_path();
-//   }
-// }
-// func (n *node) Ascend(nv *NodeVisitor){
-//  }
+func (n *Node) Accept(nv *NodeVisitor) {
+	if nv.ValidNodeMask(n) {
+		nv.PushOntoNodePath(n)
+		nv.Apply(n)
+		nv.PopFromNodePath()
+	}
+}
+func (n *Node) Ascend(nv *NodeVisitor) {
+}
 
-// func (n *node) Traverse(nv *NodeVisitor){
+func (n *Node) Traverse(nv *NodeVisitor) {
 
-// }
+}

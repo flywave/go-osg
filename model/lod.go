@@ -1,6 +1,10 @@
 package model
 
-// _"github.com/ungerik/go3d/vec3"
+import (
+	"errors"
+
+	"github.com/ungerik/go3d/vec3"
+)
 
 type CenterMode uint32
 type RangeMode uint32
@@ -14,15 +18,70 @@ const (
 	LodType                                   string     = "osg::Object"
 )
 
-type MinMaxPair [2]float32
+type MinMaxPair []float32
 
 type RangeListType []MinMaxPair
 
 type Lod struct {
 	Group
-	Cmode CenterMode
-	// Center    vec3.T
-	Radius    float
+	Cmode     CenterMode
+	Center    vec3.T
+	Radius    float32
 	Rmode     RangeMode
 	RangeList RangeListType
+}
+
+func NewLod() Lod {
+	g := NewGroup()
+	return Lod{Group: g}
+}
+
+func (lod *Lod) AddChild(n *Node) {
+	lod.Group.AddChild(n)
+	rl := len(lod.RangeList)
+	if len(lod.Group.Children) > rl {
+		f := make([]float32, 0, 2)
+		if rl > 0 {
+			last := lod.RangeList[rl-1][1]
+			f[0] = last
+			f[1] = last
+		} else {
+			f[0] = 0.0
+			f[1] = 0.0
+		}
+		lod.RangeList = append(lod.RangeList, f)
+	}
+}
+
+func (lod *Lod) AddChild3(n *Node, min float32, max float32) {
+	lod.Group.AddChild(n)
+	rl := len(lod.RangeList)
+	if len(lod.Group.Children) > rl {
+		f := make([]float32, 0, 2)
+		f[0] = min
+		f[1] = max
+		lod.RangeList = append(lod.RangeList, f)
+	}
+}
+
+func (lod *Lod) RemoveChild2(pos int, count int) error {
+	if lod.Group.RemoveChild2(pos, count) == nil {
+		l := len(lod.RangeList)
+		if pos > l-1 || pos+count > l {
+			return errors.New("pos out of range")
+		}
+
+		a := lod.RangeList[:pos]
+		b := lod.RangeList[pos+1+count:]
+		lod.RangeList = append(a, b...)
+		return nil
+	}
+	return errors.New("remove child error")
+}
+
+func (lod *Lod) SetRange(childNo uint, min float32, max float32) {
+	f := make([]float32, 0, 2)
+	f[0] = min
+	f[1] = max
+	lod.RangeList[childNo] = f
 }

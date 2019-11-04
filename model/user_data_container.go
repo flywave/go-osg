@@ -14,7 +14,7 @@ type UserDataContainer struct {
 
 func NewUserDataContainer() UserDataContainer {
 	obj := NewObject()
-	obj.ObjectType = UserDataContainerType
+	obj.Type = UserDataContainerType
 	return UserDataContainer{Object: obj}
 }
 
@@ -24,6 +24,6 @@ type DefaultUserDataContainer struct {
 
 func NewDefaultUserDataContainer() DefaultUserDataContainer {
 	obj := NewUserDataContainer()
-	obj.ObjectType = DefaultUserDataContainerType
-	return UserDataContainer{UserDataContainer: obj}
+	obj.Type = DefaultUserDataContainerType
+	return DefaultUserDataContainer{UserDataContainer: obj}
 }

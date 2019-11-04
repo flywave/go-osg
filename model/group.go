@@ -13,117 +13,91 @@ type Group struct {
 
 func NewGroup() Group {
 	n := NewNode()
-	n.ObjectType = GroupType
+	n.Type = GroupType
 	return Group{Node: n}
 }
 
-func AppendChild(g interface{}, n interface{}) error {
-	switch t := g.(type) {
-	case Group:
-		var v *Node
-		switch nd := n.(type) {
-		case *Node:
-			v = nd
-		case Node:
-			v = &nd
-		default:
-			return errors.New("type error")
-		}
-		t.Children = append(g.Children, v)
-		break
-	case Lod:
-		switch nd := n.(type) {
-		case MinMaxPair:
-			t.RangeList = append(g.RangeList, nd)
-		default:
-			return errors.New("type error")
-		}
-		break
-	}
+func (g *Group) AddChild(n *Node) {
+	g.Children = append(g.Children, n)
 }
 
-// func InsertChild(g interface{},index int,n *Node)error{
-// 		switch t:=g.(type){
-// 		case Group:{
-// 			var v *Node;
-// 			switch nd:=n.(type){
-// 			case *Node:
-// 				v = nd;
-//  			break
-// 		case Node:
-// 			v=&nd;
-// 			break
-// 		default:
-// 			return errors.New("type error")
-// 			}
-// 			a:=t.Children[:index-1]
-// 			a = append(a,v)
-// 			b:=t.Children[index:]
-// 			t.Children = append(a,b...)
-// 			break
-// 		}
-// 		case Lod:{
-// 			switch nd:=n.(type){
-// 			case MinMaxPair:
-// 			t.RangeList = append(g.RangeList,nd)
-// 			break
-// 		default:
-// 			return errors.New("type error")
-// 			}
-// 			break
-// 		}
-// 		}
-// 		return nil
-// }
+func (g *Group) InsertChild(index int, n *Node) {
+	a := g.Children[:index]
+	a = append(a, n)
+	b := g.Children[index:]
+	g.Children = append(a, b...)
+}
 
-// func  (g *Group)GetIndex(g interface{},n *Node)int{
-// 	index := -1;
-// 	for i,val:range Children{
-// 			if(val==n){
-// 				index = i;
-// 				break;
-// 			}
-// 	}
-// 	return index;
-// }
+func (g *Group) GetIndex(n *Node) int {
+	index := -1
+	for i, val := range g.Children {
+		if val == n {
+			index = i
+			break
+		}
+	}
+	return index
+}
 
-// func RemoveChild(g interface{},n *Node)bool{
-// 	index: = g.GetIndex(n)
-// 	if(index<0)return false
-// 	a:=Children[:index-1]
-// 	a = append(a,n)
-// 	b:=Children[index:]
-// 	Children = append(a,b...)
-// 	return true;
-// }
+func (g *Group) RemoveChild(n *Node) error {
+	index := g.GetIndex(n)
+	if index < 0 {
+		return errors.New("have no this child")
+	}
 
-// func RemoveChild(g interface{},pos int,count int)bool{
-// 	l:=len(Children)
-// 	if(pos>l-1)return false;
-// 	if(pos+count>l)return false
-// 	a:=Children[:index-1]
-// 	b:=Children[index+count:]
-// 	Children = append(a,b...)
-// 	return true;
-// }
+	a := g.Children[:index]
+	a = append(a, n)
+	b := g.Children[index+1:]
+	g.Children = append(a, b...)
+	return nil
+}
 
-// func ReplaceChild(g interface{},origChild *Node,newChild *Node)bool{
-// 	index: = g.GetIndex(origChild)
-// 	if(index<0)return false
-// 	a:=Children[:index-1]
-// 	a = append(a,newChild)
-// 	b:=Children[index-1:]
-// 	Children = append(a,b...)
-// 	return true;
-// }
+func (g *Group) RemoveChild2(pos int, count int) error {
+	if pos < 0 {
+		return errors.New("pos out of range")
+	}
 
-// func SetChild(g interface{},pos int,newChild *Node)bool{
-// 	GetIndex[pos] = newChild
-// 	return true;
-// }
+	l := len(g.Children)
+	if pos > l-1 || pos+count > l {
+		return errors.New("pos out of range")
+	}
 
-// func Containsnode(g interface{},n *Node)bool{
-// 	index: = g.GetIndex(n)
-// 	if(index<0)return false
-// 	return true
-// }
+	a := g.Children[:pos]
+	b := g.Children[pos+1+count:]
+	g.Children = append(a, b...)
+	return nil
+}
+
+func (g *Group) ReplaceChild(origChild *Node, newChild *Node) error {
+	index := g.GetIndex(origChild)
+	if index < 0 {
+		return errors.New("out of range")
+	}
+
+	a := g.Children[:index]
+	a = append(a, newChild)
+	b := g.Children[index+1:]
+	g.Children = append(a, b...)
+	return nil
+}
+
+func (g *Group) SetChild(index int, newChild *Node) error {
+	if index < 0 {
+		return errors.New("out of range")
+	}
+	le := len(g.Children)
+	if index >= le {
+		return errors.New("out of range")
+	}
+	g.Children[index] = newChild
+
+	return nil
+}
+
+func (g *Group) Containsnode(n *Node) bool {
+	index := g.GetIndex(n)
+	if index < 0 {
+		return false
+	}
+	return true
+}

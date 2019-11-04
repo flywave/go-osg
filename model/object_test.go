@@ -1,10 +1,10 @@
 package model
 
 import (
-	_ "fmt"
+	"fmt"
 	"testing"
 )
 
 func TestHello(t *testing.T) {
-	// fmt.Printf("hello world!")
+	fmt.Printf("hello world!")
 }
