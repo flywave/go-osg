@@ -1,5 +1,15 @@
 package model
 
+type BufferData struct {
+	Object
+	BufferIndex uint32
+}
+
+func NewBufferData() BufferData {
+	obj := NewObject()
+	return BufferData{Object: obj}
+}
+
 type Binding int
 
 const (
@@ -11,10 +21,16 @@ const (
 )
 
 type Array struct {
+	BufferData
 	Type             ArrayTable
-	data_size        int
-	data_type        int
+	DataSize         int
+	DataType         int
 	Binding          Binding
 	Normalize        bool
 	PreserveDataType bool
+}
+
+func NewArray() Array {
+	buf := NewBufferData()
+	return Array{BufferData: buf, DataSize: 0, DataType: 0, Normalize: false, PreserveDataType: false, Binding: BIND_UNDEFINED}
 }

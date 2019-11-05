@@ -40,14 +40,11 @@ func (lod *Lod) AddChild(n *Node) {
 	lod.Group.AddChild(n)
 	rl := len(lod.RangeList)
 	if len(lod.Group.Children) > rl {
-		f := make([]float32, 0, 2)
+		f := []float32{0, 0}
 		if rl > 0 {
 			last := lod.RangeList[rl-1][1]
 			f[0] = last
 			f[1] = last
-		} else {
-			f[0] = 0.0
-			f[1] = 0.0
 		}
 		lod.RangeList = append(lod.RangeList, f)
 	}
@@ -57,9 +54,7 @@ func (lod *Lod) AddChild3(n *Node, min float32, max float32) {
 	lod.Group.AddChild(n)
 	rl := len(lod.RangeList)
 	if len(lod.Group.Children) > rl {
-		f := make([]float32, 0, 2)
-		f[0] = min
-		f[1] = max
+		f := []float32{min, max}
 		lod.RangeList = append(lod.RangeList, f)
 	}
 }
@@ -80,8 +75,6 @@ func (lod *Lod) RemoveChild2(pos int, count int) error {
 }
 
 func (lod *Lod) SetRange(childNo uint, min float32, max float32) {
-	f := make([]float32, 0, 2)
-	f[0] = min
-	f[1] = max
+	f := []float32{min, max}
 	lod.RangeList[childNo] = f
 }

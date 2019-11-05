@@ -47,6 +47,7 @@ func (n *Node) Accept(nv *NodeVisitor) {
 	}
 }
 func (n *Node) Ascend(nv *NodeVisitor) {
+
 }
 
 func (n *Node) Traverse(nv *NodeVisitor) {

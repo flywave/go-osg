@@ -358,11 +358,11 @@ const (
 
 	LastArrayType ArrayTable = 37
 
-	DrawArrays         PrimitiveTableEnum = 50
-	DrawArraysLength   PrimitiveTableEnum = 51
-	DrawElementsUByte  PrimitiveTableEnum = 52
-	DrawElementsUShort PrimitiveTableEnum = 53
-	DrawElementsUInt   PrimitiveTableEnum = 54
+	DRAWARRAYS         PrimitiveTableEnum = 50
+	DRAWARRAYSLENGTH   PrimitiveTableEnum = 51
+	DRAWElEMENTSUBYTE  PrimitiveTableEnum = 52
+	DRAWElEMENTSUSHORT PrimitiveTableEnum = 53
+	DRAWElEMENTSUINT   PrimitiveTableEnum = 54
 
 	GL_POINTS         PrimitiveTableEnum = 0x0000
 	GL_LINES          PrimitiveTableEnum = 0x0001
