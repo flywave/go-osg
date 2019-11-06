@@ -41,7 +41,7 @@ const (
 	PROTECTED_RENDERBIN_DETAILS          RenderBinMode = 4
 	OVERRIDE_PROTECTED_RENDERBIN_DETAILS RenderBinMode = 6
 
-	StateSetType string = "osg::StateSet"
+	STATESET_T string = "osg::StateSet"
 )
 
 type StateSet struct {
@@ -67,6 +67,6 @@ type StateSet struct {
 
 func NewStateSet() StateSet {
 	obj := NewObject()
-	obj.Type = StateSetType
+	obj.Type = STATESET_T
 	return StateSet{Object: obj, RenderingHint: DEFAULT_BIN, BinMode: INHERIT_RENDERBIN_DETAILS, NestRenderBins: true, BinNum: 0, BinName: ""}
 }

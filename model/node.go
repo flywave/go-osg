@@ -11,7 +11,7 @@ type Sphere3f struct {
 }
 
 const (
-	NodeType string = "osg::Node"
+	NODE_T string = "osg::Node"
 )
 
 type ComputeBoundingSphereCallback struct {
@@ -35,7 +35,7 @@ type Node struct {
 
 func NewNode() Node {
 	obj := NewObject()
-	obj.Type = NodeType
+	obj.Type = NODE_T
 	return Node{Object: obj}
 }
 

@@ -2,7 +2,7 @@ package model
 
 type Type uint32
 type Values uint32
-type Glmode Glenum
+type Glmode int
 type GlmodeValue uint32
 type OverrideValue uint32
 
@@ -79,7 +79,11 @@ const (
 	PROTECTED Values = 0x4
 	INHERIT   Values = 0x8
 
-	StateAttributeType string = "osg::StateAttribute"
+	FLAT   uint = 0x1D00
+	SMOOTH uint = 0x1D01
+
+	SHADEMODEL_T     string = "osg::ShadeModel"
+	STATEATRRIBUTE_T string = "osg::StateAttribute"
 )
 
 type StateAttribute struct {
@@ -91,7 +95,7 @@ type StateAttribute struct {
 
 func NewStateAttribute() StateAttribute {
 	obj := NewObject()
-	obj.Type = StateAttributeType
+	obj.Type = STATEATRRIBUTE_T
 	return StateAttribute{Object: obj}
 }
 
@@ -106,4 +110,15 @@ func (s *StateAttribute) GetTypeMember() TypeMemberPair {
 
 func (s *StateAttribute) IsTextureAttribute() bool {
 	return false
+}
+
+type ShadeModel struct {
+	StateAttribute
+	Mode uint
+}
+
+func NewShadeModel() ShadeModel {
+	a := NewStateAttribute()
+	a.Type = SHADEMODEL_T
+	return ShadeModel{StateAttribute: a}
 }

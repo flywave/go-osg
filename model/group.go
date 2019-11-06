@@ -3,7 +3,7 @@ package model
 import "errors"
 
 const (
-	GroupType string = "osg::Group"
+	GROUP_T string = "osg::Group"
 )
 
 type Group struct {
@@ -13,7 +13,7 @@ type Group struct {
 
 func NewGroup() Group {
 	n := NewNode()
-	n.Type = GroupType
+	n.Type = GROUP_T
 	return Group{Node: n}
 }
 

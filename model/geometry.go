@@ -3,7 +3,7 @@ package model
 import "errors"
 
 const (
-	GeometryType string = "osg::Geometry"
+	GEOMETRY_T string = "osg::Geometry"
 )
 
 type Geometry struct {
@@ -21,7 +21,7 @@ type Geometry struct {
 
 func NewGeometry() Geometry {
 	dw := NewDrawable()
-	dw.Type = GeometryType
+	dw.Type = GEOMETRY_T
 	return Geometry{Drawable: dw}
 }
 

@@ -15,7 +15,7 @@ const (
 	UNION_OF_BOUNDING_SPHERE_AND_USER_DEFINED CenterMode = 2
 	DISTANCE_FROM_EYE_POINT                   RangeMode  = 0
 	PIXEL_SIZE_ON_SCREEN                      RangeMode  = 1
-	LodType                                   string     = "osg::Object"
+	LOD_T                                     string     = "osg::Lod"
 )
 
 type MinMaxPair []float32
@@ -33,6 +33,7 @@ type Lod struct {
 
 func NewLod() Lod {
 	g := NewGroup()
+	g.Type = LOD_T
 	return Lod{Group: g}
 }
 

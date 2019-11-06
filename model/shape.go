@@ -1,7 +1,7 @@
 package model
 
 const (
-	ShapeType string = "osg::Shape"
+	SHAPE_T string = "osg::Shape"
 )
 
 type Shape struct {
@@ -10,6 +10,6 @@ type Shape struct {
 
 func NewShape() Shape {
 	obj := NewObject()
-	obj.Type = ShapeType
+	obj.Type = SHAPE_T
 	return Shape{Object: obj}
 }

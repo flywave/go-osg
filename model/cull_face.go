@@ -4,16 +4,16 @@ const (
 	FRONT                 = GL_FRONT
 	BACK                  = GL_BACK
 	FRONT_AND_BACK        = GL_FRONT_AND_BACK
-	CullFaceType   string = "osg::CullFace"
+	CULLFACE_T     string = "osg::CullFace"
 )
 
 type CullFace struct {
 	StateAttribute
-	Mode Glenum
+	Mode int
 }
 
 func NewCullFace() CullFace {
 	att := NewStateAttribute()
-	att.Type = CullFaceType
+	att.Type = CULLFACE_T
 	return CullFace{StateAttribute: att, Mode: BACK}
 }

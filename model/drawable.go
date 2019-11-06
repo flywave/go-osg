@@ -3,7 +3,7 @@ package model
 import "github.com/ungerik/go3d/vec3"
 
 const (
-	DrawableType string = "osg::Drawable"
+	DRAWABLE_T string = "osg::Drawable"
 )
 
 type DrawCallback struct {
@@ -28,6 +28,6 @@ type Drawable struct {
 
 func NewDrawable() Drawable {
 	n := NewNode()
-	n.Type = DrawableType
+	n.Type = DRAWABLE_T
 	return Drawable{Node: n}
 }

@@ -3,11 +3,17 @@ package model
 import "unsafe"
 
 const (
-	GeodeType string = "osg::Geode"
+	GEODE_T string = "osg::Geode"
 )
 
 type Geode struct {
 	Group
+}
+
+func NewGeod() Geode {
+	g := NewGroup()
+	g.Type = GEODE_T
+	return Geode{Group: g}
 }
 
 func (g *Geode) AddDrawable(d *Drawable) {

@@ -1,8 +1,8 @@
 package model
 
 const (
-	UserDataContainerType        string = "osg::UserDataContainer"
-	DefaultUserDataContainerType string = "osg::DefaultUserDataContainer"
+	USERDATACONTAINER_T        string = "osg::UserDataContainer"
+	DEFAULTUSERDATACONTAINER_T string = "osg::DefaultUserDataContainer"
 )
 
 type UserDataContainer struct {
@@ -14,7 +14,7 @@ type UserDataContainer struct {
 
 func NewUserDataContainer() UserDataContainer {
 	obj := NewObject()
-	obj.Type = UserDataContainerType
+	obj.Type = USERDATACONTAINER_T
 	return UserDataContainer{Object: obj}
 }
 
@@ -24,6 +24,6 @@ type DefaultUserDataContainer struct {
 
 func NewDefaultUserDataContainer() DefaultUserDataContainer {
 	obj := NewUserDataContainer()
-	obj.Type = DefaultUserDataContainerType
+	obj.Type = DEFAULTUSERDATACONTAINER_T
 	return DefaultUserDataContainer{UserDataContainer: obj}
 }

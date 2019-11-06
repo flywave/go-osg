@@ -6,7 +6,7 @@ const (
 	DYNAMIC     DataVariance = 0
 	STATIC      DataVariance = 1
 	UNSPECIFIED DataVariance = 2
-	ObjectType  string       = "osg::Object"
+	OBJECT_T    string       = "osg::Object"
 )
 
 type Object struct {
@@ -18,7 +18,7 @@ type Object struct {
 }
 
 func NewObject() Object {
-	return Object{Type: ObjectType, DataVariance: UNSPECIFIED}
+	return Object{Type: OBJECT_T, DataVariance: UNSPECIFIED}
 }
 
 type Callback struct {
