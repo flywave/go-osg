@@ -49,7 +49,7 @@ func NewImage() Image {
 	return Image{BufferData: b, S: 0, T: 0, R: 0, RowLength: 0, InternalTextureFormat: 0, PixelFormat: 0, DataType: 0, Packing: 4, PixelAspectRatio: 1, AllocationMode: USE_NEW_DELETE}
 }
 
-func (img *Image) IsPackedType(t int) bool {
+func IsPackedType(t int) bool {
 	switch t {
 	case (GL_UNSIGNED_BYTE_3_3_2):
 	case (GL_UNSIGNED_BYTE_2_3_3_REV):
@@ -68,7 +68,7 @@ func (img *Image) IsPackedType(t int) bool {
 	return false
 }
 
-func (img *Image) ComputePixelFormat(formt int) int {
+func ComputePixelFormat(formt int) int {
 	switch formt {
 	case (GL_ALPHA16F_ARB):
 	case (GL_ALPHA32F_ARB):
@@ -154,7 +154,7 @@ func (img *Image) ComputePixelFormat(formt int) int {
 	return formt
 }
 
-func (img *Image) ComputeNumComponents(pixelFormat int) uint {
+func ComputeNumComponents(pixelFormat int) uint {
 	switch pixelFormat {
 	case (GL_COMPRESSED_RGB_S3TC_DXT1_EXT):
 		return 3
@@ -448,7 +448,7 @@ func (img *Image) ComputeNumComponents(pixelFormat int) uint {
 	return 0
 }
 
-func (img *Image) ComputePixelSizeInBits(format int, t int) uint {
+func ComputePixelSizeInBits(format int, t int) uint {
 	switch format {
 	case (GL_COMPRESSED_RGB_S3TC_DXT1_EXT):
 		return 4
@@ -538,9 +538,9 @@ func (img *Image) ComputePixelSizeInBits(format int, t int) uint {
 	case (GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR):
 	case (GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR):
 		{
-			footprint := img.ComputeBlockFootprint(format)
+			footprint := ComputeBlockFootprint(format)
 			pixelsPerBlock := footprint[0] * footprint[1]
-			bitsPerBlock := img.ComputeBlockSize(format, 0) // 16 x 8 = 128
+			bitsPerBlock := ComputeBlockSize(format, 0) // 16 x 8 = 128
 			bitsPerPixel := bitsPerBlock / uint(pixelsPerBlock)
 			if bitsPerBlock == bitsPerPixel*uint(pixelsPerBlock) {
 				return bitsPerPixel
@@ -583,7 +583,7 @@ func (img *Image) ComputePixelSizeInBits(format int, t int) uint {
 	return 0
 }
 
-func (img *Image) ComputeBlockFootprint(pixelFormat int) vec3.T {
+func ComputeBlockFootprint(pixelFormat int) vec3.T {
 	switch pixelFormat {
 	case (GL_COMPRESSED_RGB_S3TC_DXT1_EXT):
 	case (GL_COMPRESSED_RGBA_S3TC_DXT1_EXT):
@@ -673,7 +673,7 @@ func (img *Image) ComputeBlockFootprint(pixelFormat int) vec3.T {
 	return vec3.T{1, 1, 1}
 }
 
-func (img *Image) ComputeBlockSize(pixelFormat int, packing uint) uint {
+func ComputeBlockSize(pixelFormat int, packing uint) uint {
 	switch pixelFormat {
 	case (GL_COMPRESSED_RGB_S3TC_DXT1_EXT):
 	case (GL_COMPRESSED_RGBA_S3TC_DXT1_EXT):
@@ -765,9 +765,9 @@ func (img *Image) ComputeBlockSize(pixelFormat int, packing uint) uint {
 	return packing
 }
 
-func (img *Image) ComputeRowWidthInBytes(width int, pixelFormat int,
+func ComputeRowWidthInBytes(width int, pixelFormat int,
 	t int, packing int) uint {
-	pixelSize := img.ComputePixelSizeInBits(pixelFormat, t)
+	pixelSize := ComputePixelSizeInBits(pixelFormat, t)
 	widthInBits := width * int(pixelSize)
 	var packingInBits int = 8
 	if packing != 0 {
@@ -780,16 +780,7 @@ func (img *Image) ComputeRowWidthInBytes(width int, pixelFormat int,
 	return uint((widthInBits/packingInBits + i) * packing)
 }
 
-func (img *Image) RoudUpToMultiple(s int, pack int) int {
-	if pack < 2 {
-		return s
-	}
-	s += pack - 1
-	s -= s % pack
-	return s
-}
-
-func (img *Image) ComputeImageSizeInBytes(width int, height int,
+func ComputeImageSizeInBytes(width int, height int,
 	depth int, pixelFormat int,
 	ty int, packing int,
 	slice_packing int,
@@ -798,18 +789,18 @@ func (img *Image) ComputeImageSizeInBytes(width int, height int,
 		return 0
 	}
 
-	blockSize := img.ComputeBlockSize(pixelFormat, 0)
+	blockSize := ComputeBlockSize(pixelFormat, 0)
 	if blockSize > 0 {
-		footprint := img.ComputeBlockFootprint(pixelFormat)
+		footprint := ComputeBlockFootprint(pixelFormat)
 		width = (width + int(footprint[0]) - 1) / int(footprint[0])
 		height = (height + int(footprint[1]) - 1) / int(footprint[1])
 
 		size := int(blockSize) * width
-		size = img.RoudUpToMultiple(size, packing)
+		size = RoudUpToMultiple(size, packing)
 		size *= height
-		size = img.RoudUpToMultiple(size, slice_packing)
+		size = RoudUpToMultiple(size, slice_packing)
 		size *= depth
-		size = img.RoudUpToMultiple(size, image_packing)
+		size = RoudUpToMultiple(size, image_packing)
 		return uint(size)
 	}
 
@@ -830,12 +821,21 @@ func (img *Image) ComputeImageSizeInBytes(width int, height int,
 	return uint(st)
 }
 
-func (img *Image) ComputeNearestPowerOfTwo(s int, bias float32) int {
+func ComputeNearestPowerOfTwo(s int, bias float32) int {
 	if (s & (s - 1)) != 0 {
 		p2 := math.Log(float64(s)) / math.Log(2.0)
 		rounded_p2 := math.Floor(p2 + float64(bias))
 		s = (int)(math.Pow(2.0, rounded_p2))
 	}
+	return s
+}
+
+func RoudUpToMultiple(s int, pack int) int {
+	if pack < 2 {
+		return s
+	}
+	s += pack - 1
+	s -= s % pack
 	return s
 }
 
