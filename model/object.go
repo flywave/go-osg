@@ -10,7 +10,7 @@ const (
 )
 
 type Object struct {
-	name         string
+	Name         string
 	Type         string
 	Propertys    map[string]string
 	DataVariance DataVariance

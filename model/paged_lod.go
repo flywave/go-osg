@@ -7,14 +7,14 @@ const (
 )
 
 type PerRangeData struct {
-	FileName       string
-	PriorityOffset float32
-	PriorityScale  float32
-	MinExpiryTime  float64
+	FileName        string
+	PriorityOffset  float32
+	PriorityScale   float32
+	MinExpiryTime   float64
+	MinExpiryFrames uint
+	TimeStamp       float64
+	FrameNumber     uint
 
-	MinExpiryFrames                   uint
-	TimeStamp                         float64
-	FrameNumber                       uint
 	FrameNumberOfLastReleaseGLObjects uint
 }
 

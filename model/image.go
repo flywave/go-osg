@@ -804,7 +804,7 @@ func ComputeImageSizeInBytes(width int, height int,
 		return uint(size)
 	}
 
-	size := int(img.ComputeRowWidthInBytes(width, pixelFormat, ty, packing))
+	size := int(ComputeRowWidthInBytes(width, pixelFormat, ty, packing))
 
 	size *= height
 	size += slice_packing - 1
@@ -814,7 +814,7 @@ func ComputeImageSizeInBytes(width int, height int,
 	size += image_packing - 1
 	size -= size % image_packing
 
-	st := int(img.ComputeBlockSize(pixelFormat, uint(packing)))
+	st := int(ComputeBlockSize(pixelFormat, uint(packing)))
 	if size > st {
 		return uint(size)
 	}

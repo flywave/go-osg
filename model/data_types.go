@@ -10,6 +10,10 @@ const (
 	IMAGE_WRITE_OUT   int = 3
 )
 
+type ObjectGlenum struct {
+	Value int
+}
+
 type ObjectProperty struct {
 	Name        string
 	Value       int
