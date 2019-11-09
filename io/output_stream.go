@@ -8,3 +8,13 @@ type OsgOstreamOptions struct {
 	Domains               string
 	TargetFileVersion     string
 }
+
+type OsgOstream struct{}
+
+
+func (os *OsgOstream) Write(inter interface{}) {
+}
+
+func (os *OsgOstream) GetFileVersion(domain string) int {
+	return 0
+}

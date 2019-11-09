@@ -57,6 +57,10 @@ func (lk *IntLookup) GetString(val Value) string {
 	return s
 }
 
+func NewIntLookup() IntLookup {
+	return IntLookup{StringToValue: make(StringToValue), ValueToString: make(ValueToString)}
+}
+
 type SerType uint32
 type Usage uint32
 
@@ -120,6 +124,12 @@ const (
 	GET_SET_PROPERTY    Usage = GET_PROPERTY | SET_PROPERTY
 )
 
+type Serializer interface {
+	GetSerializerName() string
+	Read(is *OsgIstream, obj *model.Object)
+	Write(is *OsgOstream, obj *model.Object)
+}
+
 type BaseSerializer struct {
 	FirstVersion int
 	LastVersion  int
@@ -136,6 +146,15 @@ func (bs *BaseSerializer) SupportsGet() bool {
 
 func (bs *BaseSerializer) SupportsSet() bool {
 	return (bs.Usage & GET_SET_PROPERTY) != 0
+}
+
+func (bs *BaseSerializer) GetSerializerName() string {
+	return ""
+}
+func (ser *BaseSerializer) Read(is *OsgIstream, obj *model.Object) {
+}
+
+func (ser *BaseSerializer) Write(is *OsgOstream, obj *model.Object) {
 }
 
 func NewBaseSerializer(usg Usage) BaseSerializer {
@@ -170,6 +189,10 @@ func (ser *UserSerializer) Read(is *OsgIstream, obj *model.Object) {
 
 func (ser *UserSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
+func (ser *UserSerializer) GetSerializerName() string {
+	return ser.Name
+}
+
 func NewUserSerializer(name string, ck Checker, rd Reader, wt Writer) UserSerializer {
 	ser := NewBaseSerializer(READ_WRITE_PROPERTY)
 	return UserSerializer{BaseSerializer: ser, Name: name, Checker: ck, Rd: rd, Wt: wt}
@@ -189,6 +212,10 @@ type PropByRefSerializer struct {
 func (ser *PropByRefSerializer) Read(is *OsgIstream, obj *model.Object) {}
 
 func (ser *PropByRefSerializer) Writer(is *OsgOstream, obj *model.Object) {}
+
+func (ser *PropByRefSerializer) GetSerializerName() string {
+	return ser.Name
+}
 
 func NewPropByRefSerializer(name string, def interface{}, gt Getter, st Setter) PropByRefSerializer {
 	ser := NewBaseSerializer(READ_WRITE_PROPERTY)
@@ -220,6 +247,10 @@ func (ser *MatrixSerializer) Read(is *OsgIstream, obj *model.Object) {}
 
 func (ser *MatrixSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
+func (ser *MatrixSerializer) GetSerializerName() string {
+	return ""
+}
+
 type GlenumSerializer struct {
 	BaseSerializer
 	Getter Getter
@@ -231,6 +262,10 @@ func (ser *GlenumSerializer) Read(is *OsgIstream, obj *model.Object) {}
 
 func (ser *GlenumSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
+func (ser *GlenumSerializer) GetSerializerName() string {
+	return ""
+}
+
 type StringSerializer struct {
 	BaseSerializer
 	Getter Getter
@@ -241,6 +276,10 @@ type StringSerializer struct {
 func (ser *StringSerializer) Read(is *OsgIstream, obj *model.Object) {}
 
 func (ser *StringSerializer) Writer(is *OsgOstream, obj *model.Object) {}
+
+func (ser *StringSerializer) GetSerializerName() string {
+	return ""
+}
 
 type ObjectSerializer struct {
 	BaseSerializer

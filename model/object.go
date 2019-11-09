@@ -18,7 +18,7 @@ type Object struct {
 }
 
 func NewObject() Object {
-	return Object{Type: OBJECT_T, DataVariance: UNSPECIFIED}
+	return Object{Type: OBJECT_T, DataVariance: UNSPECIFIED, Propertys: make(map[string]string)}
 }
 
 type Callback struct {

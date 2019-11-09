@@ -3,6 +3,7 @@ package io
 import (
 	"bufio"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/flywave/go-osg/model"
@@ -91,6 +92,80 @@ func (iter *AsciiInputIterator) ReadBool(b *bool) {
 	}
 }
 
+func (iter *AsciiInputIterator) ReadChar(c *int8) {
+	var s int16
+	iter.ReadShort(&s)
+	*c = int8(s)
+}
+
+func (iter *AsciiInputIterator) ReadUchar(c *uint8) {
+	var s int16
+	iter.ReadShort(&s)
+	*c = uint8(s)
+}
+
+func (iter *AsciiInputIterator) ReadShort(s *int16) {
+	iter.ReadShort(s)
+}
+
+func (iter *AsciiInputIterator) ReadUshort(us *uint16) {
+	iter.ReadUshort(us)
+}
+
+func (iter *AsciiInputIterator) ReadInt(i *int) {
+	var str string
+	iter.ReadString(str)
+	res, e := strconv.ParseInt(str, 10, 32)
+	if e == nil {
+		*i = int(res)
+	}
+}
+
+func (iter *AsciiInputIterator) ReadUint(i *uint) {
+	var str string
+	iter.ReadString(str)
+	res, e := strconv.ParseUint(str, 10, 32)
+	if e == nil {
+		*i = uint(res)
+	}
+}
+
+func (iter *AsciiInputIterator) ReadLong(l *int64) {
+	var str string
+	iter.ReadString(str)
+	res, e := strconv.ParseInt(str, 10, 32)
+	if e == nil {
+		*l = res
+	}
+}
+
+func (iter *AsciiInputIterator) ReadUlong(ul *uint64) {
+	var str string
+	iter.ReadString(str)
+	res, e := strconv.ParseUint(str, 10, 32)
+	if e == nil {
+		*ul = res
+	}
+}
+
+func (iter *AsciiInputIterator) ReadFloat(f *float32) {
+	var str string
+	iter.ReadString(str)
+	res, e := strconv.ParseFloat(str, 64)
+	if e == nil {
+		*f = float32(res)
+	}
+}
+
+func (iter *AsciiInputIterator) ReadDouble(d *float64) {
+	var str string
+	iter.ReadString(str)
+	res, e := strconv.ParseFloat(str, 64)
+	if e == nil {
+		*d = res
+	}
+}
+
 func (iter *AsciiInputIterator) ReadString(str string) {
 	l := len(iter.PreReadString)
 	if l == 0 {
@@ -99,6 +174,18 @@ func (iter *AsciiInputIterator) ReadString(str string) {
 		str = iter.PreReadString
 		iter.PreReadString = iter.ReadWordConsumer()
 	}
+}
+
+func (iter *AsciiInputIterator) ReadGlenum(value *model.ObjectGlenum) {
+}
+
+func (iter *AsciiInputIterator) ReadProperty(prop *model.ObjectProperty) {}
+
+func (iter *AsciiInputIterator) ReadCharArray(str string, s *uint) {
+}
+
+func (iter *AsciiInputIterator) ReadMark() {
+	iter.ReadString(iter.MarkString)
 }
 
 func (iter *AsciiInputIterator) MatchString(str string) bool {
@@ -133,9 +220,108 @@ func (iter *AsciiInputIterator) AdvanceToCurrentEndBracket() {
 	}
 }
 
+func (iter *AsciiInputIterator) ReadWrappedString(str string) {
+	var ch byte
+	iter.getCharacter(&ch)
+	for {
+		if ch == ' ' || (ch == '\n') || (ch == '\r') {
+			iter.getCharacter(&ch)
+			break
+		}
+	}
+	if ch == '"' {
+		iter.getCharacter(&ch)
+		for {
+			if ch != '"' {
+				if ch == '\\' {
+					iter.getCharacter(&ch)
+				}
+				str = string(append([]byte(str), ch))
+			}
+			break
+		}
+	} else {
+		for {
+			if (ch != ' ') && (ch != 0) && (ch != '\n') {
+				str = string(append([]byte(str), ch))
+				iter.getCharacter(&ch)
+			} else {
+				break
+			}
+		}
+	}
+}
+
+func (iter *AsciiInputIterator) getCharacter(c *byte) {
+	l := len(iter.PreReadString)
+	if l == 0 {
+		iter.PreReadString = iter.ReadWordConsumer()
+	}
+	*c = iter.PreReadString[0]
+	iter.PreReadString = iter.PreReadString[1:]
+}
+
 type BinaryInputIterator struct {
 	InputIterator
 	Offset         uint64
 	BeginPositions []int64
 	BlockSizes     []int64
+}
+
+type OsgOptions struct {
+	FileType   string
+	Precision  int
+	Compressed bool
+}
+
+type OsgIstreamOptions struct {
+	OsgOptions
+	DbPath            string
+	Domain            string
+	ForceReadingImage bool
+}
+
+type OsgIstream struct {
+	ArrayMap          map[uint]*model.Array
+	IdentifierMap     map[uint]*model.Object
+	DomainVersionMap  map[string]int
+	FileVersion       int
+	UseSchemaData     bool
+	ForceReadingImage bool
+	Fields            []string
+	In                OsgInputIterator
+	Options           OsgIstreamOptions
+	DummyReadObject   *model.Object
+	DataDecompress    io.Reader
+	Data              []byte
+}
+
+func NewOsgIstream() OsgIstream {
+	return OsgIstream{ArrayMap: make(map[uint]*model.Array), IdentifierMap: make(map[uint]*model.Object), DomainVersionMap: make(map[string]int)}
+}
+
+func (is *OsgIstream) IsBinary() bool {
+	return false
+}
+
+func (is *OsgIstream) MatchString(str string) bool {
+	return false
+}
+
+func (is *OsgIstream) Read(inter interface{}) {
+	switch val := inter.(type) {
+	case *bool:
+		is.In.ReadBool(val)
+	}
+}
+
+func (is *OsgIstream) GetFileVersion(domain string) int {
+	if len(domain) == 0 {
+		return is.FileVersion
+	}
+	v, ok := is.DomainVersionMap[domain]
+	if ok {
+		return v
+	}
+	return 0
 }
