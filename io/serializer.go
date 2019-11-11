@@ -5,6 +5,13 @@ import (
 	"github.com/ungerik/go3d/mat4"
 )
 
+var Type_Mapping map[string]interface{}
+
+func init() {
+	Type_Mapping = make(map[string]interface{})
+	//TODO
+}
+
 type StringToValue map[string]int
 type ValueToString map[int]string
 
@@ -186,7 +193,9 @@ func (ser *UserSerializer) Read(is *OsgIstream, obj *model.Object) {
 	}
 }
 
-func (ser *UserSerializer) Writer(is *OsgOstream, obj *model.Object) {}
+func (ser *UserSerializer) Writer(is *OsgOstream, obj *model.Object) {
+
+}
 
 func (ser *UserSerializer) GetSerializerName() string {
 	return ser.Name
@@ -200,9 +209,18 @@ func NewUserSerializer(name string, ck Checker, rd Reader, wt Writer) UserSerial
 type Getter func() interface{}
 type Setter func(interface{})
 
-type PropByRefSerializer struct {
+type TemplateSerializer struct {
 	BaseSerializer
-	Name         string
+	Name string
+}
+
+func NewTemplateSerializer(name string) TemplateSerializer {
+	ser := NewBaseSerializer(READ_WRITE_PROPERTY)
+	return TemplateSerializer{BaseSerializer: ser, Name: name}
+}
+
+type PropByRefSerializer struct {
+	TemplateSerializer
 	DefaultValue interface{}
 	Getter       Getter
 	Setter       Setter
@@ -217,8 +235,8 @@ func (ser *PropByRefSerializer) GetSerializerName() string {
 }
 
 func NewPropByRefSerializer(name string, def interface{}, gt Getter, st Setter) PropByRefSerializer {
-	ser := NewBaseSerializer(READ_WRITE_PROPERTY)
-	return PropByRefSerializer{BaseSerializer: ser, Name: name, Getter: gt, Setter: st, DefaultValue: def}
+	ser := NewTemplateSerializer(name)
+	return PropByRefSerializer{TemplateSerializer: ser, Getter: gt, Setter: st, DefaultValue: def}
 }
 
 type PropByValSerializer struct {
@@ -236,7 +254,7 @@ func NewPropByValSerializer(name string, def interface{}, gt Getter, st Setter, 
 }
 
 type MatrixSerializer struct {
-	BaseSerializer
+	TemplateSerializer
 	Getter Getter
 	Setter Setter
 	int    mat4.T
@@ -251,7 +269,7 @@ func (ser *MatrixSerializer) GetSerializerName() string {
 }
 
 type GlenumSerializer struct {
-	BaseSerializer
+	TemplateSerializer
 	Getter Getter
 	Setter Setter
 	int    int
@@ -266,7 +284,7 @@ func (ser *GlenumSerializer) GetSerializerName() string {
 }
 
 type StringSerializer struct {
-	BaseSerializer
+	TemplateSerializer
 	Getter Getter
 	Setter Setter
 	int    string
@@ -292,7 +310,7 @@ func (ser *ObjectSerializer) Read(is *OsgIstream, obj *model.Object) {}
 func (ser *ObjectSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
 type ImageSerializer struct {
-	BaseSerializer
+	TemplateSerializer
 	Getter Getter
 	Setter Setter
 	int    *model.Image
@@ -303,7 +321,7 @@ func (ser *ImageSerializer) Read(is *OsgIstream, obj *model.Object) {}
 func (ser *ImageSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
 type EnumSerializer struct {
-	BaseSerializer
+	TemplateSerializer
 	Getter Getter
 	Setter Setter
 	LookUp IntLookup
@@ -318,7 +336,7 @@ func (ser *EnumSerializer) Read(is *OsgIstream, obj *model.Object) {}
 func (ser *EnumSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
 type ListSerializer struct {
-	BaseSerializer
+	TemplateSerializer
 	Getter Getter
 	Setter Setter
 	Name   string
@@ -331,7 +349,7 @@ func (ser *ListSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 type ConstGetter func() []interface{}
 
 type VectorSerializer struct {
-	BaseSerializer
+	TemplateSerializer
 	Getter          Getter
 	Setter          Setter
 	Name            string

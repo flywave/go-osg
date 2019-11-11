@@ -31,8 +31,9 @@ type OsgInputIterator interface {
 	ReadGlenum(value *model.ObjectGlenum)
 	ReadProperty(prop *model.ObjectProperty)
 	ReadMark(mark *model.ObjectMark)
-	ReadCharArray(s string, size uint)
+	ReadCharArray(s string, size int)
 	ReadWrappedString(str string)
+	ReadComponentArray(s string, numElements int, numComponentsPerElements int, componentSizeInBytes int)
 	MatchString(str string) bool
 	AdvanceToCurrentEndBracket()
 	SetInputSteam(is *OsgIstream)
@@ -48,6 +49,9 @@ type InputIterator struct {
 
 func (it *InputIterator) SetInputSteam(is *OsgIstream) {
 	it.InputStream = is
+}
+func (it *InputIterator) ReadComponentArray(s string, numElements int, numComponentsPerElements int, componentSizeInBytes int) {
+
 }
 
 type AsciiInputIterator struct {
@@ -186,7 +190,7 @@ func (iter *AsciiInputIterator) ReadGlenum(value *model.ObjectGlenum) {
 
 func (iter *AsciiInputIterator) ReadProperty(prop *model.ObjectProperty) {}
 
-func (iter *AsciiInputIterator) ReadCharArray(str string, s uint) {
+func (iter *AsciiInputIterator) ReadCharArray(str string, s int) {
 }
 
 func (iter *AsciiInputIterator) ReadMark() {
@@ -273,6 +277,27 @@ type BinaryInputIterator struct {
 	BlockSizes     []int64
 }
 
+func (iter *BinaryInputIterator) ReadCharArray(str string, s int) {
+}
+
+func (it *BinaryInputIterator) ReadComponentArray(s string, numElements int,
+	numComponentsPerElements int,
+	componentSizeInBytes int) {
+	size := numElements * numComponentsPerElements * componentSizeInBytes
+	if size > 0 {
+		it.ReadCharArray(s, size)
+		build := strings.Builder{}
+		if it.ByteSwap > 0 && componentSizeInBytes > 1 {
+			for i := numElements - 1; i >= 0; i-- {
+				for j := numComponentsPerElements - 1; j >= 0; j-- {
+					build.WriteByte(s[i*j])
+				}
+			}
+		}
+		s = build.String()
+	}
+}
+
 type OsgOptions struct {
 	FileType   string
 	Precision  int
@@ -327,7 +352,7 @@ func NewOsgIstream() OsgIstream {
 }
 
 func (is *OsgIstream) IsBinary() bool {
-	return false
+	return is.In.IsBinary()
 }
 
 func (is *OsgIstream) MatchString(str string) bool {
@@ -384,7 +409,7 @@ func (is *OsgIstream) Read(inter interface{}) {
 	}
 }
 
-func (is *OsgIstream) ReadCharArray(str string, size uint) {
+func (is *OsgIstream) ReadCharArray(str string, size int) {
 	is.In.ReadCharArray(str, size)
 }
 
