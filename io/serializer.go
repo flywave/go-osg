@@ -5,9 +5,8 @@ import (
 	"github.com/ungerik/go3d/mat4"
 )
 
-type Value int
-type StringToValue map[string]Value
-type ValueToString map[Value]string
+type StringToValue map[string]int
+type ValueToString map[int]string
 
 type IntLookup struct {
 	StringToValue StringToValue
@@ -18,7 +17,7 @@ func (lk *IntLookup) Size() int {
 	return len(lk.StringToValue)
 }
 
-func (lk *IntLookup) Add(str string, val Value) {
+func (lk *IntLookup) Add(str string, val int) {
 	_, ok := lk.ValueToString[val]
 	if ok {
 		return
@@ -27,7 +26,7 @@ func (lk *IntLookup) Add(str string, val Value) {
 	lk.StringToValue[str] = val
 }
 
-func (lk *IntLookup) Add2(str string, newStr string, val Value) {
+func (lk *IntLookup) Add2(str string, newStr string, val int) {
 	_, ok := lk.ValueToString[val]
 	if ok {
 		return
@@ -37,17 +36,17 @@ func (lk *IntLookup) Add2(str string, newStr string, val Value) {
 	lk.StringToValue[str] = val
 }
 
-func (lk *IntLookup) GetValue(str string) Value {
+func (lk *IntLookup) GetValue(str string) int {
 	v, ok := lk.StringToValue[str]
 	if ok {
-		var val Value = Value(str[0])
+		var val int = int(str[0])
 		lk.StringToValue[str] = val
 		return val
 	}
 	return v
 }
 
-func (lk *IntLookup) GetString(val Value) string {
+func (lk *IntLookup) GetString(val int) string {
 	s, ok := lk.ValueToString[val]
 	if ok {
 		s = string(val)
@@ -240,7 +239,7 @@ type MatrixSerializer struct {
 	BaseSerializer
 	Getter Getter
 	Setter Setter
-	Value  mat4.T
+	int    mat4.T
 }
 
 func (ser *MatrixSerializer) Read(is *OsgIstream, obj *model.Object) {}
@@ -255,7 +254,7 @@ type GlenumSerializer struct {
 	BaseSerializer
 	Getter Getter
 	Setter Setter
-	Value  int
+	int    int
 }
 
 func (ser *GlenumSerializer) Read(is *OsgIstream, obj *model.Object) {}
@@ -270,7 +269,7 @@ type StringSerializer struct {
 	BaseSerializer
 	Getter Getter
 	Setter Setter
-	Value  string
+	int    string
 }
 
 func (ser *StringSerializer) Read(is *OsgIstream, obj *model.Object) {}
@@ -285,7 +284,7 @@ type ObjectSerializer struct {
 	BaseSerializer
 	Getter Getter
 	Setter Setter
-	Value  *model.Object
+	int    *model.Object
 }
 
 func (ser *ObjectSerializer) Read(is *OsgIstream, obj *model.Object) {}
@@ -296,7 +295,7 @@ type ImageSerializer struct {
 	BaseSerializer
 	Getter Getter
 	Setter Setter
-	Value  *model.Image
+	int    *model.Image
 }
 
 func (ser *ImageSerializer) Read(is *OsgIstream, obj *model.Object) {}
@@ -310,7 +309,7 @@ type EnumSerializer struct {
 	LookUp IntLookup
 }
 
-func (ser *EnumSerializer) Add(str string, val Value) {
+func (ser *EnumSerializer) Add(str string, val int) {
 	ser.LookUp.Add(str, val)
 }
 

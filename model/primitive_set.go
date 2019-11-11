@@ -41,7 +41,7 @@ const (
 
 type PrimitiveSet struct {
 	BufferData
-	PrimitiveType PrimitiveTableEnum
+	PrimitiveType int
 	NumInstances  int
 	Mode          uint
 }
@@ -104,7 +104,7 @@ func (dal *DrawArrayLengths) Accept(functor interface{}) {
 
 func (dal *DrawArrayLengths) GetNumPrimitives() int {
 	l := len(dal.Data)
-	switch PrimitiveTableEnum(dal.Mode) {
+	switch dal.Mode {
 	case POINTS:
 		return l
 	case LINES:

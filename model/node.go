@@ -1,14 +1,7 @@
 package model
 
-import "github.com/ungerik/go3d/vec3"
-
 type NodeMask uint32
 type NodePath []*Node
-
-type Sphere3f struct {
-	Center vec3.T
-	Radius float32
-}
 
 const (
 	NODE_T string = "osg::Node"

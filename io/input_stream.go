@@ -2,6 +2,7 @@ package io
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"strconv"
 	"strings"
@@ -15,7 +16,6 @@ const (
 
 type OsgInputIterator interface {
 	IsBinary() bool
-
 	ReadBool(b *bool)
 	ReadChar(c *int8)
 	ReadUchar(c *uint8)
@@ -27,14 +27,15 @@ type OsgInputIterator interface {
 	ReadUlong(ul *uint64)
 	ReadFloat(f *float32)
 	ReadDouble(d *float64)
-	ReadString(s *string)
+	ReadString(s string)
 	ReadGlenum(value *model.ObjectGlenum)
 	ReadProperty(prop *model.ObjectProperty)
 	ReadMark(mark *model.ObjectMark)
-	ReadCharArray(s string, size *uint)
+	ReadCharArray(s string, size uint)
 	ReadWrappedString(str string)
-	MatchString(str string)
+	MatchString(str string) bool
 	AdvanceToCurrentEndBracket()
+	SetInputSteam(is *OsgIstream)
 }
 
 type InputIterator struct {
@@ -43,6 +44,10 @@ type InputIterator struct {
 	ByteSwap              int
 	SupportBinaryBrackets bool
 	Failed                bool
+}
+
+func (it *InputIterator) SetInputSteam(is *OsgIstream) {
+	it.InputStream = is
 }
 
 type AsciiInputIterator struct {
@@ -181,7 +186,7 @@ func (iter *AsciiInputIterator) ReadGlenum(value *model.ObjectGlenum) {
 
 func (iter *AsciiInputIterator) ReadProperty(prop *model.ObjectProperty) {}
 
-func (iter *AsciiInputIterator) ReadCharArray(str string, s *uint) {
+func (iter *AsciiInputIterator) ReadCharArray(str string, s uint) {
 }
 
 func (iter *AsciiInputIterator) ReadMark() {
@@ -274,11 +279,32 @@ type OsgOptions struct {
 	Compressed bool
 }
 
+type ReadType int
+
+const (
+	READ_UNKNOWN ReadType = 0
+	READ_SCENE   ReadType = 1
+	READ_IMAGE   ReadType = 2
+	READ_OBJECT  ReadType = 3
+)
+
 type OsgIstreamOptions struct {
 	OsgOptions
 	DbPath            string
 	Domain            string
 	ForceReadingImage bool
+}
+
+type StreamHeader struct {
+	Version       int
+	Type          ReadType
+	Attributes    int
+	NumDomains    int
+	DomainName    string
+	DomainVersion int
+	TypeString    string
+	OsgName       string
+	OsgVersion    string
 }
 
 type OsgIstream struct {
@@ -305,14 +331,65 @@ func (is *OsgIstream) IsBinary() bool {
 }
 
 func (is *OsgIstream) MatchString(str string) bool {
-	return false
+	return is.In.MatchString(str)
 }
 
 func (is *OsgIstream) Read(inter interface{}) {
 	switch val := inter.(type) {
 	case *bool:
 		is.In.ReadBool(val)
+		break
+	case *int8:
+		is.In.ReadChar(val)
+		break
+	case *uint8:
+		is.In.ReadUchar(val)
+		break
+	case *int16:
+		is.In.ReadShort(val)
+		break
+	case *uint16:
+		is.In.ReadUshort(val)
+		break
+	case *int:
+		is.In.ReadInt(val)
+		break
+	case *uint:
+		is.In.ReadUint(val)
+		break
+	case *int64:
+		is.In.ReadLong(val)
+		break
+	case *uint64:
+		is.In.ReadUlong(val)
+		break
+	case *float32:
+		is.In.ReadFloat(val)
+		break
+	case *float64:
+		is.In.ReadDouble(val)
+		break
+	case string:
+		is.In.ReadString(val)
+		break
+	case *model.ObjectGlenum:
+		is.In.ReadGlenum(val)
+		break
+	case *model.ObjectProperty:
+		is.In.ReadProperty(val)
+		break
+	case *model.ObjectMark:
+		is.In.ReadMark(val)
+		break
 	}
+}
+
+func (is *OsgIstream) ReadCharArray(str string, size uint) {
+	is.In.ReadCharArray(str, size)
+}
+
+func (is *OsgIstream) ReadWrappedString(str string) {
+	is.In.ReadWrappedString(str)
 }
 
 func (is *OsgIstream) GetFileVersion(domain string) int {
@@ -324,4 +401,56 @@ func (is *OsgIstream) GetFileVersion(domain string) int {
 		return v
 	}
 	return 0
+}
+
+func (is *OsgIstream) AdvanceToCurrentEndBracket() {
+	is.In.AdvanceToCurrentEndBracket()
+}
+
+func (is *OsgIstream) Start(iter OsgInputIterator) (ReadType, error) {
+	is.In = iter
+	is.Fields = []string{}
+	is.Fields = append(is.Fields, "Start")
+	tp := READ_UNKNOWN
+	switch it := iter.(type) {
+	default:
+		if it != nil {
+			return tp, errors.New("OsgInputIterator is nil")
+		}
+	}
+	iter.SetInputSteam(is)
+
+	header := StreamHeader{}
+
+	if iter.IsBinary() {
+		return tp, nil
+	} else {
+		is.Read(header.TypeString)
+		if header.TypeString == "Scene" {
+			header.Type = READ_SCENE
+		} else if header.TypeString == "Image" {
+			header.Type = READ_IMAGE
+		} else if header.TypeString == "Object" {
+			header.Type = READ_OBJECT
+		}
+		v := model.ObjectProperty{Name: "#Version"}
+		is.Read(&v)
+		g := model.ObjectProperty{Name: "#Generator"}
+		is.Read(&g)
+		is.Read(header.OsgName)
+		is.Read(header.OsgVersion)
+		for {
+			if is.MatchString("#CustomDomain") {
+				header.DomainName = ""
+				is.Read(header.DomainName)
+				is.Read(header.DomainVersion)
+				is.DomainVersionMap[header.DomainName] = header.DomainVersion
+				break
+			}
+		}
+		is.FileVersion = header.Version
+		l := len(is.Fields)
+		is.Fields = is.Fields[0 : l-1]
+		return header.Type, nil
+	}
 }

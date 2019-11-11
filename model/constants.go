@@ -1,12 +1,9 @@
 package model
 
 type Sizes uint32
-type TypeIds uint32
 type ArrayTable uint32
-type TextureInternalFormatMode uint32
 type TextureShadowCompareFunc uint32
 type TextureShadowTextureMode uint32
-type PrimitiveTableEnum uint32
 
 const (
 	INDENT_VALUE uint32 = 2
@@ -20,67 +17,67 @@ const (
 	DOUBLE_SIZE  Sizes  = 8
 	GLENUM_SIZE  Sizes  = 4
 
-	ID_BYTE_ARRAY   TypeIds = 0
-	ID_UBYTE_ARRAY  TypeIds = 1
-	ID_SHORT_ARRAY  TypeIds = 2
-	ID_USHORT_ARRAY TypeIds = 3
-	ID_INT_ARRAY    TypeIds = 4
-	ID_UINT_ARRAY   TypeIds = 5
-	ID_FLOAT_ARRAY  TypeIds = 6
-	ID_DOUBLE_ARRAY TypeIds = 7
-	ID_VEC2B_ARRAY  TypeIds = 8
-	ID_VEC3B_ARRAY  TypeIds = 9
-	ID_VEC4B_ARRAY  TypeIds = 10
-	ID_VEC4UB_ARRAY TypeIds = 11
-	ID_VEC2S_ARRAY  TypeIds = 12
-	ID_VEC3S_ARRAY  TypeIds = 13
-	ID_VEC4S_ARRAY  TypeIds = 14
-	ID_VEC2_ARRAY   TypeIds = 15
-	ID_VEC3_ARRAY   TypeIds = 16
-	ID_VEC4_ARRAY   TypeIds = 17
-	ID_VEC2D_ARRAY  TypeIds = 18
-	ID_VEC3D_ARRAY  TypeIds = 19
-	ID_VEC4D_ARRAY  TypeIds = 20
-	ID_VEC2UB_ARRAY TypeIds = 21
-	ID_VEC3UB_ARRAY TypeIds = 22
-	ID_VEC2US_ARRAY TypeIds = 23
-	ID_VEC3US_ARRAY TypeIds = 24
-	ID_VEC4US_ARRAY TypeIds = 25
+	ID_BYTE_ARRAY   = 0
+	ID_UBYTE_ARRAY  = 1
+	ID_SHORT_ARRAY  = 2
+	ID_USHORT_ARRAY = 3
+	ID_INT_ARRAY    = 4
+	ID_UINT_ARRAY   = 5
+	ID_FLOAT_ARRAY  = 6
+	ID_DOUBLE_ARRAY = 7
+	ID_VEC2B_ARRAY  = 8
+	ID_VEC3B_ARRAY  = 9
+	ID_VEC4B_ARRAY  = 10
+	ID_VEC4UB_ARRAY = 11
+	ID_VEC2S_ARRAY  = 12
+	ID_VEC3S_ARRAY  = 13
+	ID_VEC4S_ARRAY  = 14
+	ID_VEC2_ARRAY   = 15
+	ID_VEC3_ARRAY   = 16
+	ID_VEC4_ARRAY   = 17
+	ID_VEC2D_ARRAY  = 18
+	ID_VEC3D_ARRAY  = 19
+	ID_VEC4D_ARRAY  = 20
+	ID_VEC2UB_ARRAY = 21
+	ID_VEC3UB_ARRAY = 22
+	ID_VEC2US_ARRAY = 23
+	ID_VEC3US_ARRAY = 24
+	ID_VEC4US_ARRAY = 25
 
-	ID_VEC2I_ARRAY  TypeIds = 26
-	ID_VEC3I_ARRAY  TypeIds = 27
-	ID_VEC4I_ARRAY  TypeIds = 28
-	ID_VEC2UI_ARRAY TypeIds = 29
-	ID_VEC3UI_ARRAY TypeIds = 30
-	ID_VEC4UI_ARRAY TypeIds = 31
+	ID_VEC2I_ARRAY  = 26
+	ID_VEC3I_ARRAY  = 27
+	ID_VEC4I_ARRAY  = 28
+	ID_VEC2UI_ARRAY = 29
+	ID_VEC3UI_ARRAY = 30
+	ID_VEC4UI_ARRAY = 31
 
-	ID_UINT64_ARRAY TypeIds = 32
-	ID_INT64_ARRAY  TypeIds = 33
+	ID_UINT64_ARRAY = 32
+	ID_INT64_ARRAY  = 33
 
-	ID_DRAWARRAYS            TypeIds = 50
-	ID_DRAWARRAY_LENGTH      TypeIds = 51
-	ID_DRAWELEMENTS_UBYTE    TypeIds = 52
-	ID_DRAWELEMENTS_USHORT   TypeIds = 53
-	ID_DRAWELEMENTS_UINT     TypeIds = 54
-	GL_ALPHA_TEST                    = 0x0BC0
-	GL_BLEND                         = 0x0BE2
-	GL_COLOR_LOGIC_OP                = 0x0BF2
-	GL_COLOR_MATERIAL                = 0x0B57
-	GL_CULL_FACE                     = 0x0B44
-	GL_DEPTH_TEST                    = 0x0B71
-	GL_FOG                           = 0x0B60
-	GL_FRAGMENT_PROGRAM_ARB          = 0x8804
-	GL_LINE_STIPPLE                  = 0x0B24
-	GL_POINT_SMOOTH                  = 0x0B10
-	GL_POINT_SPRITE_ARB              = 0x8861
-	GL_POLYGON_OFFSET_FILL           = 0x8037
-	GL_POLYGON_OFFSET_LINE           = 0x2A02
-	GL_POLYGON_OFFSET_POINT          = 0x2A01
-	GL_POLYGON_STIPPLE               = 0x0B42
-	GL_SCISSOR_TEST                  = 0x0C11
-	GL_STENCIL_TEST                  = 0x0B90
-	GL_STENCIL_TEST_TWO_SIDE         = 0x8910
-	GL_VERTEX_PROGRAM_ARB            = 0x8620
+	ID_DRAWARRAYS            = 50
+	ID_DRAWARRAY_LENGTH      = 51
+	ID_DRAWELEMENTS_UBYTE    = 52
+	ID_DRAWELEMENTS_USHORT   = 53
+	ID_DRAWELEMENTS_UINT     = 54
+	GL_ALPHA_TEST            = 0x0BC0
+	GL_BLEND                 = 0x0BE2
+	GL_COLOR_LOGIC_OP        = 0x0BF2
+	GL_COLOR_MATERIAL        = 0x0B57
+	GL_CULL_FACE             = 0x0B44
+	GL_DEPTH_TEST            = 0x0B71
+	GL_FOG                   = 0x0B60
+	GL_FRAGMENT_PROGRAM_ARB  = 0x8804
+	GL_LINE_STIPPLE          = 0x0B24
+	GL_POINT_SMOOTH          = 0x0B10
+	GL_POINT_SPRITE_ARB      = 0x8861
+	GL_POLYGON_OFFSET_FILL   = 0x8037
+	GL_POLYGON_OFFSET_LINE   = 0x2A02
+	GL_POLYGON_OFFSET_POINT  = 0x2A01
+	GL_POLYGON_STIPPLE       = 0x0B42
+	GL_SCISSOR_TEST          = 0x0C11
+	GL_STENCIL_TEST          = 0x0B90
+	GL_STENCIL_TEST_TWO_SIDE = 0x8910
+	GL_VERTEX_PROGRAM_ARB    = 0x8620
 
 	GL_COLOR_SUM      = 0x8458
 	GL_LIGHTING       = 0x0B50
@@ -357,48 +354,48 @@ const (
 
 	LastArrayType ArrayTable = 37
 
-	DRAWARRAYS         PrimitiveTableEnum = 50
-	DRAWARRAYSLENGTH   PrimitiveTableEnum = 51
-	DRAWElEMENTSUBYTE  PrimitiveTableEnum = 52
-	DRAWElEMENTSUSHORT PrimitiveTableEnum = 53
-	DRAWElEMENTSUINT   PrimitiveTableEnum = 54
+	DRAWARRAYS         = 50
+	DRAWARRAYSLENGTH   = 51
+	DRAWElEMENTSUBYTE  = 52
+	DRAWElEMENTSUSHORT = 53
+	DRAWElEMENTSUINT   = 54
 
-	GL_POINTS         PrimitiveTableEnum = 0x0000
-	GL_LINES          PrimitiveTableEnum = 0x0001
-	GL_LINE_STRIP     PrimitiveTableEnum = 0x0003
-	GL_LINE_LOOP      PrimitiveTableEnum = 0x0002
-	GL_TRIANGLES      PrimitiveTableEnum = 0x0004
-	GL_TRIANGLE_STRIP PrimitiveTableEnum = 0x0005
-	GL_TRIANGLE_FAN   PrimitiveTableEnum = 0x0006
-	GL_QUADS          PrimitiveTableEnum = 0x0007
-	GL_QUAD_STRIP     PrimitiveTableEnum = 0x0008
-	GL_POLYGON        PrimitiveTableEnum = 0x0009
+	GL_POINTS         = 0x0000
+	GL_LINES          = 0x0001
+	GL_LINE_STRIP     = 0x0003
+	GL_LINE_LOOP      = 0x0002
+	GL_TRIANGLES      = 0x0004
+	GL_TRIANGLE_STRIP = 0x0005
+	GL_TRIANGLE_FAN   = 0x0006
+	GL_QUADS          = 0x0007
+	GL_QUAD_STRIP     = 0x0008
+	GL_POLYGON        = 0x0009
 
-	GL_LINES_ADJACENCY              PrimitiveTableEnum = 0x000A
-	GL_LINES_ADJACENCY_EXT          PrimitiveTableEnum = 0x000A
-	GL_LINE_STRIP_ADJACENCY_EXT     PrimitiveTableEnum = 0x000B
-	GL_LINE_STRIP_ADJACENCY         PrimitiveTableEnum = 0x000B
-	GL_TRIANGLES_ADJACENCY          PrimitiveTableEnum = 0x000C
-	GL_TRIANGLES_ADJACENCY_EXT      PrimitiveTableEnum = 0x000C
-	GL_TRIANGLE_STRIP_ADJACENCY     PrimitiveTableEnum = 0x000D
-	GL_TRIANGLE_STRIP_ADJACENCY_EXT PrimitiveTableEnum = 0x000D
+	GL_LINES_ADJACENCY              = 0x000A
+	GL_LINES_ADJACENCY_EXT          = 0x000A
+	GL_LINE_STRIP_ADJACENCY_EXT     = 0x000B
+	GL_LINE_STRIP_ADJACENCY         = 0x000B
+	GL_TRIANGLES_ADJACENCY          = 0x000C
+	GL_TRIANGLES_ADJACENCY_EXT      = 0x000C
+	GL_TRIANGLE_STRIP_ADJACENCY     = 0x000D
+	GL_TRIANGLE_STRIP_ADJACENCY_EXT = 0x000D
 
-	GL_PATCHES PrimitiveTableEnum = 0x000E
+	GL_PATCHES = 0x000E
 
-	USE_IMAGE_DATA_FORMAT      TextureInternalFormatMode = 0
-	USE_USER_DEFINED_FORMAT    TextureInternalFormatMode = 1
-	USE_ARB_COMPRESSION        TextureInternalFormatMode = 2
-	USE_S3TC_DXT1_COMPRESSION  TextureInternalFormatMode = 3
-	USE_S3TC_DXT3_COMPRESSION  TextureInternalFormatMode = 4
-	USE_S3TC_DXT5_COMPRESSION  TextureInternalFormatMode = 5
-	USE_PVRTC_2BPP_COMPRESSION TextureInternalFormatMode = 6
-	USE_PVRTC_4BPP_COMPRESSION TextureInternalFormatMode = 7
-	USE_ETC_COMPRESSION        TextureInternalFormatMode = 8
-	USE_ETC2_COMPRESSION       TextureInternalFormatMode = 9
-	USE_RGTC1_COMPRESSION      TextureInternalFormatMode = 10
-	USE_RGTC2_COMPRESSION      TextureInternalFormatMode = 11
-	USE_S3TC_DXT1c_COMPRESSION TextureInternalFormatMode = 12
-	USE_S3TC_DXT1a_COMPRESSION TextureInternalFormatMode = 13
+	USE_IMAGE_DATA_FORMAT      = 0
+	USE_USER_DEFINED_FORMAT    = 1
+	USE_ARB_COMPRESSION        = 2
+	USE_S3TC_DXT1_COMPRESSION  = 3
+	USE_S3TC_DXT3_COMPRESSION  = 4
+	USE_S3TC_DXT5_COMPRESSION  = 5
+	USE_PVRTC_2BPP_COMPRESSION = 6
+	USE_PVRTC_4BPP_COMPRESSION = 7
+	USE_ETC_COMPRESSION        = 8
+	USE_ETC2_COMPRESSION       = 9
+	USE_RGTC1_COMPRESSION      = 10
+	USE_RGTC2_COMPRESSION      = 11
+	USE_S3TC_DXT1c_COMPRESSION = 12
+	USE_S3TC_DXT1a_COMPRESSION = 13
 
 	NEVER    TextureShadowCompareFunc = 0x0200
 	LESS     TextureShadowCompareFunc = 0x0201
