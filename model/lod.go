@@ -6,16 +6,13 @@ import (
 	"github.com/ungerik/go3d/vec3"
 )
 
-type CenterMode uint32
-type RangeMode uint32
-
 const (
-	USE_BOUNDING_SPHERE_CENTER                CenterMode = 0
-	USER_DEFINED_CENTER                       CenterMode = 1
-	UNION_OF_BOUNDING_SPHERE_AND_USER_DEFINED CenterMode = 2
-	DISTANCE_FROM_EYE_POINT                   RangeMode  = 0
-	PIXEL_SIZE_ON_SCREEN                      RangeMode  = 1
-	LOD_T                                     string     = "osg::Lod"
+	USE_BOUNDING_SPHERE_CENTER                       = 0
+	USER_DEFINED_CENTER                              = 1
+	UNION_OF_BOUNDING_SPHERE_AND_USER_DEFINED        = 2
+	DISTANCE_FROM_EYE_POINT                          = 0
+	PIXEL_SIZE_ON_SCREEN                             = 1
+	LOD_T                                     string = "osg::Lod"
 )
 
 type MinMaxPair []float32
@@ -24,10 +21,10 @@ type RangeListType []MinMaxPair
 
 type Lod struct {
 	Group
-	Cmode     CenterMode
+	Cmode     uint32
 	Center    vec3.T
 	Radius    float32
-	Rmode     RangeMode
+	Rmode     uint32
 	RangeList RangeListType
 }
 

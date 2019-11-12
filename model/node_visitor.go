@@ -23,8 +23,8 @@ type NodeVisitor struct {
 	VisitorType      VisitorType
 	TraversalNumber  uint32
 	TraversalMode    TraversalMode
-	TraversalMask    NodeMask
-	NodeMaskOverride NodeMask
+	TraversalMask    uint32
+	NodeMaskOverride uint32
 	Npath            NodePath
 }
 

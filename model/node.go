@@ -1,6 +1,5 @@
 package model
 
-type NodeMask uint32
 type NodePath []*Node
 
 const (
@@ -14,7 +13,7 @@ type ComputeBoundingSphereCallback struct {
 type Node struct {
 	Object
 	CullingActive bool
-	NodeMask      NodeMask
+	NodeMask      uint32
 	Dscriptions   []string
 	InitialBound  Sphere3f
 	States        *StateSet
@@ -29,7 +28,7 @@ type Node struct {
 func NewNode() Node {
 	obj := NewObject()
 	obj.Type = NODE_T
-	return Node{Object: obj}
+	return Node{Object: obj, NodeMask: 0xffffffff}
 }
 
 func (n *Node) Accept(nv *NodeVisitor) {

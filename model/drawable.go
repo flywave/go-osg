@@ -19,7 +19,7 @@ type Drawable struct {
 	BoundingBox            vec3.Box
 	Shape                  *Shape
 	SupportsDisplayList    bool
-	UseLisplayList         bool
+	UseDisplayList         bool
 	UseVertexBufferObjects bool
 
 	Callback   *ComputeBoundingBoxCallback
