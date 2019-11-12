@@ -19,3 +19,8 @@ type TexGen struct {
 	StateAttribute
 	Mode int
 }
+
+func NewTexGen() TexGen {
+	sa := NewStateAttribute()
+	return TexGen{StateAttribute: sa}
+}

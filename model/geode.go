@@ -10,7 +10,7 @@ type Geode struct {
 	Group
 }
 
-func NewGeod() Geode {
+func NewGeode() Geode {
 	g := NewGroup()
 	g.Type = GEODE_T
 	return Geode{Group: g}

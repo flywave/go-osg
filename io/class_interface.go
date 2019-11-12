@@ -428,7 +428,7 @@ func (cl *ClassInterface) GetSerializer(obj *model.Object, propertyName string, 
 	return nil
 }
 
-func (cl *ClassInterface) CreateObject(compoundClassName string) *model.Object {
+func (cl *ClassInterface) CreateObject(compoundClassName string) interface{} {
 	ow := GetObjectWrapperManager().FindWrap(compoundClassName)
 	if ow != nil {
 		return ow.CreateInstance()

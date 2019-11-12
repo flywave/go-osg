@@ -13,11 +13,11 @@ func NewBufferData() BufferData {
 type Binding int
 
 const (
-	BIND_UNDEFINED         Binding = -1
-	BIND_OFF               Binding = 0
-	BIND_OVERALL           Binding = 1
-	BIND_PER_PRIMITIVE_SET Binding = 2
-	BIND_PER_VERTEX        Binding = 4
+	BIND_UNDEFINED         = -1
+	BIND_OFF               = 0
+	BIND_OVERALL           = 1
+	BIND_PER_PRIMITIVE_SET = 2
+	BIND_PER_VERTEX        = 4
 )
 
 type Array struct {
@@ -25,7 +25,7 @@ type Array struct {
 	Type             ArrayTable
 	DataSize         int
 	DataType         int
-	Binding          Binding
+	Binding          int
 	Normalize        bool
 	PreserveDataType bool
 }

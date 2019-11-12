@@ -1,7 +1,6 @@
 package io
 
 import (
-	"runtime"
 	"strings"
 
 	"github.com/flywave/go-osg/model"
@@ -19,22 +18,30 @@ type ObjectWrapperAssociate struct {
 	Name         string
 }
 
-type CreateInstanceFuncType func() *model.Object
+type CreateInstanceFuncType func() interface{}
 
 type ObjectWrapper struct {
 	CreateInstanceFunc                   CreateInstanceFuncType
 	Domain                               string
 	Name                                 string
 	Associates                           []*ObjectWrapperAssociate
-	Serializers                          []*BaseSerializer
-	BackupSerializers                    []*BaseSerializer
+	Serializers                          []interface{}
+	BackupSerializers                    []interface{}
 	TypeList                             []SerType
 	Version                              int
 	IsAssociatesRevisionsInheritanceDone bool
 }
 
-func NewObjectWrapper() ObjectWrapper {
-	return ObjectWrapper{}
+func NewObjectWrapper(name string, fn CreateInstanceFuncType, associates string) ObjectWrapper {
+	ow := ObjectWrapper{Name: name, CreateInstanceFunc: fn, Version: 0, IsAssociatesRevisionsInheritanceDone: false}
+	ow.SplitAssociates(associates, " ")
+	return ow
+}
+
+func NewObjectWrapper2(name string, domain string, fn CreateInstanceFuncType, associates string) ObjectWrapper {
+	ow := ObjectWrapper{Name: name, Domain: domain, CreateInstanceFunc: fn, Version: 0, IsAssociatesRevisionsInheritanceDone: false}
+	ow.SplitAssociates(associates, " ")
+	return ow
 }
 
 func (wp *ObjectWrapper) SplitAssociates(str string, separator string) {
@@ -51,28 +58,37 @@ func (wp *ObjectWrapper) SplitAssociates(str string, separator string) {
 	}
 }
 
-func (wp *ObjectWrapper) CreateInstance() *model.Object {
+func (wp *ObjectWrapper) CreateInstance() interface{} {
 	return wp.CreateInstanceFunc()
 }
 
-func (wp *ObjectWrapper) AddSerializer(s *BaseSerializer, t SerType) {
-	s.FirstVersion = wp.Version
+func (wp *ObjectWrapper) AddSerializer(s interface{}, t SerType) {
+	s.(*BaseSerializer).FirstVersion = wp.Version
 	wp.Serializers = append(wp.Serializers, s)
 	wp.TypeList = append(wp.TypeList, t)
 }
 
-func (wp *ObjectWrapper) MarkSerializerAsRemoved(name string) {
-	for _, s := range wp.Serializers {
-		ser := Serializer(s)
-		if ser.GetSerializerName() == name {
-			s.LastVersion = wp.Version - 1
+func (wp *ObjectWrapper) MarkSerializerAsAdded(name string) {
+	for _, as := range wp.Associates {
+		if as.Name == name {
+			as.FirstVersion = wp.Version
+			return
 		}
 	}
 }
 
-func (wp *ObjectWrapper) GetSerializer(name string) *BaseSerializer {
+func (wp *ObjectWrapper) MarkSerializerAsRemoved(name string) {
 	for _, s := range wp.Serializers {
-		ser := Serializer(s)
+		ser := s.(*BaseSerializer)
+		if ser.GetSerializerName() == name {
+			ser.LastVersion = wp.Version - 1
+		}
+	}
+}
+
+func (wp *ObjectWrapper) GetSerializer(name string) interface{} {
+	for _, s := range wp.Serializers {
+		ser := s.(*BaseSerializer)
 		if ser.GetSerializerName() == name {
 			return s
 		}
@@ -84,7 +100,7 @@ func (wp *ObjectWrapper) GetSerializer(name string) *BaseSerializer {
 			continue
 		}
 		for _, s := range w.Serializers {
-			ser := Serializer(s)
+			ser := s.(*BaseSerializer)
 			if ser.GetSerializerName() == name {
 				return s
 			}
@@ -93,9 +109,9 @@ func (wp *ObjectWrapper) GetSerializer(name string) *BaseSerializer {
 	return nil
 }
 
-func (wp *ObjectWrapper) GetSerializerAndType(name string, ty *SerType) *BaseSerializer {
+func (wp *ObjectWrapper) GetSerializerAndType(name string, ty *SerType) interface{} {
 	for i, s := range wp.Serializers {
-		ser := Serializer(s)
+		ser := s.(*BaseSerializer)
 		if ser.GetSerializerName() == name {
 			*ty = wp.TypeList[i]
 			return s
@@ -108,7 +124,7 @@ func (wp *ObjectWrapper) GetSerializerAndType(name string, ty *SerType) *BaseSer
 			continue
 		}
 		for _, s := range w.Serializers {
-			ser := Serializer(s)
+			ser := s.(*BaseSerializer)
 			if ser.GetSerializerName() == name {
 				*ty = w.TypeList[0]
 				return s
@@ -121,7 +137,8 @@ func (wp *ObjectWrapper) GetSerializerAndType(name string, ty *SerType) *BaseSer
 
 func (wp *ObjectWrapper) Read(is *OsgIstream, obj *model.Object) {
 	inputVersion := is.GetFileVersion(wp.Domain)
-	for _, ser := range wp.Serializers {
+	for _, s := range wp.Serializers {
+		ser := s.(*BaseSerializer)
 		if ser.FirstVersion <= inputVersion &&
 			inputVersion <= ser.LastVersion && ser.SupportsGetSet() {
 			s := Serializer(ser)
@@ -132,7 +149,8 @@ func (wp *ObjectWrapper) Read(is *OsgIstream, obj *model.Object) {
 
 func (wp *ObjectWrapper) Write(os *OsgOstream, obj *model.Object) {
 	inputVersion := os.GetFileVersion(wp.Domain)
-	for _, ser := range wp.Serializers {
+	for _, s := range wp.Serializers {
+		ser := s.(*BaseSerializer)
 		if ser.FirstVersion <= inputVersion &&
 			inputVersion <= ser.LastVersion && ser.SupportsGetSet() {
 			s := Serializer(ser)
@@ -154,10 +172,12 @@ func (wp *ObjectWrapper) ReadSchema(properties []string, types []SerType) bool {
 			break
 		}
 		prop := properties[i]
-		if prop == wp.BackupSerializers[i].GetSerializerName() {
+		ser := wp.BackupSerializers[i].(*BaseSerializer)
+		if prop == ser.GetSerializerName() {
 			wp.Serializers = append(wp.Serializers, wp.BackupSerializers[i])
 		} else {
-			for _, ser := range wp.Serializers {
+			for _, s := range wp.Serializers {
+				ser := s.(*BaseSerializer)
 				if prop != ser.GetSerializerName() {
 					continue
 				}
@@ -176,7 +196,8 @@ func (wp *ObjectWrapper) WriteSchema(properties []string, types []SerType) {
 		if ssize-1 <= i || tsize-1 <= i {
 			break
 		}
-		ser := wp.Serializers[i]
+		s := wp.Serializers[i]
+		ser := s.(*BaseSerializer)
 		t := wp.TypeList[i]
 		if ser.SupportsGetSet() {
 			properties = append(properties, ser.GetSerializerName())
@@ -189,51 +210,14 @@ func (wp *ObjectWrapper) WriteSchema(properties []string, types []SerType) {
 type AddPropFuncType func(obj *ObjectWrapper)
 type AddPropCustomFuncType func(str string, obj *ObjectWrapper)
 
-type RegisterWrapperProxy struct {
-	Wrapper *ObjectWrapper
-}
-
-func NewRegisterWrapperProxy(inst_func CreateInstanceFuncType, name string, associates string, add_func AddPropFuncType) RegisterWrapperProxy {
-	wrap := NewObjectWrapper()
-	wrap.CreateInstanceFunc = inst_func
-	wrap.Name = name
-	wrap.SplitAssociates(associates, " ")
-	ptr := &wrap
-	if add_func != nil {
-		add_func(ptr)
-	}
-	GetObjectWrapperManager().AddWrap(ptr)
-
-	prox := RegisterWrapperProxy{Wrapper: ptr}
-	final := func() {
-		GetObjectWrapperManager().RemoveWrap(ptr)
-	}
-	runtime.SetFinalizer(&prox, final)
-	return prox
-}
-
-type RegisterCustomWrapperProxy struct {
-	Wrapper *ObjectWrapper
-}
-
-func NewRegisterCustomWrapperProxy(inst_func CreateInstanceFuncType, domain string, name string, associates string, add_func AddPropCustomFuncType) RegisterCustomWrapperProxy {
-	wrap := NewObjectWrapper()
+func NewRegisterCustomWrapperProxy(inst_func CreateInstanceFuncType, domain string, name string, associates string) {
+	wrap := NewObjectWrapper2(name, domain, inst_func, associates)
 	wrap.CreateInstanceFunc = inst_func
 	wrap.Name = name
 	wrap.Domain = domain
 	wrap.SplitAssociates(associates, " ")
 	ptr := &wrap
-	if add_func != nil {
-		add_func(domain, ptr)
-	}
 	GetObjectWrapperManager().AddWrap(ptr)
-
-	prox := RegisterCustomWrapperProxy{Wrapper: ptr}
-	final := func() {
-		GetObjectWrapperManager().RemoveWrap(ptr)
-	}
-	runtime.SetFinalizer(&prox, final)
-	return prox
 }
 
 type objectWrapperManager struct {
@@ -578,4 +562,13 @@ func (man *objectWrapperManager) FindCompressor(st string) *CompressorStream {
 		return lk
 	}
 	return nil
+}
+
+type UpdateWrapperVersionProxy struct {
+	Wrap        *ObjectWrapper
+	LastVersion int
+}
+
+func AddUpdateWrapperVersionProxy(w *ObjectWrapper, v int) {
+	w.Version = v
 }

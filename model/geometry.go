@@ -61,7 +61,7 @@ func (g *Geometry) RemovePrimitiveSet(i int, count int) error {
 	return nil
 }
 
-func (g *Geometry) SetTexCoordArrayBinding(i int, array *Array, binding Binding) error {
+func (g *Geometry) SetTexCoordArrayBinding(i int, array *Array, binding int) error {
 	l := len(g.TexCoordArray)
 	if i > l-1 {
 		return errors.New("out of range")
@@ -79,7 +79,7 @@ func (g *Geometry) SetTexCoordArray(i int, array *Array) error {
 	return g.SetTexCoordArrayBinding(i, array, BIND_UNDEFINED)
 }
 
-func (g *Geometry) SetVertexAttribArray(i int, array *Array, binding Binding) error {
+func (g *Geometry) SetVertexAttribArray(i int, array *Array, binding int) error {
 	l := len(g.VertexAttribList)
 	if i > l-1 {
 		return errors.New("out of range")

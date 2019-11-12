@@ -14,6 +14,10 @@ type ObjectGlenum struct {
 	Value int
 }
 
+func NewObjectGlenum() ObjectGlenum {
+	return ObjectGlenum{}
+}
+
 type ObjectProperty struct {
 	Name        string
 	Value       int

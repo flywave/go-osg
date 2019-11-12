@@ -72,7 +72,7 @@ type Texture struct {
 	ShadowTextureMode   int
 	ShadowAmbient       float32
 
-	Img           Image
+	Image         *Image
 	TextureWidth  uint64
 	TextureHeight uint64
 	TextureDepth  uint64

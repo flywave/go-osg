@@ -167,16 +167,25 @@ func NewBaseSerializer(usg Usage) BaseSerializer {
 	return BaseSerializer{Usage: usg}
 }
 
+type TemplateSerializer struct {
+	BaseSerializer
+	Name string
+}
+
+func NewTemplateSerializer(name string) TemplateSerializer {
+	ser := NewBaseSerializer(READ_WRITE_PROPERTY)
+	return TemplateSerializer{BaseSerializer: ser, Name: name}
+}
+
 type Checker func(interface{}) bool
 type Reader func(*OsgIstream, interface{}) bool
 type Writer func(*OsgOstream, interface{}) bool
 
 type UserSerializer struct {
-	BaseSerializer
+	TemplateSerializer
 	Checker Checker
 	Rd      Reader
 	Wt      Writer
-	Name    string
 }
 
 func (ser *UserSerializer) Read(is *OsgIstream, obj *model.Object) {
@@ -202,65 +211,74 @@ func (ser *UserSerializer) GetSerializerName() string {
 }
 
 func NewUserSerializer(name string, ck Checker, rd Reader, wt Writer) UserSerializer {
-	ser := NewBaseSerializer(READ_WRITE_PROPERTY)
-	return UserSerializer{BaseSerializer: ser, Name: name, Checker: ck, Rd: rd, Wt: wt}
+	ser := NewTemplateSerializer(name)
+	return UserSerializer{TemplateSerializer: ser, Checker: ck, Rd: rd, Wt: wt}
 }
 
 type Getter func() interface{}
 type Setter func(interface{})
 
-type TemplateSerializer struct {
-	BaseSerializer
-	Name string
-}
-
-func NewTemplateSerializer(name string) TemplateSerializer {
-	ser := NewBaseSerializer(READ_WRITE_PROPERTY)
-	return TemplateSerializer{BaseSerializer: ser, Name: name}
-}
-
-type PropByRefSerializer struct {
-	TemplateSerializer
-	DefaultValue interface{}
-	Getter       Getter
-	Setter       Setter
-}
-
-func (ser *PropByRefSerializer) Read(is *OsgIstream, obj *model.Object) {}
-
-func (ser *PropByRefSerializer) Writer(is *OsgOstream, obj *model.Object) {}
-
-func (ser *PropByRefSerializer) GetSerializerName() string {
-	return ser.Name
-}
-
-func NewPropByRefSerializer(name string, def interface{}, gt Getter, st Setter) PropByRefSerializer {
-	ser := NewTemplateSerializer(name)
-	return PropByRefSerializer{TemplateSerializer: ser, Getter: gt, Setter: st, DefaultValue: def}
-}
-
 type PropByValSerializer struct {
-	PropByRefSerializer
+	TemplateSerializer
+	Prop   interface{}
 	UseHex bool
 }
 
-func (ser *PropByValSerializer) Read(is *OsgIstream, obj *model.Object) {}
+func (ser *PropByValSerializer) GetSerializerName() string {
+	return ser.Name
+}
+
+func (ser *PropByValSerializer) Read(is *OsgIstream, obj *model.Object) {
+	if is.IsBinary() {
+
+	} else {
+		if is.MatchString(ser.Name) {
+			if ser.UseHex {
+				is.Read(ser.Prop)
+			}
+		}
+	}
+}
 
 func (ser *PropByValSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
-func NewPropByValSerializer(name string, def interface{}, gt Getter, st Setter, hex bool) PropByValSerializer {
-	v := NewPropByRefSerializer(name, def, gt, st)
-	return PropByValSerializer{PropByRefSerializer: v, UseHex: hex}
+func NewPropByValSerializer(name string, hex bool) PropByValSerializer {
+	ser := NewTemplateSerializer(name)
+	return PropByValSerializer{TemplateSerializer: ser}
+}
+
+type PropByRefSerializer struct {
+	PropByValSerializer
+}
+
+func (ser *PropByRefSerializer) Read(is *OsgIstream, obj *model.Object) {
+	if is.IsBinary() {
+
+	} else {
+		if is.MatchString(ser.Name) {
+			is.Read(ser.Prop)
+		}
+	}
+}
+
+func (ser *PropByRefSerializer) Writer(is *OsgOstream, obj *model.Object) {}
+
+func NewPropByRefSerializer(name string) PropByRefSerializer {
+	ser := NewPropByValSerializer(name, false)
+	return PropByRefSerializer{PropByValSerializer: ser}
 }
 
 type MatrixSerializer struct {
 	TemplateSerializer
-	Getter Getter
-	Setter Setter
-	int    mat4.T
+	int mat4.T
 }
 
-func (ser *MatrixSerializer) Read(is *OsgIstream, obj *model.Object) {}
+func (ser *MatrixSerializer) Read(is *OsgIstream, obj *model.Object) {
+	if is.IsBinary() {
+
+	} else {
+	}
+}
 
 func (ser *MatrixSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
@@ -270,12 +288,15 @@ func (ser *MatrixSerializer) GetSerializerName() string {
 
 type GlenumSerializer struct {
 	TemplateSerializer
-	Getter Getter
-	Setter Setter
-	int    int
+	Int int
 }
 
-func (ser *GlenumSerializer) Read(is *OsgIstream, obj *model.Object) {}
+func (ser *GlenumSerializer) Read(is *OsgIstream, obj *model.Object) {
+	if is.IsBinary() {
+
+	} else {
+	}
+}
 
 func (ser *GlenumSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
@@ -285,9 +306,6 @@ func (ser *GlenumSerializer) GetSerializerName() string {
 
 type StringSerializer struct {
 	TemplateSerializer
-	Getter Getter
-	Setter Setter
-	int    string
 }
 
 func (ser *StringSerializer) Read(is *OsgIstream, obj *model.Object) {}
@@ -300,49 +318,69 @@ func (ser *StringSerializer) GetSerializerName() string {
 
 type ObjectSerializer struct {
 	BaseSerializer
-	Getter Getter
-	Setter Setter
-	int    *model.Object
 }
 
-func (ser *ObjectSerializer) Read(is *OsgIstream, obj *model.Object) {}
+func (ser *ObjectSerializer) Read(is *OsgIstream, obj *model.Object) {
+	if is.IsBinary() {
+
+	} else {
+	}
+}
 
 func (ser *ObjectSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
 type ImageSerializer struct {
 	TemplateSerializer
-	Getter Getter
-	Setter Setter
-	int    *model.Image
 }
 
-func (ser *ImageSerializer) Read(is *OsgIstream, obj *model.Object) {}
+func (ser *ImageSerializer) Read(is *OsgIstream, obj *model.Object) {
+	if is.IsBinary() {
+
+	} else {
+	}
+}
 
 func (ser *ImageSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
 type EnumSerializer struct {
 	TemplateSerializer
-	Getter Getter
-	Setter Setter
-	LookUp IntLookup
+	LookUp    IntLookup
+	EnumValue *int
 }
 
 func (ser *EnumSerializer) Add(str string, val int) {
 	ser.LookUp.Add(str, val)
 }
 
-func (ser *EnumSerializer) Read(is *OsgIstream, obj *model.Object) {}
+func (ser *EnumSerializer) Read(is *OsgIstream, obj *model.Object) {
+	if is.IsBinary() {
+
+	} else {
+		if is.MatchString(ser.Name) {
+			var str string
+			is.Read(str)
+			*ser.EnumValue = ser.LookUp.GetValue(str)
+		}
+	}
+}
 
 func (ser *EnumSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
-type ListSerializer struct {
-	TemplateSerializer
-	Getter Getter
-	Setter Setter
-	Name   string
+func NewEnumSerializer(name string) EnumSerializer {
+	ser := NewTemplateSerializer(name)
+	return EnumSerializer{TemplateSerializer: ser}
 }
 
-func (ser *ListSerializer) Read(is *OsgIstream, obj *model.Object) {}
+type ListSerializer struct {
+	TemplateSerializer
+}
+
+func (ser *ListSerializer) Read(is *OsgIstream, obj *model.Object) {
+	if is.IsBinary() {
+
+	} else {
+	}
+}
 
 func (ser *ListSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
@@ -350,15 +388,16 @@ type ConstGetter func() []interface{}
 
 type VectorSerializer struct {
 	TemplateSerializer
-	Getter          Getter
-	Setter          Setter
-	Name            string
 	ElementSize     uint
 	NumElementOnRow uint
 	Type            SerType
-	ConstGetter     ConstGetter
 }
 
-func (ser *VectorSerializer) Read(is *OsgIstream, obj *model.Object) {}
+func (ser *VectorSerializer) Read(is *OsgIstream, obj *model.Object) {
+	if is.IsBinary() {
+
+	} else {
+	}
+}
 
 func (ser *VectorSerializer) Writer(is *OsgOstream, obj *model.Object) {}
