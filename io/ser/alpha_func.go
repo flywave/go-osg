@@ -5,8 +5,24 @@ import (
 	"github.com/flywave/go-osg/model"
 )
 
+func GetComparisonFunc(obj interface{}) interface{} {
+	return obj.(*model.AlphaFunc).ComparisonFunc
+}
+
+func SetComparisonFunc(obj interface{}, fc interface{}) {
+	obj.(*model.AlphaFunc).ComparisonFunc = *fc.(*int)
+}
+
+func GetReferenceValue(obj interface{}) interface{} {
+	return obj.(*model.AlphaFunc).ReferenceValue
+}
+
+func SetReferenceValue(obj interface{}, fc interface{}) {
+	obj.(*model.AlphaFunc).ReferenceValue = *fc.(*float32)
+}
+
 func init() {
-	ser := io.NewEnumSerializer("Function")
+	ser := io.NewEnumSerializer("Function", GetComparisonFunc, SetComparisonFunc)
 	ser.Add("NEVER", model.GL_NEVER)
 	ser.Add("LESS", model.GL_LESS)
 	ser.Add("EQUAL", model.GL_EQUAL)
@@ -16,12 +32,10 @@ func init() {
 	ser.Add("GEQUAL", model.GL_GEQUAL)
 	ser.Add("GEQUAL", model.GL_ALWAYS)
 
-	serf := io.NewPropByValSerializer("ReferenceValue", false)
+	serf := io.NewPropByValSerializer("ReferenceValue", false, GetReferenceValue, SetReferenceValue)
 
 	fn := func() interface{} {
 		al := model.NewAlphaFunc()
-		ser.EnumValue = &al.ComparisonFunc
-		serf.Prop = &al.ReferenceValue
 		return &al
 	}
 	wrap := io.NewObjectWrapper("AlphaFunc", fn, "osg::Object osg::StateAttribute osg::AlphaFunc")

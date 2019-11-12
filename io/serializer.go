@@ -167,25 +167,16 @@ func NewBaseSerializer(usg Usage) BaseSerializer {
 	return BaseSerializer{Usage: usg}
 }
 
-type TemplateSerializer struct {
-	BaseSerializer
-	Name string
-}
-
-func NewTemplateSerializer(name string) TemplateSerializer {
-	ser := NewBaseSerializer(READ_WRITE_PROPERTY)
-	return TemplateSerializer{BaseSerializer: ser, Name: name}
-}
-
 type Checker func(interface{}) bool
-type Reader func(*OsgIstream, interface{}) bool
-type Writer func(*OsgOstream, interface{}) bool
+type Reader func(*OsgIstream, interface{})
+type Writer func(*OsgOstream, interface{})
 
 type UserSerializer struct {
-	TemplateSerializer
+	BaseSerializer
 	Checker Checker
 	Rd      Reader
 	Wt      Writer
+	Name    string
 }
 
 func (ser *UserSerializer) Read(is *OsgIstream, obj *model.Object) {
@@ -211,12 +202,24 @@ func (ser *UserSerializer) GetSerializerName() string {
 }
 
 func NewUserSerializer(name string, ck Checker, rd Reader, wt Writer) UserSerializer {
-	ser := NewTemplateSerializer(name)
-	return UserSerializer{TemplateSerializer: ser, Checker: ck, Rd: rd, Wt: wt}
+	ser := NewBaseSerializer(READ_WRITE_PROPERTY)
+	return UserSerializer{BaseSerializer: ser, Name: name, Checker: ck, Rd: rd, Wt: wt}
 }
 
-type Getter func() interface{}
-type Setter func(interface{})
+type Getter func(interface{}) interface{}
+type Setter func(interface{}, interface{})
+
+type TemplateSerializer struct {
+	BaseSerializer
+	Name   string
+	Getter Getter
+	Setter Setter
+}
+
+func NewTemplateSerializer(name string, gt Getter, st Setter) TemplateSerializer {
+	ser := NewBaseSerializer(READ_WRITE_PROPERTY)
+	return TemplateSerializer{BaseSerializer: ser, Name: name, Getter: gt, Setter: st}
+}
 
 type PropByValSerializer struct {
 	TemplateSerializer
@@ -242,8 +245,8 @@ func (ser *PropByValSerializer) Read(is *OsgIstream, obj *model.Object) {
 
 func (ser *PropByValSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
-func NewPropByValSerializer(name string, hex bool) PropByValSerializer {
-	ser := NewTemplateSerializer(name)
+func NewPropByValSerializer(name string, hex bool, gt Getter, st Setter) PropByValSerializer {
+	ser := NewTemplateSerializer(name, gt, st)
 	return PropByValSerializer{TemplateSerializer: ser}
 }
 
@@ -263,8 +266,8 @@ func (ser *PropByRefSerializer) Read(is *OsgIstream, obj *model.Object) {
 
 func (ser *PropByRefSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
-func NewPropByRefSerializer(name string) PropByRefSerializer {
-	ser := NewPropByValSerializer(name, false)
+func NewPropByRefSerializer(name string, gt Getter, st Setter) PropByRefSerializer {
+	ser := NewPropByValSerializer(name, false, gt, st)
 	return PropByRefSerializer{PropByValSerializer: ser}
 }
 
@@ -286,6 +289,11 @@ func (ser *MatrixSerializer) GetSerializerName() string {
 	return ""
 }
 
+func NewMatrixSerializer(name string, gt Getter, st Setter) MatrixSerializer {
+	ser := NewTemplateSerializer(name, gt, st)
+	return MatrixSerializer{TemplateSerializer: ser}
+}
+
 type GlenumSerializer struct {
 	TemplateSerializer
 	Int int
@@ -304,6 +312,11 @@ func (ser *GlenumSerializer) GetSerializerName() string {
 	return ""
 }
 
+func NewGlenumSerializer(name string, gt Getter, st Setter) GlenumSerializer {
+	ser := NewTemplateSerializer(name, gt, st)
+	return GlenumSerializer{TemplateSerializer: ser}
+}
+
 type StringSerializer struct {
 	TemplateSerializer
 }
@@ -315,9 +328,13 @@ func (ser *StringSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 func (ser *StringSerializer) GetSerializerName() string {
 	return ""
 }
+func NewStringSerializer(name string, gt Getter, st Setter) StringSerializer {
+	ser := NewTemplateSerializer(name, gt, st)
+	return StringSerializer{TemplateSerializer: ser}
+}
 
 type ObjectSerializer struct {
-	BaseSerializer
+	TemplateSerializer
 }
 
 func (ser *ObjectSerializer) Read(is *OsgIstream, obj *model.Object) {
@@ -328,6 +345,11 @@ func (ser *ObjectSerializer) Read(is *OsgIstream, obj *model.Object) {
 }
 
 func (ser *ObjectSerializer) Writer(is *OsgOstream, obj *model.Object) {}
+
+func NewObjectSerializer(name string, gt Getter, st Setter) ObjectSerializer {
+	ser := NewTemplateSerializer(name, gt, st)
+	return ObjectSerializer{TemplateSerializer: ser}
+}
 
 type ImageSerializer struct {
 	TemplateSerializer
@@ -341,6 +363,11 @@ func (ser *ImageSerializer) Read(is *OsgIstream, obj *model.Object) {
 }
 
 func (ser *ImageSerializer) Writer(is *OsgOstream, obj *model.Object) {}
+
+func NewImageSerializer(name string, gt Getter, st Setter) ImageSerializer {
+	ser := NewTemplateSerializer(name, gt, st)
+	return ImageSerializer{TemplateSerializer: ser}
+}
 
 type EnumSerializer struct {
 	TemplateSerializer
@@ -366,8 +393,8 @@ func (ser *EnumSerializer) Read(is *OsgIstream, obj *model.Object) {
 
 func (ser *EnumSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
-func NewEnumSerializer(name string) EnumSerializer {
-	ser := NewTemplateSerializer(name)
+func NewEnumSerializer(name string, gt Getter, st Setter) EnumSerializer {
+	ser := NewTemplateSerializer(name, gt, st)
 	return EnumSerializer{TemplateSerializer: ser}
 }
 

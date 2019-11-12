@@ -59,6 +59,9 @@ func (wp *ObjectWrapper) SplitAssociates(str string, separator string) {
 }
 
 func (wp *ObjectWrapper) CreateInstance() interface{} {
+	if wp.CreateInstanceFunc == nil {
+		return nil
+	}
 	return wp.CreateInstanceFunc()
 }
 
