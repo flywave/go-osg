@@ -1,6 +1,6 @@
 package model
 
-type NodePath []*Node
+type NodePath []interface{}
 
 const (
 	NODE_T string = "osg::Node"

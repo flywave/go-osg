@@ -46,7 +46,7 @@ const (
 
 type StateSet struct {
 	Object
-	Parents              []*Node
+	Parents              []interface{}
 	ModeList             ModeListType
 	AttributeList        AttributeListType
 	TextureModeList      TextureModeListType

@@ -1,5 +1,10 @@
 package model
 
+import (
+	"reflect"
+	"unsafe"
+)
+
 type TraversalMode uint32
 type VisitorType uint32
 
@@ -32,16 +37,16 @@ func NewNodeVisitor() NodeVisitor {
 	return NodeVisitor{VisitorType: NODE_VISITOR, TraversalMode: TRAVERSE_NONE, NodeMaskOverride: 0x0, TraversalMask: 0xffffffff, TraversalNumber: UNINITIALIZED_FRAME_NUMBER}
 }
 
-func (v *NodeVisitor) PushOntoNodePath(n *Node) {
+func (v *NodeVisitor) PushOntoNodePath(n interface{}) {
 	if v.TraversalMode != TRAVERSE_PARENTS {
 		v.Npath = append(v.Npath, n)
 	} else {
-		t := []*Node{n}
+		t := []interface{}{n}
 		v.Npath = append(t, v.Npath...)
 	}
 }
 
-func (v *NodeVisitor) PopFromNodePath(n *Node) {
+func (v *NodeVisitor) PopFromNodePath(n interface{}) {
 	if v.TraversalMode != TRAVERSE_PARENTS {
 		v.Npath = v.Npath[:len(v.Npath)-1]
 	} else {
@@ -51,14 +56,16 @@ func (v *NodeVisitor) PopFromNodePath(n *Node) {
 
 func (v *NodeVisitor) Apply(val interface{}) {
 	// switch node := val.(type) {
-	// case *Node:
+	// case interface{}:
 	// case *Lod:
 	// case *PagedLod:
 	// case *Group:
 	// }
 }
 
-func (v *NodeVisitor) ValidNodeMask(node *Node) bool {
+func (v *NodeVisitor) ValidNodeMask(node interface{}) bool {
+	n := reflect.ValueOf(node).Pointer()
+	nd := (*Node)(unsafe.Pointer(n))
 	return (v.TraversalMask &
-		(v.NodeMaskOverride | node.NodeMask)) != 0
+		(v.NodeMaskOverride | nd.NodeMask)) != 0
 }

@@ -9,13 +9,13 @@ const (
 type Geometry struct {
 	Drawable
 	Primitives          []interface{}
-	ArrayList           *Array
 	VertexArray         *Array
+	NormalArray         *Array
 	FaceVrray           *Array
 	ColorArray          *Array
 	SecondaryColorArray *Array
 	FogCoordArray       *Array
-	TexCoordArray       []*Array
+	TexCoordArrayList   []*Array
 	VertexAttribList    []*Array
 }
 
@@ -62,7 +62,7 @@ func (g *Geometry) RemovePrimitiveSet(i int, count int) error {
 }
 
 func (g *Geometry) SetTexCoordArrayBinding(i int, array *Array, binding int) error {
-	l := len(g.TexCoordArray)
+	l := len(g.TexCoordArrayList)
 	if i > l-1 {
 		return errors.New("out of range")
 	}
@@ -71,7 +71,7 @@ func (g *Geometry) SetTexCoordArrayBinding(i int, array *Array, binding int) err
 	} else {
 		array.Binding = BIND_PER_VERTEX
 	}
-	g.TexCoordArray[i] = array
+	g.TexCoordArrayList[i] = array
 	return nil
 }
 

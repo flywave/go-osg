@@ -6,16 +6,16 @@ const (
 )
 
 type UserDataContainer struct {
-	Object
-	User_data       interface{}
+	UserData        interface{}
 	DescriptionList []string
-	ObjectList      []*Object
+	ObjectList      []interface{}
+	Name            string
+	Type            string
+	Propertys       map[string]string
 }
 
 func NewUserDataContainer() UserDataContainer {
-	obj := NewObject()
-	obj.Type = USERDATACONTAINER_T
-	return UserDataContainer{Object: obj}
+	return UserDataContainer{Type: USERDATACONTAINER_T}
 }
 
 type DefaultUserDataContainer struct {

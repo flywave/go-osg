@@ -15,9 +15,7 @@ const (
 	LOD_T                                     string = "osg::Lod"
 )
 
-type MinMaxPair []float32
-
-type RangeListType []MinMaxPair
+type RangeListType [][2]float32
 
 type Lod struct {
 	Group
@@ -31,14 +29,14 @@ type Lod struct {
 func NewLod() Lod {
 	g := NewGroup()
 	g.Type = LOD_T
-	return Lod{Group: g}
+	return Lod{Group: g, Cmode: USE_BOUNDING_SPHERE_CENTER, Rmode: DISTANCE_FROM_EYE_POINT}
 }
 
-func (lod *Lod) AddChild(n *Node) {
+func (lod *Lod) AddChild(n interface{}) {
 	lod.Group.AddChild(n)
 	rl := len(lod.RangeList)
 	if len(lod.Group.Children) > rl {
-		f := []float32{0, 0}
+		f := [2]float32{0, 0}
 		if rl > 0 {
 			last := lod.RangeList[rl-1][1]
 			f[0] = last
@@ -48,11 +46,11 @@ func (lod *Lod) AddChild(n *Node) {
 	}
 }
 
-func (lod *Lod) AddChild3(n *Node, min float32, max float32) {
+func (lod *Lod) AddChild3(n interface{}, min float32, max float32) {
 	lod.Group.AddChild(n)
 	rl := len(lod.RangeList)
 	if len(lod.Group.Children) > rl {
-		f := []float32{min, max}
+		f := [2]float32{min, max}
 		lod.RangeList = append(lod.RangeList, f)
 	}
 }
@@ -63,7 +61,6 @@ func (lod *Lod) RemoveChild2(pos int, count int) error {
 		if pos > l-1 || pos+count > l {
 			return errors.New("pos out of range")
 		}
-
 		a := lod.RangeList[:pos]
 		b := lod.RangeList[pos+1+count:]
 		lod.RangeList = append(a, b...)
@@ -72,7 +69,10 @@ func (lod *Lod) RemoveChild2(pos int, count int) error {
 	return errors.New("remove child error")
 }
 
-func (lod *Lod) SetRange(childNo uint, min float32, max float32) {
-	f := []float32{min, max}
+func (lod *Lod) SetRange(childNo int, min float32, max float32) {
+	if childNo > len(lod.RangeList) {
+		return
+	}
+	f := [2]float32{min, max}
 	lod.RangeList[childNo] = f
 }

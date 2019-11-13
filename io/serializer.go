@@ -5,13 +5,6 @@ import (
 	"github.com/ungerik/go3d/mat4"
 )
 
-var Type_Mapping map[string]interface{}
-
-func init() {
-	Type_Mapping = make(map[string]interface{})
-	//TODO
-}
-
 type StringToValue map[string]int
 type ValueToString map[int]string
 
@@ -134,6 +127,13 @@ type Serializer interface {
 	GetSerializerName() string
 	Read(is *OsgIstream, obj *model.Object)
 	Write(is *OsgOstream, obj *model.Object)
+	GetFirstVersion() int
+	SetFirstVersion(int)
+	GetLastVersion() int
+	SetLastVersion(int)
+	SupportsSet() bool
+	SupportsGet() bool
+	SupportsGetSet() bool
 }
 
 type BaseSerializer struct {
@@ -161,6 +161,19 @@ func (ser *BaseSerializer) Read(is *OsgIstream, obj *model.Object) {
 }
 
 func (ser *BaseSerializer) Write(is *OsgOstream, obj *model.Object) {
+}
+
+func (ser *BaseSerializer) GetFirstVersion() int {
+	return ser.FirstVersion
+}
+func (ser *BaseSerializer) SetFirstVersion(v int) {
+	ser.FirstVersion = v
+}
+func (ser *BaseSerializer) GetLastVersion() int {
+	return ser.LastVersion
+}
+func (ser *BaseSerializer) SetLastVersion(v int) {
+	ser.LastVersion = v
 }
 
 func NewBaseSerializer(usg Usage) BaseSerializer {
@@ -395,7 +408,7 @@ func (ser *EnumSerializer) Writer(is *OsgOstream, obj *model.Object) {}
 
 func NewEnumSerializer(name string, gt Getter, st Setter) EnumSerializer {
 	ser := NewTemplateSerializer(name, gt, st)
-	return EnumSerializer{TemplateSerializer: ser}
+	return EnumSerializer{TemplateSerializer: ser, LookUp: NewIntLookup()}
 }
 
 type ListSerializer struct {
@@ -415,9 +428,8 @@ type ConstGetter func() []interface{}
 
 type VectorSerializer struct {
 	TemplateSerializer
-	ElementSize     uint
+	ElementType     SerType
 	NumElementOnRow uint
-	Type            SerType
 }
 
 func (ser *VectorSerializer) Read(is *OsgIstream, obj *model.Object) {
@@ -428,3 +440,8 @@ func (ser *VectorSerializer) Read(is *OsgIstream, obj *model.Object) {
 }
 
 func (ser *VectorSerializer) Writer(is *OsgOstream, obj *model.Object) {}
+
+func NewVectorSerializer(name string, ty SerType, nrow uint, gt Getter, st Setter) VectorSerializer {
+	ser := NewTemplateSerializer(name, gt, st)
+	return VectorSerializer{TemplateSerializer: ser, ElementType: ty, NumElementOnRow: nrow}
+}

@@ -66,7 +66,7 @@ func (wp *ObjectWrapper) CreateInstance() interface{} {
 }
 
 func (wp *ObjectWrapper) AddSerializer(s interface{}, t SerType) {
-	s.(*BaseSerializer).FirstVersion = wp.Version
+	s.(Serializer).SetFirstVersion(wp.Version)
 	wp.Serializers = append(wp.Serializers, s)
 	wp.TypeList = append(wp.TypeList, t)
 }
@@ -82,16 +82,16 @@ func (wp *ObjectWrapper) MarkSerializerAsAdded(name string) {
 
 func (wp *ObjectWrapper) MarkSerializerAsRemoved(name string) {
 	for _, s := range wp.Serializers {
-		ser := s.(*BaseSerializer)
+		ser := s.(Serializer)
 		if ser.GetSerializerName() == name {
-			ser.LastVersion = wp.Version - 1
+			ser.SetLastVersion(wp.Version - 1)
 		}
 	}
 }
 
 func (wp *ObjectWrapper) GetSerializer(name string) interface{} {
 	for _, s := range wp.Serializers {
-		ser := s.(*BaseSerializer)
+		ser := s.(Serializer)
 		if ser.GetSerializerName() == name {
 			return s
 		}
@@ -103,7 +103,7 @@ func (wp *ObjectWrapper) GetSerializer(name string) interface{} {
 			continue
 		}
 		for _, s := range w.Serializers {
-			ser := s.(*BaseSerializer)
+			ser := s.(Serializer)
 			if ser.GetSerializerName() == name {
 				return s
 			}
@@ -114,7 +114,7 @@ func (wp *ObjectWrapper) GetSerializer(name string) interface{} {
 
 func (wp *ObjectWrapper) GetSerializerAndType(name string, ty *SerType) interface{} {
 	for i, s := range wp.Serializers {
-		ser := s.(*BaseSerializer)
+		ser := s.(Serializer)
 		if ser.GetSerializerName() == name {
 			*ty = wp.TypeList[i]
 			return s
@@ -127,7 +127,7 @@ func (wp *ObjectWrapper) GetSerializerAndType(name string, ty *SerType) interfac
 			continue
 		}
 		for _, s := range w.Serializers {
-			ser := s.(*BaseSerializer)
+			ser := s.(Serializer)
 			if ser.GetSerializerName() == name {
 				*ty = w.TypeList[0]
 				return s
@@ -141,9 +141,9 @@ func (wp *ObjectWrapper) GetSerializerAndType(name string, ty *SerType) interfac
 func (wp *ObjectWrapper) Read(is *OsgIstream, obj *model.Object) {
 	inputVersion := is.GetFileVersion(wp.Domain)
 	for _, s := range wp.Serializers {
-		ser := s.(*BaseSerializer)
-		if ser.FirstVersion <= inputVersion &&
-			inputVersion <= ser.LastVersion && ser.SupportsGetSet() {
+		ser := s.(Serializer)
+		if ser.GetFirstVersion() <= inputVersion &&
+			inputVersion <= ser.GetLastVersion() && ser.SupportsGetSet() {
 			s := Serializer(ser)
 			s.Read(is, obj)
 		}
@@ -153,9 +153,9 @@ func (wp *ObjectWrapper) Read(is *OsgIstream, obj *model.Object) {
 func (wp *ObjectWrapper) Write(os *OsgOstream, obj *model.Object) {
 	inputVersion := os.GetFileVersion(wp.Domain)
 	for _, s := range wp.Serializers {
-		ser := s.(*BaseSerializer)
-		if ser.FirstVersion <= inputVersion &&
-			inputVersion <= ser.LastVersion && ser.SupportsGetSet() {
+		ser := s.(Serializer)
+		if ser.GetFirstVersion() <= inputVersion &&
+			inputVersion <= ser.GetLastVersion() && ser.SupportsGetSet() {
 			s := Serializer(ser)
 			s.Write(os, obj)
 		}
@@ -175,12 +175,12 @@ func (wp *ObjectWrapper) ReadSchema(properties []string, types []SerType) bool {
 			break
 		}
 		prop := properties[i]
-		ser := wp.BackupSerializers[i].(*BaseSerializer)
+		ser := wp.BackupSerializers[i].(Serializer)
 		if prop == ser.GetSerializerName() {
 			wp.Serializers = append(wp.Serializers, wp.BackupSerializers[i])
 		} else {
 			for _, s := range wp.Serializers {
-				ser := s.(*BaseSerializer)
+				ser := s.(Serializer)
 				if prop != ser.GetSerializerName() {
 					continue
 				}
@@ -200,7 +200,7 @@ func (wp *ObjectWrapper) WriteSchema(properties []string, types []SerType) {
 			break
 		}
 		s := wp.Serializers[i]
-		ser := s.(*BaseSerializer)
+		ser := s.(Serializer)
 		t := wp.TypeList[i]
 		if ser.SupportsGetSet() {
 			properties = append(properties, ser.GetSerializerName())

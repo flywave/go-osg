@@ -1,7 +1,5 @@
 package model
 
-import "unsafe"
-
 const (
 	GEODE_T string = "osg::Geode"
 )
@@ -17,13 +15,11 @@ func NewGeode() Geode {
 }
 
 func (g *Geode) AddDrawable(d *Drawable) {
-	uP := unsafe.Pointer(d)
-	g.AddChild((*Node)(uP))
+	g.AddChild(d)
 }
 
 func (g *Geode) RemoveDrawable(d *Drawable) error {
-	uP := unsafe.Pointer(d)
-	return g.RemoveChild((*Node)(uP))
+	return g.RemoveChild(d)
 }
 
 func (g *Geode) RemoveDrawableCount(pos int, count int) error {
@@ -31,12 +27,9 @@ func (g *Geode) RemoveDrawableCount(pos int, count int) error {
 }
 
 func (g *Geode) ReplaceDrawable(o *Drawable, n *Drawable) error {
-	uP := unsafe.Pointer(o)
-	uP1 := unsafe.Pointer(n)
-	return g.ReplaceChild((*Node)(uP), (*Node)(uP1))
+	return g.ReplaceChild(o, n)
 }
 
 func (g *Geode) SetDrawable(pos int, d *Drawable) error {
-	uP := unsafe.Pointer(d)
-	return g.SetChild(pos, (*Node)(uP))
+	return g.SetChild(pos, d)
 }

@@ -37,6 +37,7 @@ type OsgInputIterator interface {
 	MatchString(str string) bool
 	AdvanceToCurrentEndBracket()
 	SetInputSteam(is *OsgIstream)
+	ReadObject(obj interface{}) interface{}
 }
 
 type InputIterator struct {
@@ -270,6 +271,10 @@ func (iter *AsciiInputIterator) getCharacter(c *byte) {
 	iter.PreReadString = iter.PreReadString[1:]
 }
 
+func (iter *AsciiInputIterator) ReadObject(obj interface{}) interface{} {
+	return nil
+}
+
 type BinaryInputIterator struct {
 	InputIterator
 	Offset         uint64
@@ -277,12 +282,14 @@ type BinaryInputIterator struct {
 	BlockSizes     []int64
 }
 
+func (iter *BinaryInputIterator) ReadObject(obj interface{}) interface{} {
+	return nil
+}
+
 func (iter *BinaryInputIterator) ReadCharArray(str string, s int) {
 }
 
-func (it *BinaryInputIterator) ReadComponentArray(s string, numElements int,
-	numComponentsPerElements int,
-	componentSizeInBytes int) {
+func (it *BinaryInputIterator) ReadComponentArray(s string, numElements int, numComponentsPerElements int, componentSizeInBytes int) {
 	size := numElements * numComponentsPerElements * componentSizeInBytes
 	if size > 0 {
 		it.ReadCharArray(s, size)
@@ -345,10 +352,18 @@ type OsgIstream struct {
 	DummyReadObject   *model.Object
 	DataDecompress    io.Reader
 	Data              []byte
+	CRLF              CrlfType
+
+	PROPERTY      *model.ObjectProperty
+	BEGIN_BRACKET *model.ObjectMark
+	END_BRACKET   *model.ObjectMark
 }
 
 func NewOsgIstream() OsgIstream {
-	return OsgIstream{ArrayMap: make(map[uint]*model.Array), IdentifierMap: make(map[uint]*model.Object), DomainVersionMap: make(map[string]int)}
+	p := model.NewObjectProperty()
+	bb := model.NewObjectMark()
+	eb := model.NewObjectMark()
+	return OsgIstream{ArrayMap: make(map[uint]*model.Array), IdentifierMap: make(map[uint]*model.Object), DomainVersionMap: make(map[string]int), PROPERTY: &p, BEGIN_BRACKET: &bb, END_BRACKET: &eb}
 }
 
 func (is *OsgIstream) IsBinary() bool {
@@ -478,4 +493,8 @@ func (is *OsgIstream) Start(iter OsgInputIterator) (ReadType, error) {
 		is.Fields = is.Fields[0 : l-1]
 		return header.Type, nil
 	}
+}
+
+func (is *OsgIstream) ReadObject(obj interface{}) interface{} {
+	return is.In.ReadObject(obj)
 }

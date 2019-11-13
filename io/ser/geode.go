@@ -6,11 +6,37 @@ import (
 )
 
 func DrawablesChecker(obj interface{}) bool {
-	return true
+	g := obj.(*model.Geode)
+	return len(g.Children) > 0
 }
-func DrawableReader(is *io.OsgIstream, obj interface{}) {}
+func DrawableReader(is *io.OsgIstream, obj interface{}) {
+	g := obj.(*model.Geode)
+	var size int = 0
+	is.Read(&size)
+	is.Read(is.BEGIN_BRACKET)
+	for i := 0; i < size; i++ {
+		obj = is.ReadObject(nil)
+		if obj != nil {
+			switch dw := obj.(type) {
+			case *model.Drawable:
+				g.AddChild(dw)
+			}
+		}
+	}
+	is.Read(is.END_BRACKET)
+}
 
-func DrawableWriter(os *io.OsgOstream, obj interface{}) {}
+func DrawableWriter(os *io.OsgOstream, obj interface{}) {
+	g := obj.(*model.Geode)
+	size := len(g.Children)
+	os.Write(size)
+	os.Write(os.BEGIN_BRACKET)
+	for i := 0; i < size; i++ {
+		os.Write(g.Children[i])
+	}
+	os.Write(os.END_BRACKET)
+	os.Write(os.CRLF)
+}
 
 func init() {
 	fn := func() interface{} {

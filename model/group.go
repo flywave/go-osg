@@ -8,7 +8,7 @@ const (
 
 type Group struct {
 	Node
-	Children []*Node
+	Children []interface{}
 }
 
 func NewGroup() Group {
@@ -17,18 +17,18 @@ func NewGroup() Group {
 	return Group{Node: n}
 }
 
-func (g *Group) AddChild(n *Node) {
+func (g *Group) AddChild(n interface{}) {
 	g.Children = append(g.Children, n)
 }
 
-func (g *Group) InsertChild(index int, n *Node) {
+func (g *Group) InsertChild(index int, n interface{}) {
 	a := g.Children[:index]
 	a = append(a, n)
 	b := g.Children[index:]
 	g.Children = append(a, b...)
 }
 
-func (g *Group) GetIndex(n *Node) int {
+func (g *Group) GetIndex(n interface{}) int {
 	index := -1
 	for i, val := range g.Children {
 		if val == n {
@@ -39,7 +39,7 @@ func (g *Group) GetIndex(n *Node) int {
 	return index
 }
 
-func (g *Group) RemoveChild(n *Node) error {
+func (g *Group) RemoveChild(n interface{}) error {
 	index := g.GetIndex(n)
 	if index < 0 {
 		return errors.New("have no this child")
@@ -68,7 +68,7 @@ func (g *Group) RemoveChild2(pos int, count int) error {
 	return nil
 }
 
-func (g *Group) ReplaceChild(origChild *Node, newChild *Node) error {
+func (g *Group) ReplaceChild(origChild interface{}, newChild interface{}) error {
 	index := g.GetIndex(origChild)
 	if index < 0 {
 		return errors.New("out of range")
@@ -81,7 +81,7 @@ func (g *Group) ReplaceChild(origChild *Node, newChild *Node) error {
 	return nil
 }
 
-func (g *Group) SetChild(index int, newChild *Node) error {
+func (g *Group) SetChild(index int, newChild interface{}) error {
 	if index < 0 {
 		return errors.New("out of range")
 	}
@@ -94,7 +94,7 @@ func (g *Group) SetChild(index int, newChild *Node) error {
 	return nil
 }
 
-func (g *Group) Containsnode(n *Node) bool {
+func (g *Group) Containsnode(n interface{}) bool {
 	index := g.GetIndex(n)
 	if index < 0 {
 		return false
