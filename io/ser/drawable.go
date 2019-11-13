@@ -6,12 +6,38 @@ import (
 	"github.com/flywave/go-osg/model"
 )
 
-func InitialBoundChecker(obj interface{}) bool {
-	return true
+func checkInitialBound(obj interface{}) bool {
+	node := obj.(*model.Drawable)
+	return node.InitialBound.Radius > 0
 }
-func InitialBoundReader(is *io.OsgIstream, obj interface{}) {}
 
-func InitialBoundWriter(os *io.OsgOstream, obj interface{}) {}
+func readInitialBound(is *io.OsgIstream, obj interface{}) {
+	node := obj.(*model.Drawable)
+	is.Read(is.BEGIN_BRACKET)
+	is.PROPERTY.Name = "Center"
+	is.Read(is.PROPERTY)
+	is.Read(&node.InitialBound.Center)
+	is.PROPERTY.Name = "Radius"
+	is.Read(is.PROPERTY)
+	is.Read(&node.InitialBound.Radius)
+	is.Read(is.END_BRACKET)
+}
+
+func writeInitialBound(os *io.OsgOstream, obj interface{}) {
+	node := obj.(*model.Drawable)
+	os.Write(os.BEGIN_BRACKET)
+	os.Write(os.CRLF)
+	os.PROPERTY.Name = "Center"
+	os.Write(os.PROPERTY)
+	os.Write(node.InitialBound.Center)
+	os.Write(os.CRLF)
+	os.PROPERTY.Name = "Radius"
+	os.Write(os.PROPERTY)
+	os.Write(node.InitialBound.Radius)
+	os.Write(os.CRLF)
+	os.Write(os.END_BRACKET)
+	os.Write(os.CRLF)
+}
 
 func getStateSet(obj interface{}) interface{} {
 	return obj.(*model.Drawable).States
@@ -115,28 +141,28 @@ func init() {
 	wrap.MarkSerializerAsAdded("osg::Node")
 
 	ser := io.NewObjectSerializer("StateSet", getStateSet, setStateSet)
-	ser_user := io.NewUserSerializer("InitialBound", InitialBoundChecker, InitialBoundReader, InitialBoundWriter)
-	ser_cpm := io.NewObjectSerializer("ComputeBoundingBoxCallback", getCallback, setCallback)
-	ser_shape := io.NewObjectSerializer("Shape", getShape, setShape)
-	ser_bool1 := io.NewEnumSerializer("SupportsDisplayList", getSupportsDisplayList, setSupportsDisplayList)
-	ser_bool2 := io.NewEnumSerializer("UseDisplayList", getUseDisplayList, setUseDisplayList)
-	ser_bool3 := io.NewEnumSerializer("UseVertexBufferObjects", getUseVertexBufferObjects, setUseVertexBufferObjects)
-	ser_uc := io.NewObjectSerializer("UpdateCallback", getUpdateCallback, setUpdateCallback)
-	ser_ec := io.NewObjectSerializer("EventCallback", getEventCallback, setEventCallback)
-	ser_cc := io.NewObjectSerializer("CullCallback", getCullCallback, setCullCallback)
-	ser_dc := io.NewObjectSerializer("DrawCallback", getDrawCallback, setDrawCallback)
+	seruser := io.NewUserSerializer("InitialBound", checkInitialBound, readInitialBound, writeInitialBound)
+	sercpm := io.NewObjectSerializer("ComputeBoundingBoxCallback", getCallback, setCallback)
+	sershape := io.NewObjectSerializer("Shape", getShape, setShape)
+	serbool1 := io.NewEnumSerializer("SupportsDisplayList", getSupportsDisplayList, setSupportsDisplayList)
+	serbool2 := io.NewEnumSerializer("UseDisplayList", getUseDisplayList, setUseDisplayList)
+	serbool3 := io.NewEnumSerializer("UseVertexBufferObjects", getUseVertexBufferObjects, setUseVertexBufferObjects)
+	seruc := io.NewObjectSerializer("UpdateCallback", getUpdateCallback, setUpdateCallback)
+	serec := io.NewObjectSerializer("EventCallback", getEventCallback, setEventCallback)
+	sercc := io.NewObjectSerializer("CullCallback", getCullCallback, setCullCallback)
+	serdc := io.NewObjectSerializer("DrawCallback", getDrawCallback, setDrawCallback)
 
 	wrap.AddSerializer(&ser, io.RW_OBJECT)
-	wrap.AddSerializer(&ser_user, io.RW_USER)
-	wrap.AddSerializer(&ser_cpm, io.RW_OBJECT)
-	wrap.AddSerializer(&ser_shape, io.RW_OBJECT)
-	wrap.AddSerializer(&ser_bool1, io.RW_BOOL)
-	wrap.AddSerializer(&ser_bool2, io.RW_BOOL)
-	wrap.AddSerializer(&ser_bool3, io.RW_BOOL)
-	wrap.AddSerializer(&ser_uc, io.RW_OBJECT)
-	wrap.AddSerializer(&ser_ec, io.RW_OBJECT)
-	wrap.AddSerializer(&ser_cc, io.RW_OBJECT)
-	wrap.AddSerializer(&ser_dc, io.RW_OBJECT)
+	wrap.AddSerializer(&seruser, io.RW_USER)
+	wrap.AddSerializer(&sercpm, io.RW_OBJECT)
+	wrap.AddSerializer(&sershape, io.RW_OBJECT)
+	wrap.AddSerializer(&serbool1, io.RW_BOOL)
+	wrap.AddSerializer(&serbool2, io.RW_BOOL)
+	wrap.AddSerializer(&serbool3, io.RW_BOOL)
+	wrap.AddSerializer(&seruc, io.RW_OBJECT)
+	wrap.AddSerializer(&serec, io.RW_OBJECT)
+	wrap.AddSerializer(&sercc, io.RW_OBJECT)
+	wrap.AddSerializer(&serdc, io.RW_OBJECT)
 
 	io.AddUpdateWrapperVersionProxy(&wrap, 156)
 	wrap.MarkSerializerAsRemoved("UpdateCallback")

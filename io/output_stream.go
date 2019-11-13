@@ -30,3 +30,6 @@ func (os *OsgOstream) GetFileVersion(domain string) int {
 func (os *OsgOstream) IsBinary() bool {
 	return true
 }
+
+func (os *OsgOstream) WriteWrappedString(str string) {
+}
