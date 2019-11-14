@@ -125,24 +125,24 @@ func (dal *DrawArrayLengths) GetNumPrimitives() int {
 	return 0
 }
 
-type DrawElementsUbyte struct {
+type DrawElementsUByte struct {
 	PrimitiveSet
 	Data []uint8
 }
 
-func (dw *DrawElementsUbyte) Size() uint64 {
+func (dw *DrawElementsUByte) Size() uint64 {
 	return uint64(len(dw.Data))
 }
 
-func (dw *DrawElementsUbyte) ResizeElements(size uint64) {
+func (dw *DrawElementsUByte) ResizeElements(size uint64) {
 	dw.Data = make([]uint8, size, size)
 }
 
-func (dw *DrawElementsUbyte) AddElement(e uint8) {
+func (dw *DrawElementsUByte) AddElement(e uint8) {
 	dw.Data = append(dw.Data, e)
 }
 
-func (dw *DrawElementsUbyte) Accept(functor interface{}) {
+func (dw *DrawElementsUByte) Accept(functor interface{}) {
 	l := len(dw.Data)
 	if l == 0 {
 		return
@@ -154,10 +154,10 @@ func (dw *DrawElementsUbyte) Accept(functor interface{}) {
 	}
 }
 
-func NewDrawElementsUbyte() DrawElementsUbyte {
+func NewDrawElementsUByte() DrawElementsUByte {
 	p := NewPrimitiveSet()
 	p.Type = DRWAELEMENTSUBYTE_T
-	return DrawElementsUbyte{PrimitiveSet: p}
+	return DrawElementsUByte{PrimitiveSet: p}
 }
 
 type DrawElementsUShort struct {

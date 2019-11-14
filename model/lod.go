@@ -70,8 +70,11 @@ func (lod *Lod) RemoveChild2(pos int, count int) error {
 }
 
 func (lod *Lod) SetRange(childNo int, min float32, max float32) {
-	if childNo > len(lod.RangeList) {
-		return
+	l := len(lod.RangeList)
+	if childNo >= l {
+		s := childNo + 1 - l
+		ls := make([][2]float32, s, s)
+		lod.RangeList = append(lod.RangeList, ls...)
 	}
 	f := [2]float32{min, max}
 	lod.RangeList[childNo] = f

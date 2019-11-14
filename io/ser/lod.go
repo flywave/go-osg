@@ -3,10 +3,9 @@ package ser
 import (
 	"github.com/flywave/go-osg/io"
 	"github.com/flywave/go-osg/model"
-	"github.com/ungerik/go3d/vec3"
 )
 
-func SetCenterMode(obj interface{}, pro interface{}) {
+func setCenterMode(obj interface{}, pro interface{}) {
 	obj.(*model.Lod).Cmode = pro.(uint32)
 }
 
@@ -14,15 +13,7 @@ func getCenterMode(obj interface{}) interface{} {
 	return &obj.(*model.Lod).Cmode
 }
 
-func SetUserCenter(obj interface{}, pro interface{}) {
-	obj.(*model.Lod).Center = pro.(vec3.T)
-}
-
-func getUserCenter(obj interface{}) interface{} {
-	return &obj.(*model.Lod).Center
-}
-
-func SetRangeMode(obj interface{}, pro interface{}) {
+func setRangeMode(obj interface{}, pro interface{}) {
 	obj.(*model.Lod).Rmode = pro.(uint32)
 }
 
@@ -85,7 +76,7 @@ func init() {
 		return nil
 	}
 	wrap := io.NewObjectWrapper("LOD", fn, "osg::Object osg::Node osg::Group osg::LOD")
-	ser1 := io.NewEnumSerializer("CenterMode", getCenterMode, SetCenterMode)
+	ser1 := io.NewEnumSerializer("CenterMode", getCenterMode, setCenterMode)
 	ser1.Add("USE_BOUNDING_SPHERE_CENTER", model.USE_BOUNDING_SPHERE_CENTER)
 	ser1.Add("USER_DEFINED_CENTER", model.USER_DEFINED_CENTER)
 	ser1.Add("UNION_OF_BOUNDING_SPHERE_AND_USER_DEFINED", model.UNION_OF_BOUNDING_SPHERE_AND_USER_DEFINED)
@@ -94,7 +85,7 @@ func init() {
 	ser2 := io.NewUserSerializer("UserCenter", checkUserCenter, readUserCenter, writeUserCenter)
 	wrap.AddSerializer(&ser2, io.RW_ENUM)
 
-	ser3 := io.NewEnumSerializer("RangeMode", getRangeMode, SetRangeMode)
+	ser3 := io.NewEnumSerializer("RangeMode", getRangeMode, setRangeMode)
 	ser3.Add("DISTANCE_FROM_EYE_POINT", model.DISTANCE_FROM_EYE_POINT)
 	ser3.Add("PIXEL_SIZE_ON_SCREEN", model.PIXEL_SIZE_ON_SCREEN)
 	wrap.AddSerializer(&ser3, io.RW_ENUM)

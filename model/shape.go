@@ -1,7 +1,8 @@
 package model
 
 const (
-	SHAPE_T string = "osg::Shape"
+	SHAPE_T      string = "osg::Shape"
+	SHAPEMODEL_T string = "osg::ShadeModel"
 )
 
 type Shape struct {

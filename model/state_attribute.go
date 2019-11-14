@@ -79,8 +79,8 @@ const (
 	PROTECTED Values = 0x4
 	INHERIT   Values = 0x8
 
-	FLAT   uint = 0x1D00
-	SMOOTH uint = 0x1D01
+	FLAT   = 0x1D00
+	SMOOTH = 0x1D01
 
 	SHADEMODEL_T     string = "osg::ShadeModel"
 	STATEATRRIBUTE_T string = "osg::StateAttribute"
@@ -114,7 +114,7 @@ func (s *StateAttribute) IsTextureAttribute() bool {
 
 type ShadeModel struct {
 	StateAttribute
-	Mode uint
+	Mode int
 }
 
 func NewShadeModel() ShadeModel {

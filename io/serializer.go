@@ -445,3 +445,23 @@ func NewVectorSerializer(name string, ty SerType, nrow uint, gt Getter, st Sette
 	ser := NewTemplateSerializer(name, gt, st)
 	return VectorSerializer{TemplateSerializer: ser, ElementType: ty, NumElementOnRow: nrow}
 }
+
+type IsAVectorSerializer struct {
+	TemplateSerializer
+	ElementType     SerType
+	NumElementOnRow uint
+}
+
+func (ser *IsAVectorSerializer) Read(is *OsgIstream, obj *model.Object) {
+	if is.IsBinary() {
+
+	} else {
+	}
+}
+
+func (ser *IsAVectorSerializer) Writer(is *OsgOstream, obj *model.Object) {}
+
+func NewIsAVectorSerializer(name string, ty SerType, nrow uint) IsAVectorSerializer {
+	ser := NewTemplateSerializer(name, nil, nil)
+	return IsAVectorSerializer{TemplateSerializer: ser, ElementType: ty, NumElementOnRow: nrow}
+}
