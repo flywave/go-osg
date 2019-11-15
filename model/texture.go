@@ -256,7 +256,6 @@ func NewTexture() Texture {
 		UseShadowComparison:         false,
 		ShadowAmbient:               0,
 		BorderWidth:                 1,
-		BorderColor:                 [4]int{0, 0, 0, 0},
 	}
 }
 

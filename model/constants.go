@@ -409,7 +409,7 @@ const (
 	LUMINANCE TextureShadowTextureMode = 0x1909
 	INTENSITY TextureShadowTextureMode = 0x8049
 	ALPHA     TextureShadowTextureMode = 0x1906
-	NONE      TextureShadowTextureMode = 0x0000
+	NONE                               = 0x0000
 
 	GL_RGBA32UI_EXT            = 0x8D70
 	GL_RGB32UI_EXT             = 0x8D71
