@@ -83,6 +83,8 @@ const (
 
 type StateAttributeInterface interface {
 	IsStateAttributeInterface() bool
+	IsTextureAttribute() bool
+	GetType() int
 }
 
 type StateAttribute struct {
@@ -114,6 +116,9 @@ func (s *StateAttribute) GetTypeMember() TypeMemberPair {
 func (s *StateAttribute) IsTextureAttribute() bool {
 	return false
 }
+func (s *StateAttribute) GetType() int {
+	return TEXTURE
+}
 
 type ShadeModel struct {
 	StateAttribute
@@ -126,7 +131,10 @@ func NewShadeModel() ShadeModel {
 	return ShadeModel{StateAttribute: a}
 }
 
-func IsStateAttribute(obj interface{}) bool {
+func IsBaseOfStateAttribute(obj interface{}) bool {
+	if obj == nil {
+		return false
+	}
 	ss := StateAttribute{}
 	baset := reflect.TypeOf(ss)
 	t := reflect.TypeOf(obj)

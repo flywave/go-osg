@@ -20,3 +20,11 @@ func NewTextureCubeMap() TextureCubeMap {
 	t := NewTexture()
 	return TextureCubeMap{Texture: t, Images: make([]*Image, 6, 6)}
 }
+
+func (t *TextureCubeMap) GetImage(f int) *Image {
+	return t.Images[f]
+}
+
+func (t *TextureCubeMap) SetImage(f int, img *Image) {
+	t.Images[f] = img
+}

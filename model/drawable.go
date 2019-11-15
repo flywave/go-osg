@@ -1,6 +1,10 @@
 package model
 
-import "github.com/ungerik/go3d/vec3"
+import (
+	"reflect"
+
+	"github.com/ungerik/go3d/vec3"
+)
 
 const (
 	DRAWABLE_T string = "osg::Drawable"
@@ -12,6 +16,10 @@ type DrawCallback struct {
 
 type ComputeBoundingBoxCallback struct {
 	Object
+}
+
+type DrawableInterface interface {
+	IsDrawableInterface() bool
 }
 
 type Drawable struct {
@@ -26,8 +34,22 @@ type Drawable struct {
 	DwCallback *DrawCallback
 }
 
+func (d *Drawable) IsDrawableInterface() bool {
+	return true
+}
+
 func NewDrawable() Drawable {
 	n := NewNode()
 	n.Type = DRAWABLE_T
 	return Drawable{Node: n}
+}
+
+func IsBaseOfDrawable(obj interface{}) bool {
+	if obj == nil {
+		return false
+	}
+	ss := Drawable{}
+	baset := reflect.TypeOf(ss)
+	t := reflect.TypeOf(obj)
+	return t.Implements(baset)
 }

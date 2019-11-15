@@ -40,7 +40,7 @@ type Image struct {
 	PixelAspectRatio      float32
 
 	AllocationMode AllocationMode
-	Data           []uint8
+	Data           []byte
 }
 
 func NewImage() Image {

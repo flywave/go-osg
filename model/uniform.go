@@ -1,14 +1,24 @@
 package model
 
 import (
+	"reflect"
+
 	"github.com/ungerik/go3d/vec2"
 	"github.com/ungerik/go3d/vec3"
 	"github.com/ungerik/go3d/vec4"
 )
 
+type UniformInterface interface {
+	IsUniformInterface() bool
+}
+
 type UniformBase struct {
 	Object
 	NameId uint32
+}
+
+func (u *UniformBase) IsUniformInterface() bool {
+	return true
 }
 
 type UIntUniform struct {
@@ -70,4 +80,14 @@ type MatrixfUniform struct {
 }
 type MatrixdUniform struct {
 	UniformBase
+}
+
+func IsBaseOfUniform(obj interface{}) bool {
+	if obj == nil {
+		return false
+	}
+	ss := UniformBase{}
+	baset := reflect.TypeOf(ss)
+	t := reflect.TypeOf(obj)
+	return t.Implements(baset)
 }

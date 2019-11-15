@@ -1,8 +1,5 @@
 package model
 
-import "github.com/ungerik/go3d/vec4"
-
-type WrapParameter uint32
 type FilterParameter uint32
 type InternalFormatMode uint32
 type InternalFormatType uint32
@@ -23,9 +20,9 @@ const (
 	NEAREST_MIPMAP_LINEAR  = GL_NEAREST_MIPMAP_LINEAR
 	NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST
 
-	WRAP_S WrapParameter = 0
-	WRAP_T WrapParameter = 1
-	WRAP_R WrapParameter = 2
+	WRAP_S = 0
+	WRAP_T = 1
+	WRAP_R = 2
 
 	CLAMP           = GL_CLAMP
 	CLAMP_TO_EDGE   = GL_CLAMP_TO_EDGE
@@ -52,13 +49,13 @@ type Texture struct {
 	Minlod                      float32
 	Maxlod                      float32
 	Lodbias                     float32
-	Swizzle                     vec4.T
+	Swizzle                     [4]int
 	UseHardwareMipmapGeneration bool
-	UnrefImageDataAfterApply    bool
+	UnRefImageDataAfterApply    bool
 	ClientStorageHint           bool
 	ResizeNonPowerOfTwoHint     bool
 
-	BorderColor vec4.T
+	BorderColor [4]float64
 	BorderWidth int
 
 	InternalFormatMode InternalFormatMode
@@ -192,7 +189,7 @@ func (tex *Texture) GetCompressedSize(internalFormat int, width int, height int,
 	return blockSize, size
 }
 
-func (tex *Texture) SetWrap(which WrapParameter, wrap int) {
+func (tex *Texture) SetWrap(which int, wrap int) {
 	switch which {
 	case WRAP_S:
 		tex.Wrap_S = wrap
@@ -206,6 +203,19 @@ func (tex *Texture) SetWrap(which WrapParameter, wrap int) {
 	default:
 		break
 	}
+}
+
+func (tex *Texture) GetWrap(wrap int) int {
+	if tex.Wrap_S == wrap {
+		return WRAP_S
+	}
+	if tex.Wrap_T == wrap {
+		return WRAP_T
+	}
+	if tex.Wrap_R == wrap {
+		return WRAP_R
+	}
+	return WRAP_S
 }
 
 func (tex *Texture) SetFilter(which FilterParameter, filter int) {
@@ -239,14 +249,14 @@ func NewTexture() Texture {
 		StateAttribute:              st,
 		MaxAnisotropy:               1,
 		UseHardwareMipmapGeneration: true,
-		UnrefImageDataAfterApply:    false,
+		UnRefImageDataAfterApply:    false,
 		ClientStorageHint:           false,
 		ResizeNonPowerOfTwoHint:     true,
 		InternalFormat:              0,
 		UseShadowComparison:         false,
 		ShadowAmbient:               0,
 		BorderWidth:                 1,
-		BorderColor:                 vec4.T{0, 0, 0, 0},
+		BorderColor:                 [4]int{0, 0, 0, 0},
 	}
 }
 

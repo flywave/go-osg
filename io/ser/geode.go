@@ -15,12 +15,9 @@ func DrawableReader(is *io.OsgIstream, obj interface{}) {
 	is.Read(&size)
 	is.Read(is.BEGIN_BRACKET)
 	for i := 0; i < size; i++ {
-		obj = is.ReadObject(nil)
-		if obj != nil {
-			switch dw := obj.(type) {
-			case *model.Drawable:
-				g.AddChild(dw)
-			}
+		obj = is.ReadObject()
+		if model.IsBaseOfDrawable(obj) {
+			g.AddChild(obj)
 		}
 	}
 	is.Read(is.END_BRACKET)

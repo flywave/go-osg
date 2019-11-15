@@ -56,7 +56,10 @@ func (n *Node) IsNode() bool {
 	return true
 }
 
-func TypeBaseOfNode(obj interface{}) bool {
+func IsBaseOfNode(obj interface{}) bool {
+	if obj == nil {
+		return false
+	}
 	no := NewNode()
 	baset := reflect.TypeOf(no)
 	t := reflect.TypeOf(obj)

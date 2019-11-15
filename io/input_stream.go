@@ -37,7 +37,7 @@ type OsgInputIterator interface {
 	MatchString(str string) bool
 	AdvanceToCurrentEndBracket()
 	SetInputSteam(is *OsgIstream)
-	ReadObject(obj interface{}) interface{}
+	ReadObject() interface{}
 }
 
 type InputIterator struct {
@@ -271,7 +271,7 @@ func (iter *AsciiInputIterator) getCharacter(c *byte) {
 	iter.PreReadString = iter.PreReadString[1:]
 }
 
-func (iter *AsciiInputIterator) ReadObject(obj interface{}) interface{} {
+func (iter *AsciiInputIterator) ReadObject() interface{} {
 	return nil
 }
 
@@ -282,7 +282,7 @@ type BinaryInputIterator struct {
 	BlockSizes     []int64
 }
 
-func (iter *BinaryInputIterator) ReadObject(obj interface{}) interface{} {
+func (iter *BinaryInputIterator) ReadObject() interface{} {
 	return nil
 }
 
@@ -432,6 +432,22 @@ func (is *OsgIstream) ReadWrappedString(str string) {
 	is.In.ReadWrappedString(str)
 }
 
+func (is *OsgIstream) ReadObject() interface{} {
+	return is.In.ReadObject()
+}
+
+func (is *OsgIstream) ReadSize() int {
+	var size int
+	is.Read(&size)
+	return size
+}
+
+func (is *OsgIstream) ReadImage() *model.Image {
+	img := model.NewImage()
+	is.Read(&img)
+	return &img
+}
+
 func (is *OsgIstream) GetFileVersion(domain string) int {
 	if len(domain) == 0 {
 		return is.FileVersion
@@ -493,8 +509,4 @@ func (is *OsgIstream) Start(iter OsgInputIterator) (ReadType, error) {
 		is.Fields = is.Fields[0 : l-1]
 		return header.Type, nil
 	}
-}
-
-func (is *OsgIstream) ReadObject(obj interface{}) interface{} {
-	return is.In.ReadObject(obj)
 }

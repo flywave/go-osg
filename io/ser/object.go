@@ -12,7 +12,7 @@ func checkUserData(obj interface{}) bool {
 
 func readUserData(is *io.OsgIstream, obj interface{}) {
 	is.Read(is.BEGIN_BRACKET)
-	ob := is.ReadObject(nil)
+	ob := is.ReadObject()
 	if ob != nil {
 		obj.(*model.Object).Udc.UserData = ob
 	}
