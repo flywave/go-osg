@@ -311,6 +311,10 @@ type OsgOptions struct {
 	Compressed bool
 }
 
+func NewOsgOptions() OsgOptions {
+	return OsgOptions{FileType: FileType}
+}
+
 type ReadType int
 
 const (
