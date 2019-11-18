@@ -13,8 +13,8 @@ func checkUDC_UserData(obj interface{}) bool {
 func readUDC_UserData(is *io.OsgIstream, obj interface{}) {
 	udc := obj.(*model.UserDataContainer)
 	is.Read(is.BEGIN_BRACKET)
-	data := is.ReadObject()
-	udc.UserData = data
+	ob := is.ReadObject(nil)
+	udc.UserData = ob
 	is.Read(is.END_BRACKET)
 }
 
@@ -67,7 +67,7 @@ func readUDC_UserObjects(is *io.OsgIstream, obj interface{}) {
 	size := is.ReadSize()
 	is.Read(is.BEGIN_BRACKET)
 	for i := 0; i < size; i++ {
-		ob := is.ReadObject()
+		ob := is.ReadObject(nil)
 		udc.ObjectList = append(udc.ObjectList, ob)
 	}
 	is.Read(is.END_BRACKET)

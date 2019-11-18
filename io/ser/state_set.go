@@ -51,13 +51,13 @@ func readAttributes(is *io.OsgIstream, attr model.AttributeListType) {
 	if size > 0 {
 		is.Read(is.BEGIN_BRACKET)
 		for i := 0; i < size; i++ {
-			ob := is.ReadObject()
+			ob := is.ReadObject(nil)
 			is.PROPERTY.Name = "Value"
 			is.Read(is.PROPERTY)
 			val := readValue(is)
 			if model.IsBaseOfStateAttribute(ob) {
 				sa := ob.(model.StateAttributeInterface)
-				rp := model.RefAttributePair{ob, val}
+				rp := model.RefAttributePair{ob, val} //TODO
 				attr[sa.GetType()] = &rp
 			}
 		}
@@ -237,9 +237,9 @@ func readUniformList(is *io.OsgIstream, obj interface{}) {
 	if size > 0 {
 		is.PROPERTY.Name = "Value"
 		for i := 0; i < size; i++ {
-			obj := is.ReadObject()
+			ob := is.ReadObject(nil)
 			is.Read(is.PROPERTY)
-			if model.IsBaseOfUniform(obj) {
+			if model.IsBaseOfUniform(ob) {
 				readValue(is) //ignore
 			}
 		}

@@ -1,6 +1,15 @@
 package io
 
-import "strings"
+import (
+	"bufio"
+	"bytes"
+	"errors"
+	"image"
+	"os"
+	"strings"
+
+	"github.com/flywave/go-osg/model"
+)
 
 const (
 	FEATURE_NONE               = 0
@@ -40,10 +49,72 @@ const (
 	CREATE = 2
 )
 
+type ReadResult struct {
+	Status  int
+	Message string
+	Object  interface{}
+}
+
+func (res *ReadResult) GetObject() *model.Object {
+	switch o := res.Object.(type) {
+	case *model.Object:
+		return o
+	}
+	return nil
+}
+
+func (res *ReadResult) GetImage() *model.Image {
+	switch o := res.Object.(type) {
+	case *model.Image:
+		return o
+	}
+	return nil
+}
+
+func (res *ReadResult) GetNode() *model.Node {
+	switch o := res.Object.(type) {
+	case *model.Node:
+		return o
+	}
+	return nil
+}
+
+func (res *ReadResult) StatusMessage() string {
+	var description string
+	switch res.Status {
+	case NOT_IMPLEMENTED:
+		description += "not implemented"
+		break
+	case FILE_NOT_HANDLED:
+		description += "file not handled"
+		break
+	case ERROR_IN_WRITING_FILE:
+		description += "write error"
+		break
+	case FILE_SAVED:
+		description += "file saved"
+		break
+	}
+
+	if len(res.Message) != 0 {
+		description += " (" + res.Message + ")"
+	}
+	return description
+}
+
 type ReadWrite struct {
 	SupportedProtocal   map[string]string
 	SupportedExtensions map[string]string
 	SupportedOptions    map[string]string
+}
+
+var rw *ReadWrite
+
+func getReaderWriter() *ReadWrite {
+	if rw == nil {
+		rw = &ReadWrite{}
+	}
+	return rw
 }
 
 func NewReadWrite() ReadWrite {
@@ -72,6 +143,28 @@ func NewReadWrite() ReadWrite {
 	return rw
 }
 
+func (rw *ReadWrite) ReadInputIterator(reader *bufio.Reader, op *OsgIstreamOptions) OsgInputIterator {
+	extensionIsAscii := false
+	if op != nil {
+		if op.FileType == "Ascii" {
+			extensionIsAscii = true
+		}
+	}
+	if extensionIsAscii {
+		head := make([]byte, 6, 6)
+		reader.Read(head)
+		if string(head) == "#Ascii" {
+			rd := NewAsciiInputIterator(reader)
+			return &rd
+		} else {
+			return nil
+		}
+	} else {
+		rd := NewBinaryInputIterator(reader, 1)
+		return &rd
+	}
+}
+
 func (rw *ReadWrite) AcceptsExtension(ext string) bool {
 	e := strings.ToLower(ext)
 	_, ok := rw.SupportedExtensions[e]
@@ -95,4 +188,86 @@ func (rw *ReadWrite) SupportProtocol(fmt string, desc string) {
 
 func (rw *ReadWrite) SupportOption(fmt string, desc string) {
 	rw.SupportedOptions[fmt] = desc
+}
+
+func (rw *ReadWrite) PrepareReading(fname string, op *OsgIstreamOptions) (*OsgIstreamOptions, error) {
+	subs := strings.Split(fname, ".")
+	ext := subs[len(subs)-1]
+	if !rw.AcceptsExtension(ext) {
+		return nil, errors.New("not support")
+	}
+	if op == nil {
+		o := NewOsgIstreamOptions()
+		op = &o
+	}
+
+	if ext == "osgt" {
+		op.FileType = "Ascii"
+	} else if ext == "osgb" {
+		op.FileType = "Binary"
+	} else if ext == "jpg" || ext == "jpeg" {
+		op.FileType = "JPEG"
+	} else if ext == "png" {
+		op.FileType = "PNG"
+	} else if ext == "bmp" {
+		op.FileType = "BMP"
+	} else {
+		op.FileType = ""
+	}
+	return op, nil
+}
+
+func (rw *ReadWrite) OpenReader(fname string) *bufio.Reader {
+	f, e := os.Open(fname)
+	if e != nil {
+		return nil
+	}
+	rd := bufio.NewReader(f)
+	return rd
+}
+
+func (rw *ReadWrite) OpenWriter(fname string) *bufio.Writer {
+	return nil
+}
+
+func (rw *ReadWrite) ReadObject(fname string, opt *OsgIstreamOptions) *ReadResult {
+	lopt, e := rw.PrepareReading(fname, opt)
+	if e != nil {
+		return nil
+	}
+	in := rw.OpenReader(fname)
+	return rw.ReadObjectWithReader(bufio.NewReader(in), lopt)
+}
+
+func (rw *ReadWrite) ReadObjectWithReader(rd *bufio.Reader, opt *OsgIstreamOptions) *ReadResult {
+	iter := rw.ReadInputIterator(rd, opt)
+	is := NewOsgIstream(opt)
+	t, e := is.Start(iter)
+
+	if e != nil || t != READ_UNKNOWN {
+		return &ReadResult{Status: FILE_NOT_HANDLED}
+	}
+	ty, e := is.Start(iter)
+	if e != nil {
+		if ty == READ_UNKNOWN {
+			return &ReadResult{Status: FILE_NOT_HANDLED}
+		}
+		is.Decompress()
+		obj := is.ReadObject(nil)
+		if obj == nil {
+			return &ReadResult{Status: FILE_NOT_HANDLED}
+		}
+		return &ReadResult{Object: obj}
+	}
+	return nil
+}
+
+func (rw *ReadWrite) ReadImage(data []byte, opts *OsgIstreamOptions) *model.Image {
+	img := model.NewImage()
+	rd := bytes.NewBuffer(data)
+	mg, ty, e := image.Decode(rd)
+	if e == nil {
+		img.S = int32(mg.Bounds().Max.X - mg.Bounds().Min.X)
+		img.T = int32(mg.Bounds().Max.Y - mg.Bounds().Min.Y)
+	}
 }

@@ -3,7 +3,6 @@ package io
 import (
 	"bufio"
 	"encoding/binary"
-	"strings"
 
 	"github.com/flywave/go-osg/model"
 )
@@ -11,44 +10,61 @@ import (
 type OsgInputIterator interface {
 	IsBinary() bool
 	ReadBool(b *bool)
-	ReadChar(c *int8)
-	ReadUchar(c *uint8)
+	ReadChar(c *byte)
+	ReadUChar(c *uint8)
 	ReadShort(s *int16)
-	ReadUshort(us *uint16)
-	ReadInt(i *int)
-	ReadUint(i *uint)
+	ReadUShort(us *uint16)
+	ReadInt(i *int32)
+	ReadUInt(i *uint32)
 	ReadLong(l *int64)
-	ReadUlong(ul *uint64)
+	ReadULong(ul *uint64)
 	ReadFloat(f *float32)
 	ReadDouble(d *float64)
 	ReadString() string
 	ReadGlenum(value *model.ObjectGlenum)
 	ReadProperty(prop *model.ObjectProperty)
 	ReadMark(mark *model.ObjectMark)
-	ReadCharArray(s *string, size int)
+	ReadCharArray(size int) []byte
 	ReadWrappedString(str *string)
-	ReadComponentArray(s *string, numElements int, numComponentsPerElements int, componentSizeInBytes int)
+	ReadComponentArray(s []byte, numElements int, numComponentsPerElements int, componentSizeInBytes int)
 	MatchString(str string) bool
 	AdvanceToCurrentEndBracket()
 	SetInputSteam(is *OsgIstream)
+	GetIterator() *bufio.Reader
+	SetIterator(*bufio.Reader)
+	SetSupportBinaryBrackets(sbb bool)
 }
 
 type InputIterator struct {
-	In                    bufio.Reader
+	In                    *bufio.Reader
 	InputStream           *OsgIstream
 	ByteSwap              int
 	SupportBinaryBrackets bool
 	Failed                bool
 }
 
-func NewInputIterator(in bufio.Reader, bysp int) InputIterator {
+func NewInputIterator(in *bufio.Reader, bysp int) InputIterator {
 	return InputIterator{In: in, ByteSwap: bysp, SupportBinaryBrackets: false, Failed: false}
 }
 
+func (it *InputIterator) SetSupportBinaryBrackets(sbb bool) {
+	it.SupportBinaryBrackets = sbb
+}
 func (it *InputIterator) SetInputSteam(is *OsgIstream) {
 	it.InputStream = is
 }
-func (it *InputIterator) ReadComponentArray(s string, numElements int, numComponentsPerElements int, componentSizeInBytes int) {
+func (it *InputIterator) ReadComponentArray(s []byte, numElements int, numComponentsPerElements int, componentSizeInBytes int) {
+}
+
+func (iter *InputIterator) MatchString(str string) bool {
+	return false
+}
+func (iter *InputIterator) GetIterator() *bufio.Reader {
+	return iter.In
+}
+
+func (iter *InputIterator) SetIterator(bf *bufio.Reader) {
+	iter.In = bf
 }
 
 type BinaryInputIterator struct {
@@ -58,37 +74,40 @@ type BinaryInputIterator struct {
 	BlockSizes     []int64
 }
 
-func NewBinaryInputIterator(in bufio.Reader, bysp int) BinaryInputIterator {
+func NewBinaryInputIterator(in *bufio.Reader, bysp int) BinaryInputIterator {
 	it := NewInputIterator(in, bysp)
 	return BinaryInputIterator{InputIterator: it}
 }
 
+func (iter *BinaryInputIterator) IsBinary() bool {
+	return true
+}
+
 func (iter *BinaryInputIterator) readData(val interface{}, size int) {
-	binary.Read(&iter.In, binary.LittleEndian, val)
+	binary.Read(iter.In, binary.LittleEndian, val)
 	iter.Offset += int64(size)
 }
 
-func (iter *BinaryInputIterator) ReadCharArray(str *string, s int) {
-	buf := make([]byte, s)
-	iter.readData(buf, s)
-	*str = string(buf)
+func (iter *BinaryInputIterator) ReadCharArray(s int) []byte {
+	arry := make([]byte, s)
+	iter.readData(arry, s)
+	return arry
 }
 
-func (it *BinaryInputIterator) ReadComponentArray(s *string, numElements int, numComponentsPerElements int, componentSizeInBytes int) {
-	size := numElements * numComponentsPerElements * componentSizeInBytes
-	if size > 0 {
-		var str string
-		it.ReadCharArray(&str, size)
-		build := strings.Builder{}
-		if it.ByteSwap > 0 && componentSizeInBytes > 1 {
-			for i := numElements - 1; i >= 0; i-- {
-				for j := numComponentsPerElements - 1; j >= 0; j-- {
-					build.WriteByte(str[i*j])
-				}
-			}
-		}
-		*s = build.String()
-	}
+func (it *BinaryInputIterator) ReadComponentArray(s []byte, numElements int, numComponentsPerElements int, componentSizeInBytes int) {
+	// size := numElements * numComponentsPerElements * componentSizeInBytes
+	// if size > 0 {
+	// 	it.ReadCharArray(&s, size)
+	// 	build := strings.Builder{}
+	// 	if it.ByteSwap > 0 && componentSizeInBytes > 1 {
+	// 		for i := numElements - 1; i >= 0; i-- {
+	// 			for j := numComponentsPerElements - 1; j >= 0; j-- {
+	// 				build.WriteByte(s[i*j])
+	// 			}
+	// 		}
+	// 	}
+	// 	*s = build.String()
+	// }
 }
 
 func (iter *BinaryInputIterator) ReadBool(b *bool) {
@@ -135,23 +154,24 @@ func (iter *BinaryInputIterator) ReadDouble(val *float64) {
 	iter.readData(val, model.DOUBLE_SIZE)
 }
 
-func (iter *BinaryInputIterator) ReadString(val *string) {
+func (iter *BinaryInputIterator) ReadString() string {
 	var size int32
 	iter.ReadInt(&size)
-	iter.ReadCharArray(val, int(size))
+	var str string
+	return string(iter.ReadCharArray(int(size)))
 }
 
 func (iter *BinaryInputIterator) ReadGlenum(val *model.ObjectGlenum) {
 	var c int32
 	iter.ReadInt(&c)
-	val.Value = int(c)
+	val.Value = c
 }
 
-func (iter *BinaryInputIterator) ReadObjectProperty(val *model.ObjectProperty) {
+func (iter *BinaryInputIterator) ReadProperty(val *model.ObjectProperty) {
 	if val.MapProperty {
 		var c int32
 		iter.ReadInt(&c)
-		val.Value = int(c)
+		val.Value = c
 	} else {
 		val.Value = 0
 	}
@@ -178,7 +198,7 @@ func (iter *BinaryInputIterator) ReadMark(mark *model.ObjectMark) {
 }
 
 func (iter *BinaryInputIterator) ReadWrappedString(str *string) {
-	iter.ReadString(str)
+	*str = iter.ReadString()
 }
 
 func (iter *BinaryInputIterator) AdvanceToCurrentEndBracket() {
@@ -189,5 +209,8 @@ func (iter *BinaryInputIterator) AdvanceToCurrentEndBracket() {
 		pos += iter.BlockSizes[bs-1]
 		skip := pos - iter.Offset
 		iter.Offset = pos
+		iter.In.Discard(int(skip))
+		iter.BeginPositions = iter.BeginPositions[:len(iter.BeginPositions)-1]
+		iter.BlockSizes = iter.BlockSizes[:len(iter.BlockSizes)-1]
 	}
 }

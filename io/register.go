@@ -13,8 +13,8 @@ func init() {
 }
 
 type ObjectWrapperAssociate struct {
-	FirstVersion int
-	LastVersion  int
+	FirstVersion int32
+	LastVersion  int32
 	Name         string
 }
 
@@ -28,7 +28,7 @@ type ObjectWrapper struct {
 	Serializers                          []interface{}
 	BackupSerializers                    []interface{}
 	TypeList                             []SerType
-	Version                              int
+	Version                              int32
 	IsAssociatesRevisionsInheritanceDone bool
 }
 
@@ -138,7 +138,7 @@ func (wp *ObjectWrapper) GetSerializerAndType(name string, ty *SerType) interfac
 	return nil
 }
 
-func (wp *ObjectWrapper) Read(is *OsgIstream, obj *model.Object) {
+func (wp *ObjectWrapper) Read(is *OsgIstream, obj interface{}) {
 	inputVersion := is.GetFileVersion(wp.Domain)
 	for _, s := range wp.Serializers {
 		ser := s.(Serializer)
@@ -150,7 +150,7 @@ func (wp *ObjectWrapper) Read(is *OsgIstream, obj *model.Object) {
 	}
 }
 
-func (wp *ObjectWrapper) Write(os *OsgOstream, obj *model.Object) {
+func (wp *ObjectWrapper) Write(os *OsgOstream, obj interface{}) {
 	inputVersion := os.GetFileVersion(wp.Domain)
 	for _, s := range wp.Serializers {
 		ser := s.(Serializer)
@@ -207,6 +207,12 @@ func (wp *ObjectWrapper) WriteSchema(properties []string, types []SerType) {
 			types = append(types, t)
 		}
 		i++
+	}
+}
+
+func (wp *ObjectWrapper) ResetSchema() {
+	if len(wp.BackupSerializers) > 0 {
+		wp.Serializers = wp.BackupSerializers
 	}
 }
 
@@ -572,6 +578,6 @@ type UpdateWrapperVersionProxy struct {
 	LastVersion int
 }
 
-func AddUpdateWrapperVersionProxy(w *ObjectWrapper, v int) {
+func AddUpdateWrapperVersionProxy(w *ObjectWrapper, v int32) {
 	w.Version = v
 }

@@ -2,7 +2,6 @@ package io
 
 import (
 	"bufio"
-	"io"
 	"strconv"
 	"strings"
 
@@ -15,8 +14,8 @@ type AsciiInputIterator struct {
 	MarkString    string
 }
 
-func NewAsciiInputIterator(rd io.Reader) AsciiInputIterator {
-	it := InputIterator{In: *bufio.NewReader(rd), ByteSwap: 0, SupportBinaryBrackets: false, Failed: false}
+func NewAsciiInputIterator(rd *bufio.Reader) AsciiInputIterator {
+	it := InputIterator{In: rd, ByteSwap: 0, SupportBinaryBrackets: false, Failed: false}
 	return AsciiInputIterator{InputIterator: it}
 }
 
@@ -55,13 +54,13 @@ func (iter *AsciiInputIterator) ReadBool(b *bool) {
 	}
 }
 
-func (iter *AsciiInputIterator) ReadChar(c *int8) {
+func (iter *AsciiInputIterator) ReadChar(c *byte) {
 	var s int16
 	iter.ReadShort(&s)
-	*c = int8(s)
+	*c = byte(s)
 }
 
-func (iter *AsciiInputIterator) ReadUchar(c *uint8) {
+func (iter *AsciiInputIterator) ReadUChar(c *uint8) {
 	var s int16
 	iter.ReadShort(&s)
 	*c = uint8(s)
@@ -75,25 +74,25 @@ func (iter *AsciiInputIterator) ReadShort(s *int16) {
 	}
 }
 
-func (iter *AsciiInputIterator) ReadUshort(us *uint16) {
+func (iter *AsciiInputIterator) ReadUShort(us *uint16) {
 	var s int16
 	iter.ReadShort(&s)
 	*us = uint16(s)
 }
 
-func (iter *AsciiInputIterator) ReadInt(i *int) {
+func (iter *AsciiInputIterator) ReadInt(i *int32) {
 	str := iter.ReadString()
 	res, e := strconv.ParseInt(str, 10, 32)
 	if e == nil {
-		*i = int(res)
+		*i = int32(res)
 	}
 }
 
-func (iter *AsciiInputIterator) ReadUint(i *uint) {
+func (iter *AsciiInputIterator) ReadUInt(i *uint32) {
 	str := iter.ReadString()
 	res, e := strconv.ParseUint(str, 10, 32)
 	if e == nil {
-		*i = uint(res)
+		*i = uint32(res)
 	}
 }
 
@@ -105,7 +104,7 @@ func (iter *AsciiInputIterator) ReadLong(l *int64) {
 	}
 }
 
-func (iter *AsciiInputIterator) ReadUlong(ul *uint64) {
+func (iter *AsciiInputIterator) ReadULong(ul *uint64) {
 	str := iter.ReadString()
 	res, e := strconv.ParseUint(str, 10, 64)
 	if e == nil {
@@ -148,7 +147,7 @@ func (iter *AsciiInputIterator) ReadGlenum(value *model.ObjectGlenum) {
 
 func (iter *AsciiInputIterator) ReadProperty(prop *model.ObjectProperty) {
 	str := iter.ReadString()
-	value := 0
+	var value int32 = 0
 	if prop.MapProperty {
 		value = GetObjectWrapperManager().FindLookup(prop.Name).GetValue(str)
 	} else {
@@ -157,8 +156,8 @@ func (iter *AsciiInputIterator) ReadProperty(prop *model.ObjectProperty) {
 	prop.Value = value
 }
 
-func (iter *AsciiInputIterator) ReadCharArray(str *string, s int) {
-	return
+func (iter *AsciiInputIterator) ReadCharArray(s int) []byte {
+	return []byte{}
 }
 
 func (iter *AsciiInputIterator) ReadMark(mark *model.ObjectMark) {

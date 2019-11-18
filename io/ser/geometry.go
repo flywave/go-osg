@@ -7,9 +7,9 @@ import (
 
 var lookup *io.IntLookup
 
-func readAttributeBinding(is *io.OsgIstream) int {
+func readAttributeBinding(is *io.OsgIstream) int32 {
 	if is.IsBinary() {
-		var val int
+		var val int32
 		is.Read(&val)
 		return val
 	} else {
@@ -18,7 +18,7 @@ func readAttributeBinding(is *io.OsgIstream) int {
 	}
 }
 
-func writeAttributeBinding(os *io.OsgOstream, val int) {
+func writeAttributeBinding(os *io.OsgOstream, val int32) {
 	if os.IsBinary() {
 		os.Write(val)
 	} else {

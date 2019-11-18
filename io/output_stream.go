@@ -23,7 +23,7 @@ type OsgOstream struct {
 func (os *OsgOstream) Write(inter interface{}) {
 }
 
-func (os *OsgOstream) GetFileVersion(domain string) int {
+func (os *OsgOstream) GetFileVersion(domain string) int32 {
 	return 0
 }
 

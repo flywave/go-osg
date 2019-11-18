@@ -10,7 +10,7 @@ func NewBufferData() BufferData {
 	return BufferData{Object: obj}
 }
 
-type Binding int
+type Binding int32
 
 const (
 	BIND_UNDEFINED         = -1
@@ -23,9 +23,9 @@ const (
 type Array struct {
 	BufferData
 	Type             ArrayTable
-	DataSize         int
-	DataType         int
-	Binding          int
+	DataSize         int32
+	DataType         int32
+	Binding          int32
 	Normalize        bool
 	PreserveDataType bool
 }

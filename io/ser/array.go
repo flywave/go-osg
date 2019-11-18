@@ -10,7 +10,7 @@ func getBinding(obj interface{}) interface{} {
 }
 
 func setBinding(obj interface{}, fc interface{}) {
-	obj.(*model.Array).Binding = *fc.(*int)
+	obj.(*model.Array).Binding = *fc.(*int32)
 }
 
 func getNormalize(obj interface{}) interface{} {

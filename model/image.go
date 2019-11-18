@@ -6,40 +6,36 @@ import (
 	"github.com/ungerik/go3d/vec3"
 )
 
-type WriteHint uint32
-type AllocationMode uint32
-type Origin uint32
-
 const (
-	NO_PREFERENCE WriteHint = 0
-	STORE_INLINE  WriteHint = 1
-	EXTERNAL_FILE WriteHint = 2
+	NO_PREFERENCE int32 = 0
+	STORE_INLINE  int32 = 1
+	EXTERNAL_FILE int32 = 2
 
-	NO_DELETE       AllocationMode = 0
-	USE_NEW_DELETE  AllocationMode = 1
-	USE_MALLOC_FREE AllocationMode = 2
+	NO_DELETE       int32 = 0
+	USE_NEW_DELETE  int32 = 1
+	USE_MALLOC_FREE int32 = 2
 
-	BOTTOM_LEFT Origin = 0
-	TOP_LEFT    Origin = 1
+	BOTTOM_LEFT int32  = 0
+	TOP_LEFT    int32  = 1
 	IMAGE_T     string = "osg::Image"
 )
 
 type Image struct {
 	BufferData
 	FileName              string
-	WriteHint             WriteHint
-	Origin                Origin
-	S                     int
-	T                     int
-	R                     int
-	RowLength             int
-	InternalTextureFormat int
-	PixelFormat           int
-	DataType              int
-	Packing               uint
+	WriteHint             int32
+	Origin                int32
+	S                     int32
+	T                     int32
+	R                     int32
+	RowLength             int32
+	InternalTextureFormat int32
+	PixelFormat           int32
+	DataType              int32
+	Packing               int32
 	PixelAspectRatio      float32
 
-	AllocationMode AllocationMode
+	AllocationMode int32
 	Data           []byte
 }
 
