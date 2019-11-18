@@ -9,19 +9,19 @@ type TraversalMode uint32
 type VisitorType uint32
 
 const (
-	TRAVERSE_NONE            TraversalMode = 0
-	TRAVERSE_PARENTS         TraversalMode = 1
-	TRAVERSE_ALL_CHILDREN    TraversalMode = 2
-	TRAVERSE_ACTIVE_CHILDREN TraversalMode = 3
+	TRAVERSENONE            TraversalMode = 0
+	TRAVERSEPARENTS         TraversalMode = 1
+	TRAVERSEALLCHILDREN    TraversalMode = 2
+	TRAVERSEACTIVECHILDREN TraversalMode = 3
 
-	NODE_VISITOR             VisitorType = 0
-	UPDATE_VISITOR           VisitorType = 1
-	EVENT_VISITOR            VisitorType = 2
-	COLLECT_OCCLUDER_VISITOR VisitorType = 3
-	CULL_VISITOR             VisitorType = 4
-	INTERSECTION_VISITOR     VisitorType = 5
+	NODEVISITOR             VisitorType = 0
+	UPDATEVISITOR           VisitorType = 1
+	EVENTVISITOR            VisitorType = 2
+	COLLECTOCCLUDERVISITOR VisitorType = 3
+	CULLVISITOR             VisitorType = 4
+	INTERSECTIONVISITOR     VisitorType = 5
 
-	UNINITIALIZED_FRAME_NUMBER uint32 = 0xffffffff
+	UNINITIALIZEDFRAMENUMBER uint32 = 0xffffffff
 )
 
 type NodeVisitor struct {
@@ -34,11 +34,11 @@ type NodeVisitor struct {
 }
 
 func NewNodeVisitor() NodeVisitor {
-	return NodeVisitor{VisitorType: NODE_VISITOR, TraversalMode: TRAVERSE_NONE, NodeMaskOverride: 0x0, TraversalMask: 0xffffffff, TraversalNumber: UNINITIALIZED_FRAME_NUMBER}
+	return NodeVisitor{VisitorType: NODEVISITOR, TraversalMode: TRAVERSENONE, NodeMaskOverride: 0x0, TraversalMask: 0xffffffff, TraversalNumber: UNINITIALIZEDFRAMENUMBER}
 }
 
 func (v *NodeVisitor) PushOntoNodePath(n interface{}) {
-	if v.TraversalMode != TRAVERSE_PARENTS {
+	if v.TraversalMode != TRAVERSEPARENTS {
 		v.Npath = append(v.Npath, n)
 	} else {
 		t := []interface{}{n}
@@ -47,7 +47,7 @@ func (v *NodeVisitor) PushOntoNodePath(n interface{}) {
 }
 
 func (v *NodeVisitor) PopFromNodePath(n interface{}) {
-	if v.TraversalMode != TRAVERSE_PARENTS {
+	if v.TraversalMode != TRAVERSEPARENTS {
 		v.Npath = v.Npath[:len(v.Npath)-1]
 	} else {
 		v.Npath = v.Npath[1 : len(v.Npath)-1]

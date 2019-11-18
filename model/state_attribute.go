@@ -47,19 +47,19 @@ const (
 	CLIPCONTROL                    = 41
 	VALIDATOR                      = 42
 	VIEWMATRIXEXTRACTOR            = 43
-	OSGNV_PARAMETER_BLOCK          = 44
-	OSGNVEXT_TEXTURE_SHADER        = 45
-	OSGNVEXT_VERTEX_PROGRAM        = 46
-	OSGNVEXT_REGISTER_COMBINERS    = 47
-	OSGNVCG_PROGRAM                = 48
-	OSGNVSLANG_PROGRAM             = 49
-	OSGNVPARSE_PROGRAM_PARSER      = 50
+	OSGNVPARAMETERBLOCK          = 44
+	OSGNVEXTTEXTURESHADER        = 45
+	OSGNVEXTVERTEXPROGRAM        = 46
+	OSGNVEXTREGISTERCOMBINERS    = 47
+	OSGNVCGPROGRAM                = 48
+	OSGNVSLANGPROGRAM             = 49
+	OSGNVPARSEPROGRAMPARSER      = 50
 	UNIFORMBUFFERBINDING           = 51
 	TRANSFORMFEEDBACKBUFFERBINDING = 52
 	ATOMICCOUNTERBUFFERBINDING     = 53
-	PATCH_PARAMETER                = 54
-	FRAME_BUFFER_OBJECT            = 55
-	VERTEX_ATTRIB_DIVISOR          = 56
+	PATCHPARAMETER                = 54
+	FRAMEBUFFEROBJECT            = 55
+	VERTEXATTRIBDIVISOR          = 56
 	SHADERSTORAGEBUFFERBINDING     = 57
 	INDIRECTDRAWBUFFERBINDING      = 58
 	VIEWPORTINDEXED                = 59
@@ -77,8 +77,8 @@ const (
 	FLAT   = 0x1D00
 	SMOOTH = 0x1D01
 
-	SHADEMODEL_T     string = "osg::ShadeModel"
-	STATEATRRIBUTE_T string = "osg::StateAttribute"
+	SHADEMODELT     string = "osg::ShadeModel"
+	STATEATRRIBUTET string = "osg::StateAttribute"
 )
 
 type StateAttributeInterface interface {
@@ -100,7 +100,7 @@ func (s *StateAttribute) IsStateAttributeInterface() bool {
 
 func NewStateAttribute() StateAttribute {
 	obj := NewObject()
-	obj.Type = STATEATRRIBUTE_T
+	obj.Type = STATEATRRIBUTET
 	return StateAttribute{Object: obj}
 }
 
@@ -127,7 +127,7 @@ type ShadeModel struct {
 
 func NewShadeModel() ShadeModel {
 	a := NewStateAttribute()
-	a.Type = SHADEMODEL_T
+	a.Type = SHADEMODELT
 	return ShadeModel{StateAttribute: a}
 }
 

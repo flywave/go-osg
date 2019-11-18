@@ -1,11 +1,11 @@
 package model
 
 const (
-	RELATIVE_RF                   = 0
-	ABSOLUTE_RF                   = 1
-	ABSOLUTE_RF_INHERIT_VIEWPOINT = 2
+	RELATIVERF                   = 0
+	ABSOLUTERF                   = 1
+	ABSOLUTERFINHERITVIEWPOINT = 2
 
-	TRANSFORM_T string = "osg::Transform"
+	TRANSFORMT string = "osg::Transform"
 )
 
 type Transform struct {
@@ -15,6 +15,6 @@ type Transform struct {
 
 func NewTransform() Transform {
 	g := NewGroup()
-	g.Type = TRANSFORM_T
-	return Transform{Group: g, ReferenceFrame: RELATIVE_RF}
+	g.Type = TRANSFORMT
+	return Transform{Group: g, ReferenceFrame: RELATIVERF}
 }

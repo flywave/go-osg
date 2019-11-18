@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"io"
+	"os"
 	"strconv"
 	"strings"
 
@@ -13,7 +14,8 @@ import (
 )
 
 const (
-	FileType string = "Ascii"
+	FileType     string = "Ascii"
+	INDENT_VALUE        = 2
 )
 
 type OsgOptions struct {
@@ -29,10 +31,10 @@ func NewOsgOptions() OsgOptions {
 type ReadType int
 
 const (
-	READ_UNKNOWN ReadType = 0
-	READ_SCENE   ReadType = 1
-	READ_IMAGE   ReadType = 2
-	READ_OBJECT  ReadType = 3
+	READUNKNOWN ReadType = 0
+	READSCENE   ReadType = 1
+	READIMAGE   ReadType = 2
+	READOBJECT  ReadType = 3
 )
 
 type OsgIstreamOptions struct {
@@ -69,21 +71,41 @@ type OsgIstream struct {
 	Fields            []string
 	In                OsgInputIterator
 	Options           *OsgIstreamOptions
-	DummyReadObject   interface{}
+	DummyReadObject   *model.Object
 	DataDecompress    io.Reader
 	Data              []byte
 	CRLF              CrlfType
 
-	PROPERTY      *model.ObjectProperty
-	BEGIN_BRACKET *model.ObjectMark
-	END_BRACKET   *model.ObjectMark
+	PROPERTY     *model.ObjectProperty
+	BEGINBRACKET *model.ObjectMark
+	ENDBRACKET   *model.ObjectMark
 }
 
 func NewOsgIstream(opt *OsgIstreamOptions) OsgIstream {
 	p := model.NewObjectProperty()
 	bb := model.NewObjectMark()
+	bb.Name = "{"
+	bb.IndentDelta = INDENT_VALUE
 	eb := model.NewObjectMark()
-	return OsgIstream{ArrayMap: make(map[int32]*model.Array), Options: opt, IdentifierMap: make(map[int32]interface{}), DomainVersionMap: make(map[string]int32), PROPERTY: &p, BEGIN_BRACKET: &bb, END_BRACKET: &eb}
+	bb.Name = "}"
+	bb.IndentDelta = -INDENT_VALUE
+	is := OsgIstream{ArrayMap: make(map[int32]*model.Array), Options: opt, IdentifierMap: make(map[int32]interface{}), DomainVersionMap: make(map[string]int32), PROPERTY: &p, BEGINBRACKET: &bb, ENDBRACKET: &eb}
+	if opt.ForceReadingImage {
+		is.ForceReadingImage = true
+	}
+	obj := model.NewObject()
+	is.DummyReadObject = &obj
+	if len(opt.Domain) > 0 {
+		domains := strings.Split(opt.Domain, ";")
+		for _, str := range domains {
+			vals := strings.Split(str, ":")
+			if len(vals) > 1 {
+				v, _ := strconv.ParseInt(vals[1], 10, 32)
+				is.DomainVersionMap[vals[0]] = int32(v)
+			}
+		}
+	}
+	return is
 }
 
 func (is *OsgIstream) IsBinary() bool {
@@ -158,7 +180,7 @@ func (is *OsgIstream) ReadString() string {
 	return str
 }
 
-type image_data struct {
+type imagedata struct {
 	Origin         int32
 	S              int32
 	T              int32
@@ -178,10 +200,11 @@ func (is *OsgIstream) ReadImage(readFromExternal bool) *model.Image {
 	var name string
 	var id int32 = 0
 	var writeHint int32 = 0
-	var decision int32 = model.IMAGE_EXTERNAL
-	img_data := image_data{}
+	var decision int32 = model.IMAGEEXTERNAL
+	imgdata := imagedata{}
 	loadedFromCache := false
-
+	opts := OsgIstreamOptions{}
+	var img *model.Image
 	if is.FileVersion > 94 {
 		is.PROPERTY.Name = "ClassName"
 		is.Read(is.PROPERTY)
@@ -205,93 +228,109 @@ func (is *OsgIstream) ReadImage(readFromExternal bool) *model.Image {
 	is.Read(&decision)
 
 	switch decision {
-	case model.IMAGE_INLINE_DATA:
+	case model.IMAGEINLINEDATA:
 		if is.IsBinary() {
-			is.Read(&img_data.Origin)
-			is.Read(&img_data.S)
-			is.Read(&img_data.T)
-			is.Read(&img_data.R)
-			is.Read(&img_data.InternalFormat)
-			is.Read(&img_data.PixelFormat)
-			is.Read(&img_data.DataType)
-			is.Read(&img_data.Packing)
-			is.Read(&img_data.Mode)
-			is.Read(&img_data.Size)
-			if img_data.Size > 0 {
+			is.Read(&imgdata.Origin)
+			is.Read(&imgdata.S)
+			is.Read(&imgdata.T)
+			is.Read(&imgdata.R)
+			is.Read(&imgdata.InternalFormat)
+			is.Read(&imgdata.PixelFormat)
+			is.Read(&imgdata.DataType)
+			is.Read(&imgdata.Packing)
+			is.Read(&imgdata.Mode)
+			is.Read(&imgdata.Size)
+			if imgdata.Size > 0 {
 				var numMipmaps uint32 = 0
 				is.Read(&numMipmaps)
-				img_data.Data = is.ReadCharArray(int(img_data.Size))
+				imgdata.Data = is.ReadCharArray(int(imgdata.Size))
 			}
 		} else {
 			is.PROPERTY.Name = "Origin"
 			is.Read(is.PROPERTY)
-			is.Read(&img_data.Origin)
+			is.Read(&imgdata.Origin)
 			is.PROPERTY.Name = "Size"
 			is.Read(is.PROPERTY)
-			is.Read(&img_data.S)
-			is.Read(&img_data.T)
-			is.Read(&img_data.R)
+			is.Read(&imgdata.S)
+			is.Read(&imgdata.T)
+			is.Read(&imgdata.R)
 			is.PROPERTY.Name = "InternalTextureFormat"
 			is.Read(is.PROPERTY)
-			is.Read(&img_data.InternalFormat)
+			is.Read(&imgdata.InternalFormat)
 			is.PROPERTY.Name = "PixelFormat"
 			is.Read(is.PROPERTY)
-			is.Read(&img_data.PixelFormat)
+			is.Read(&imgdata.PixelFormat)
 			is.PROPERTY.Name = "DataType"
 			is.Read(is.PROPERTY)
-			is.Read(&img_data.DataType)
+			is.Read(&imgdata.DataType)
 			is.PROPERTY.Name = "Packing"
 			is.Read(is.PROPERTY)
-			is.Read(&img_data.Packing)
+			is.Read(&imgdata.Packing)
 			is.PROPERTY.Name = "AllocationMode"
 			is.Read(is.PROPERTY)
-			is.Read(&img_data.Mode)
+			is.Read(&imgdata.Mode)
 			is.PROPERTY.Name = "Data"
 			is.Read(is.PROPERTY)
-			levelSize := is.ReadSize() - 1
-			is.Read(is.BEGIN_BRACKET)
+			// levelSize := is.ReadSize() - 1
+			is.Read(is.BEGINBRACKET)
 			var encodedData string
 			is.ReadWrappedString(&encodedData)
 			d, e := base64.StdEncoding.DecodeString(encodedData)
 			if e == nil {
-				img_data.Data = d
+				imgdata.Data = d
 			}
-			is.Read(is.END_BRACKET)
+			is.Read(is.ENDBRACKET)
 		}
-		img := model.NewImage()
-		img.Origin = img_data.Origin
-		img.S = img_data.S
-		img.T = img_data.T
-		img.R = img_data.R
-		img.InternalTextureFormat = img_data.InternalFormat
-		img.PixelFormat = img_data.PixelFormat
-		img.DataType = img_data.DataType
-		img.Packing = img_data.Packing
-		img.Data = img_data.Data
-		img.AllocationMode = model.USE_NEW_DELETE
+		nm := model.NewImage()
+		img = &nm
+		img.Origin = imgdata.Origin
+		img.S = imgdata.S
+		img.T = imgdata.T
+		img.R = imgdata.R
+		img.InternalTextureFormat = imgdata.InternalFormat
+		img.PixelFormat = imgdata.PixelFormat
+		img.DataType = imgdata.DataType
+		img.Packing = imgdata.Packing
+		img.Data = imgdata.Data
+		img.AllocationMode = model.USENEWDELETE
 		readFromExternal = false
 		break
-	case model.IMAGE_INLINE_FILE:
+	case model.IMAGEINLINEFILE:
 		if is.IsBinary() {
 			size := is.ReadSize()
 			if size > 0 {
 				dt := is.ReadCharArray(size)
 				rw := getReaderWriter()
 				if rw != nil {
-					opts := OsgIstreamOptions{}
 					sub := strings.Split(name, ".")
 					opts.FileType = sub[len(sub)-1]
-					img := rw.ReadImage(dt, &opts)
+					rd := bytes.NewBuffer(dt)
+					img = rw.ReadImage(rd, &opts)
 				}
 			}
 		}
 		break
-	case model.IMAGE_EXTERNAL:
+	case model.IMAGEEXTERNAL:
 		break
-	case model.IMAGE_WRITE_OUT:
+	case model.IMAGEWRITEOUT:
 		break
 	default:
 		break
+	}
+	if loadedFromCache && name != "" {
+		rw := getReaderWriter()
+		f, _ := os.Open(name)
+		img = rw.ReadImage(f, &opts)
+
+		img2 := is.ReadObjectFields("osg::Image", id, nil)
+		is.IdentifierMap[id] = img2
+		return img2.(*model.Image)
+	} else {
+		img2 := is.ReadObjectFields("osg::Image", id, nil)
+		img = img2.(*model.Image)
+		img.Name = name
+		img.WriteHint = writeHint
+		return img
 	}
 }
 
@@ -300,7 +339,7 @@ func (is *OsgIstream) ReadObject(obj interface{}) interface{} {
 	if cls == "NULL" {
 		return nil
 	}
-	is.Read(is.BEGIN_BRACKET)
+	is.Read(is.BEGINBRACKET)
 	is.PROPERTY.Name = "UniqueID"
 	is.Read(is.PROPERTY)
 	var id int32
@@ -331,12 +370,12 @@ func (is *OsgIstream) ReadObjectFields(className string, id int32, obj interface
 			continue
 		}
 		if ver <= ass.LastVersion {
-			ass_wrap := GetObjectWrapperManager().FindWrap(ass.Name)
-			if ass_wrap == nil {
+			asswrap := GetObjectWrapperManager().FindWrap(ass.Name)
+			if asswrap == nil {
 				continue
 			}
-			is.Fields = append(is.Fields, ass_wrap.Name)
-			ass_wrap.Read(is, obj)
+			is.Fields = append(is.Fields, asswrap.Name)
+			asswrap.Read(is, obj)
 			is.Fields = is.Fields[:len(is.Fields)-1]
 		}
 	}
@@ -372,7 +411,7 @@ func (is *OsgIstream) Start(iter OsgInputIterator) (ReadType, error) {
 	is.In = iter
 	is.Fields = []string{}
 	is.Fields = append(is.Fields, "Start")
-	tp := READ_UNKNOWN
+	tp := READUNKNOWN
 	switch it := iter.(type) {
 	default:
 		if it != nil {
@@ -405,11 +444,11 @@ func (is *OsgIstream) Start(iter OsgInputIterator) (ReadType, error) {
 	} else {
 		is.Read(header.TypeString)
 		if header.TypeString == "Scene" {
-			header.Type = READ_SCENE
+			header.Type = READSCENE
 		} else if header.TypeString == "Image" {
-			header.Type = READ_IMAGE
+			header.Type = READIMAGE
 		} else if header.TypeString == "Object" {
-			header.Type = READ_OBJECT
+			header.Type = READOBJECT
 		}
 		v := model.ObjectProperty{Name: "#Version"}
 		is.Read(&v)
@@ -444,7 +483,7 @@ func (is *OsgIstream) Decompress() {
 	}
 	compressor := GetObjectWrapperManager().FindCompressor(compressorName)
 	if compressor == nil {
-		panic("input_stream: Failed to decompress stream, No such compressor.")
+		panic("inputstream: Failed to decompress stream, No such compressor.")
 	}
 	var src []byte
 	compressor.DeCompress(is.In.GetIterator(), src)
@@ -495,7 +534,7 @@ func (is *OsgIstream) SetWrapperSchema(name string, prop string) {
 			v, _ := strconv.ParseInt(keyAndValue[1], 10, 32)
 			types = append(types, SerType(v))
 		} else {
-			types = append(types, RW_UNDEFINED)
+			types = append(types, RWUNDEFINED)
 		}
 	}
 	wrap.ReadSchema(methods, types)

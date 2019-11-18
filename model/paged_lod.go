@@ -3,7 +3,7 @@ package model
 import "errors"
 
 const (
-	PAGEDLOD_T string = "osg::PagedLOD"
+	PAGEDLODT string = "osg::PagedLOD"
 )
 
 type PerRangeData struct {
@@ -29,7 +29,7 @@ type PagedLod struct {
 
 func NewPagedLod() PagedLod {
 	lod := NewLod()
-	lod.Type = PAGEDLOD_T
+	lod.Type = PAGEDLODT
 	return PagedLod{Lod: lod}
 }
 

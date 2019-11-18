@@ -1,7 +1,7 @@
 package model
 
 const (
-	GEODE_T string = "osg::Geode"
+	GEODET string = "osg::Geode"
 )
 
 type Geode struct {
@@ -10,7 +10,7 @@ type Geode struct {
 
 func NewGeode() Geode {
 	g := NewGroup()
-	g.Type = GEODE_T
+	g.Type = GEODET
 	return Geode{Group: g}
 }
 

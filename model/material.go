@@ -3,12 +3,12 @@ package model
 import "github.com/ungerik/go3d/vec4"
 
 const (
-	MTL_T               = "osg::Material"
+	MTLT               = "osg::Material"
 	AMBIENT             = 0x1200
 	DIFFUSE             = 0x1201
 	SPECULAR            = 0x1202
 	EMISSION            = 0x1600
-	AMBIENT_AND_DIFFUSE = 0x1602
+	AMBIENTANDDIFFUSE = 0x1602
 	MTLOFF              = 0x1602 + 1
 )
 
@@ -39,7 +39,7 @@ type Material struct {
 
 func NewMaterial() Material {
 	st := NewStateAttribute()
-	st.Type = MTL_T
+	st.Type = MTLT
 	return Material{StateAttribute: st,
 		AmbientFrontAndBack:   true,
 		DiffuseFrontAndBack:   true,
@@ -62,15 +62,15 @@ func NewMaterial() Material {
 
 func (mt *Material) SetAmbient(face int, ambient vec4.T) {
 	switch face {
-	case GL_FRONT:
+	case GLFRONT:
 		mt.AmbientFrontAndBack = false
 		mt.AmbientFront = ambient
 		break
-	case GL_BACK:
+	case GLBACK:
 		mt.AmbientFrontAndBack = false
 		mt.AmbientBack = ambient
 		break
-	case GL_FRONT_AND_BACK:
+	case GLFRONTANDBACK:
 		mt.AmbientFrontAndBack = true
 		mt.AmbientFront = ambient
 		mt.AmbientBack = mt.AmbientFront
@@ -80,11 +80,11 @@ func (mt *Material) SetAmbient(face int, ambient vec4.T) {
 
 func (mt *Material) GetAmbient(face int) vec4.T {
 	switch face {
-	case GL_FRONT:
+	case GLFRONT:
 		return mt.AmbientFront
-	case GL_BACK:
+	case GLBACK:
 		return mt.AmbientBack
-	case GL_FRONT_AND_BACK:
+	case GLFRONTANDBACK:
 		if !mt.AmbientFrontAndBack {
 			return mt.AmbientFront
 		}
@@ -93,15 +93,15 @@ func (mt *Material) GetAmbient(face int) vec4.T {
 }
 func (mt *Material) SetDiffuse(face int, diffuse vec4.T) {
 	switch face {
-	case GL_FRONT:
+	case GLFRONT:
 		mt.DiffuseFrontAndBack = false
 		mt.DiffuseFront = diffuse
 		break
-	case GL_BACK:
+	case GLBACK:
 		mt.DiffuseFrontAndBack = false
 		mt.DiffuseBack = diffuse
 		break
-	case GL_FRONT_AND_BACK:
+	case GLFRONTANDBACK:
 		mt.DiffuseFrontAndBack = true
 		mt.DiffuseFront = diffuse
 		mt.DiffuseBack = mt.DiffuseFront
@@ -111,11 +111,11 @@ func (mt *Material) SetDiffuse(face int, diffuse vec4.T) {
 
 func (mt *Material) GetDiffuse(face int) vec4.T {
 	switch face {
-	case GL_FRONT:
+	case GLFRONT:
 		return mt.DiffuseFront
-	case GL_BACK:
+	case GLBACK:
 		return mt.DiffuseBack
-	case GL_FRONT_AND_BACK:
+	case GLFRONTANDBACK:
 		if !mt.DiffuseFrontAndBack {
 			return mt.DiffuseFront
 		}
@@ -125,15 +125,15 @@ func (mt *Material) GetDiffuse(face int) vec4.T {
 
 func (mt *Material) SetSpecular(face int, specular vec4.T) {
 	switch face {
-	case GL_FRONT:
+	case GLFRONT:
 		mt.SpecularFrontAndBack = false
 		mt.SpecularFront = specular
 		break
-	case GL_BACK:
+	case GLBACK:
 		mt.SpecularFrontAndBack = false
 		mt.SpecularBack = specular
 		break
-	case GL_FRONT_AND_BACK:
+	case GLFRONTANDBACK:
 		mt.SpecularFrontAndBack = true
 		mt.SpecularFront = specular
 		mt.SpecularBack = mt.SpecularFront
@@ -145,11 +145,11 @@ func (mt *Material) SetSpecular(face int, specular vec4.T) {
 
 func (mt *Material) GetSpecular(face int) vec4.T {
 	switch face {
-	case GL_FRONT:
+	case GLFRONT:
 		return mt.SpecularFront
-	case GL_BACK:
+	case GLBACK:
 		return mt.SpecularBack
-	case GL_FRONT_AND_BACK:
+	case GLFRONTANDBACK:
 		if !mt.SpecularFrontAndBack {
 			return mt.SpecularFront
 		}
@@ -159,15 +159,15 @@ func (mt *Material) GetSpecular(face int) vec4.T {
 
 func (mt *Material) SetEmission(face int, emission vec4.T) {
 	switch face {
-	case GL_FRONT:
+	case GLFRONT:
 		mt.EmissionFrontAndBack = false
 		mt.EmissionFront = emission
 		break
-	case GL_BACK:
+	case GLBACK:
 		mt.EmissionFrontAndBack = false
 		mt.EmissionBack = emission
 		break
-	case GL_FRONT_AND_BACK:
+	case GLFRONTANDBACK:
 		mt.EmissionFrontAndBack = true
 		mt.EmissionFront = emission
 		mt.EmissionBack = mt.EmissionFront
@@ -179,11 +179,11 @@ func (mt *Material) SetEmission(face int, emission vec4.T) {
 
 func (mt *Material) GetEmission(face int) vec4.T {
 	switch face {
-	case GL_FRONT:
+	case GLFRONT:
 		return mt.EmissionFront
-	case GL_BACK:
+	case GLBACK:
 		return mt.EmissionBack
-	case GL_FRONT_AND_BACK:
+	case GLFRONTANDBACK:
 		if !mt.EmissionFrontAndBack {
 		}
 		return mt.EmissionFront
@@ -199,15 +199,15 @@ func (mt *Material) SetShininess(face int, shininess float32) {
 	}
 
 	switch face {
-	case GL_FRONT:
+	case GLFRONT:
 		mt.ShininessFrontAndBack = false
 		mt.ShininessFront = shininess
 		break
-	case GL_BACK:
+	case GLBACK:
 		mt.ShininessFrontAndBack = false
 		mt.ShininessBack = shininess
 		break
-	case GL_FRONT_AND_BACK:
+	case GLFRONTANDBACK:
 		mt.ShininessFrontAndBack = true
 		mt.ShininessFront = shininess
 		mt.ShininessBack = shininess
@@ -219,11 +219,11 @@ func (mt *Material) SetShininess(face int, shininess float32) {
 
 func (mt *Material) GetShininess(face int) float32 {
 	switch face {
-	case GL_FRONT:
+	case GLFRONT:
 		return mt.ShininessFront
-	case GL_BACK:
+	case GLBACK:
 		return mt.ShininessBack
-	case GL_FRONT_AND_BACK:
+	case GLFRONTANDBACK:
 		if !mt.ShininessFrontAndBack {
 		}
 		return mt.ShininessFront
@@ -232,14 +232,14 @@ func (mt *Material) GetShininess(face int) float32 {
 }
 
 func (mt *Material) SetTransparency(face int, transparency float32) {
-	if face == GL_FRONT || face == GL_FRONT_AND_BACK {
+	if face == GLFRONT || face == GLFRONTANDBACK {
 		mt.AmbientFront[3] = 1.0 - transparency
 		mt.DiffuseFront[3] = 1.0 - transparency
 		mt.SpecularFront[3] = 1.0 - transparency
 		mt.EmissionFront[3] = 1.0 - transparency
 	}
 
-	if face == GL_BACK || face == GL_FRONT_AND_BACK {
+	if face == GLBACK || face == GLFRONTANDBACK {
 		mt.AmbientBack[3] = 1.0 - transparency
 		mt.DiffuseBack[3] = 1.0 - transparency
 		mt.SpecularBack[3] = 1.0 - transparency

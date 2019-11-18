@@ -3,7 +3,7 @@ package model
 import "errors"
 
 const (
-	GEOMETRY_T string = "osg::Geometry"
+	GEOMETRYT string = "osg::Geometry"
 )
 
 type Geometry struct {
@@ -21,7 +21,7 @@ type Geometry struct {
 
 func NewGeometry() Geometry {
 	dw := NewDrawable()
-	dw.Type = GEOMETRY_T
+	dw.Type = GEOMETRYT
 	return Geometry{Drawable: dw}
 }
 
@@ -66,17 +66,17 @@ func (g *Geometry) SetTexCoordArrayBinding(i int32, array *Array, binding int32)
 	if int(i) > l-1 {
 		return errors.New("out of range")
 	}
-	if binding != BIND_UNDEFINED {
+	if binding != BINDUNDEFINED {
 		array.Binding = binding
 	} else {
-		array.Binding = BIND_PER_VERTEX
+		array.Binding = BINDPERVERTEX
 	}
 	g.TexCoordArrayList[i] = array
 	return nil
 }
 
 func (g *Geometry) SetTexCoordArray(i int32, array *Array) error {
-	return g.SetTexCoordArrayBinding(i, array, BIND_UNDEFINED)
+	return g.SetTexCoordArrayBinding(i, array, BINDUNDEFINED)
 }
 
 func (g *Geometry) SetVertexAttribArray(i int, array *Array, binding int32) error {
@@ -84,10 +84,10 @@ func (g *Geometry) SetVertexAttribArray(i int, array *Array, binding int32) erro
 	if i > l-1 {
 		return errors.New("out of range")
 	}
-	if binding != BIND_UNDEFINED {
+	if binding != BINDUNDEFINED {
 		array.Binding = binding
 	} else {
-		array.Binding = BIND_PER_VERTEX
+		array.Binding = BINDPERVERTEX
 
 	}
 	g.VertexAttribList[i] = array

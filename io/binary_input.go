@@ -111,53 +111,52 @@ func (it *BinaryInputIterator) ReadComponentArray(s []byte, numElements int, num
 }
 
 func (iter *BinaryInputIterator) ReadBool(b *bool) {
-	iter.readData(b, model.BOOL_SIZE)
+	iter.readData(b, model.BOOLSIZE)
 }
 
 func (iter *BinaryInputIterator) ReadChar(b *byte) {
-	iter.readData(b, model.CHAR_SIZE)
+	iter.readData(b, model.CHARSIZE)
 }
 
 func (iter *BinaryInputIterator) ReadUChar(b *uint8) {
-	iter.readData(b, model.CHAR_SIZE)
+	iter.readData(b, model.CHARSIZE)
 }
 
 func (iter *BinaryInputIterator) ReadShort(val *int16) {
-	iter.readData(val, model.SHORT_SIZE)
+	iter.readData(val, model.SHORTSIZE)
 }
 
 func (iter *BinaryInputIterator) ReadUShort(val *uint16) {
-	iter.readData(val, model.SHORT_SIZE)
+	iter.readData(val, model.SHORTSIZE)
 }
 
 func (iter *BinaryInputIterator) ReadInt(val *int32) {
-	iter.readData(val, model.INT_SIZE)
+	iter.readData(val, model.INTSIZE)
 }
 
 func (iter *BinaryInputIterator) ReadUInt(val *uint32) {
-	iter.readData(val, model.INT_SIZE)
+	iter.readData(val, model.INTSIZE)
 }
 
 func (iter *BinaryInputIterator) ReadLong(val *int64) {
-	iter.readData(val, model.LONG_SIZE)
+	iter.readData(val, model.LONGSIZE)
 }
 
 func (iter *BinaryInputIterator) ReadULong(val *uint64) {
-	iter.readData(val, model.LONG_SIZE)
+	iter.readData(val, model.LONGSIZE)
 }
 
 func (iter *BinaryInputIterator) ReadFloat(val *float32) {
-	iter.readData(val, model.FLOAT_SIZE)
+	iter.readData(val, model.FLOATSIZE)
 }
 
 func (iter *BinaryInputIterator) ReadDouble(val *float64) {
-	iter.readData(val, model.DOUBLE_SIZE)
+	iter.readData(val, model.DOUBLESIZE)
 }
 
 func (iter *BinaryInputIterator) ReadString() string {
 	var size int32
 	iter.ReadInt(&size)
-	var str string
 	return string(iter.ReadCharArray(int(size)))
 }
 

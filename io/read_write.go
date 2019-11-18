@@ -2,9 +2,9 @@ package io
 
 import (
 	"bufio"
-	"bytes"
 	"errors"
 	"image"
+	"io"
 	"os"
 	"strings"
 
@@ -12,37 +12,37 @@ import (
 )
 
 const (
-	FEATURE_NONE               = 0
-	FEATURE_READ_OBJECT        = 1 << 0
-	FEATURE_READ_IMAGE         = 1 << 1
-	FEATURE_READ_HEIGHT_FIELD  = 1 << 2
-	FEATURE_READ_NODE          = 1 << 3
-	FEATURE_READ_SHADER        = 1 << 4
-	FEATURE_WRITE_OBJECT       = 1 << 5
-	FEATURE_WRITE_IMAGE        = 1 << 6
-	FEATURE_WRITE_HEIGHT_FIELD = 1 << 7
-	FEATURE_WRITE_NODE         = 1 << 8
-	FEATURE_WRITE_SHADER       = 1 << 9
-	FEATURE_READ_SCRIPT        = 1 << 10
-	FEATURE_WRITE_SCRIPT       = 1 << 11
-	FEATURE_ALL                = FEATURE_READ_OBJECT | FEATURE_READ_IMAGE |
-		FEATURE_READ_HEIGHT_FIELD | FEATURE_READ_NODE |
-		FEATURE_READ_SHADER | FEATURE_READ_SCRIPT |
-		FEATURE_WRITE_OBJECT | FEATURE_WRITE_IMAGE |
-		FEATURE_WRITE_HEIGHT_FIELD | FEATURE_WRITE_NODE |
-		FEATURE_WRITE_SHADER | FEATURE_WRITE_SCRIPT
+	FEATURENONE             = 0
+	FEATUREREADOBJECT       = 1 << 0
+	FEATUREREADIMAGE        = 1 << 1
+	FEATUREREADHEIGHTFIELD  = 1 << 2
+	FEATUREREADNODE         = 1 << 3
+	FEATUREREADSHADER       = 1 << 4
+	FEATUREWRITEOBJECT      = 1 << 5
+	FEATUREWRITEIMAGE       = 1 << 6
+	FEATUREWRITEHEIGHTFIELD = 1 << 7
+	FEATUREWRITENODE        = 1 << 8
+	FEATUREWRITESHADER      = 1 << 9
+	FEATUREREADSCRIPT       = 1 << 10
+	FEATUREWRITESCRIPT      = 1 << 11
+	FEATUREALL              = FEATUREREADOBJECT | FEATUREREADIMAGE |
+		FEATUREREADHEIGHTFIELD | FEATUREREADNODE |
+		FEATUREREADSHADER | FEATUREREADSCRIPT |
+		FEATUREWRITEOBJECT | FEATUREWRITEIMAGE |
+		FEATUREWRITEHEIGHTFIELD | FEATUREWRITENODE |
+		FEATUREWRITESHADER | FEATUREWRITESCRIPT
 
-	NOT_IMPLEMENTED             = 0
-	FILE_NOT_HANDLED            = 1
-	FILE_NOT_FOUND              = 2
-	ERROR_IN_READING_FILE       = 3
-	FILE_LOADED                 = 4
-	FILE_LOADED_FROM_CACHE      = 5
-	FILE_REQUESTED              = 6
-	INSUFFICIENT_MEMORY_TO_LOAD = 7
+	NOTIMPLEMENTED           = 0
+	FILENOTHANDLED           = 1
+	FILENOTFOUND             = 2
+	ERRORINREADINGFILE       = 3
+	FILELOADED               = 4
+	FILELOADEDFROMCACHE      = 5
+	FILEREQUESTED            = 6
+	INSUFFICIENTMEMORYTOLOAD = 7
 
-	ERROR_IN_WRITING_FILE = 2
-	FILE_SAVED            = 3
+	ERRORINWRITINGFILE = 2
+	FILESAVED          = 3
 
 	READ   = 0
 	WRITE  = 1
@@ -82,16 +82,16 @@ func (res *ReadResult) GetNode() *model.Node {
 func (res *ReadResult) StatusMessage() string {
 	var description string
 	switch res.Status {
-	case NOT_IMPLEMENTED:
+	case NOTIMPLEMENTED:
 		description += "not implemented"
 		break
-	case FILE_NOT_HANDLED:
+	case FILENOTHANDLED:
 		description += "file not handled"
 		break
-	case ERROR_IN_WRITING_FILE:
+	case ERRORINWRITINGFILE:
 		description += "write error"
 		break
-	case FILE_SAVED:
+	case FILESAVED:
 		description += "file saved"
 		break
 	}
@@ -244,30 +244,33 @@ func (rw *ReadWrite) ReadObjectWithReader(rd *bufio.Reader, opt *OsgIstreamOptio
 	is := NewOsgIstream(opt)
 	t, e := is.Start(iter)
 
-	if e != nil || t != READ_UNKNOWN {
-		return &ReadResult{Status: FILE_NOT_HANDLED}
+	if e != nil || t != READUNKNOWN {
+		return &ReadResult{Status: FILENOTHANDLED}
 	}
 	ty, e := is.Start(iter)
 	if e != nil {
-		if ty == READ_UNKNOWN {
-			return &ReadResult{Status: FILE_NOT_HANDLED}
+		if ty == READUNKNOWN {
+			return &ReadResult{Status: FILENOTHANDLED}
 		}
 		is.Decompress()
 		obj := is.ReadObject(nil)
 		if obj == nil {
-			return &ReadResult{Status: FILE_NOT_HANDLED}
+			return &ReadResult{Status: FILENOTHANDLED}
 		}
 		return &ReadResult{Object: obj}
 	}
 	return nil
 }
 
-func (rw *ReadWrite) ReadImage(data []byte, opts *OsgIstreamOptions) *model.Image {
+func (rw *ReadWrite) ReadImage(rd io.Reader, opts *OsgIstreamOptions) *model.Image { //TODO process image
 	img := model.NewImage()
-	rd := bytes.NewBuffer(data)
-	mg, ty, e := image.Decode(rd)
+	mg, _, e := image.Decode(rd)
 	if e == nil {
 		img.S = int32(mg.Bounds().Max.X - mg.Bounds().Min.X)
+		img.RowLength = img.S
 		img.T = int32(mg.Bounds().Max.Y - mg.Bounds().Min.Y)
+		img.R = 1
+		img.PixelFormat = 0
 	}
+	return &img
 }

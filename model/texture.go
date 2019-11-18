@@ -5,45 +5,45 @@ type InternalFormatMode uint32
 type InternalFormatType uint32
 
 const (
-	TEXTURE_T   string = "osg::Texture"
-	TEXTURE1D_T string = "osg::Texture1D"
-	TEXTURE2D_T string = "osg::Texture2D"
-	TEXTURE3D_T string = "osg::Texture3D"
+	TEXTURET   string = "osg::Texture"
+	TEXTURE1DT string = "osg::Texture1D"
+	TEXTURE2DT string = "osg::Texture2D"
+	TEXTURE3DT string = "osg::Texture3D"
 
-	MIN_FILTER FilterParameter = 0
-	MAG_FILTER FilterParameter = 1
+	MINFILTER FilterParameter = 0
+	MAGFILTER FilterParameter = 1
 
-	LINEAR                 = GL_LINEAR
-	LINEAR_MIPMAP_LINEAR   = GL_LINEAR_MIPMAP_LINEAR
-	LINEAR_MIPMAP_NEAREST  = GL_LINEAR_MIPMAP_NEAREST
-	NEAREST                = GL_NEAREST
-	NEAREST_MIPMAP_LINEAR  = GL_NEAREST_MIPMAP_LINEAR
-	NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST
+	LINEAR                 = GLLINEAR
+	LINEARMIPMAPLINEAR   = GLLINEARMIPMAPLINEAR
+	LINEARMIPMAPNEAREST  = GLLINEARMIPMAPNEAREST
+	NEAREST                = GLNEAREST
+	NEARESTMIPMAPLINEAR  = GLNEARESTMIPMAPLINEAR
+	NEARESTMIPMAPNEAREST = GLNEARESTMIPMAPNEAREST
 
-	WRAP_S = 0
-	WRAP_T = 1
-	WRAP_R = 2
+	WRAPS = 0
+	WRAPT = 1
+	WRAPR = 2
 
-	CLAMP           = GL_CLAMP
-	CLAMP_TO_EDGE   = GL_CLAMP_TO_EDGE
-	CLAMP_TO_BORDER = GL_CLAMP_TO_BORDER
-	REPEAT          = GL_REPEAT
-	MIRROR          = GL_MIRROR
+	CLAMP           = GLCLAMP
+	CLAMPTOEDGE   = GLCLAMPTOEDGE
+	CLAMPTOBORDER = GLCLAMPTOBORDER
+	REPEAT          = GLREPEAT
+	MIRROR          = GLMIRROR
 
 	NORMALIZED       InternalFormatType = 0x0
 	FLOAT            InternalFormatType = 0x1
-	SIGNED_INTEGER   InternalFormatType = 0x2
-	UNSIGNED_INTEGER InternalFormatType = 0x4
+	SIGNEDINTEGER   InternalFormatType = 0x2
+	UNSIGNEDINTEGER InternalFormatType = 0x4
 )
 
 type Texture struct {
 	StateAttribute
-	Wrap_S int
-	Wrap_T int
-	Wrap_R int
+	WrapS int
+	WrapT int
+	WrapR int
 
-	Min_Filter int
-	Mag_Filter int
+	MinFilter int
+	MagFilter int
 
 	MaxAnisotropy               float32
 	Minlod                      float32
@@ -82,35 +82,35 @@ func (tex *Texture) IsTextureAttribute() bool {
 
 func IsCompressedInternalFormat(internalFormat int) bool {
 	switch internalFormat {
-	case GL_COMPRESSED_ALPHA_ARB:
-	case GL_COMPRESSED_INTENSITY_ARB:
-	case GL_COMPRESSED_LUMINANCE_ALPHA_ARB:
-	case GL_COMPRESSED_LUMINANCE_ARB:
-	case GL_COMPRESSED_RGBA_ARB:
-	case GL_COMPRESSED_RGB_ARB:
-	case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
-	case (GL_COMPRESSED_RGBA_S3TC_DXT1_EXT):
-	case (GL_COMPRESSED_RGBA_S3TC_DXT3_EXT):
-	case (GL_COMPRESSED_RGBA_S3TC_DXT5_EXT):
-	case (GL_COMPRESSED_SIGNED_RED_RGTC1_EXT):
-	case (GL_COMPRESSED_RED_RGTC1_EXT):
-	case (GL_COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT):
-	case (GL_COMPRESSED_RED_GREEN_RGTC2_EXT):
-	case (GL_ETC1_RGB8_OES):
-	case (GL_COMPRESSED_RGB8_ETC2):
-	case (GL_COMPRESSED_SRGB8_ETC2):
-	case (GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2):
-	case (GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2):
-	case (GL_COMPRESSED_RGBA8_ETC2_EAC):
-	case (GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC):
-	case (GL_COMPRESSED_R11_EAC):
-	case (GL_COMPRESSED_SIGNED_R11_EAC):
-	case (GL_COMPRESSED_RG11_EAC):
-	case (GL_COMPRESSED_SIGNED_RG11_EAC):
-	case (GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG):
-	case (GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG):
-	case (GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG):
-	case (GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG):
+	case GLCOMPRESSEDALPHAARB:
+	case GLCOMPRESSEDINTENSITYARB:
+	case GLCOMPRESSEDLUMINANCEALPHAARB:
+	case GLCOMPRESSEDLUMINANCEARB:
+	case GLCOMPRESSEDRGBAARB:
+	case GLCOMPRESSEDRGBARB:
+	case GLCOMPRESSEDRGBS3TCDXT1EXT:
+	case (GLCOMPRESSEDRGBAS3TCDXT1EXT):
+	case (GLCOMPRESSEDRGBAS3TCDXT3EXT):
+	case (GLCOMPRESSEDRGBAS3TCDXT5EXT):
+	case (GLCOMPRESSEDSIGNEDREDRGTC1EXT):
+	case (GLCOMPRESSEDREDRGTC1EXT):
+	case (GLCOMPRESSEDSIGNEDREDGREENRGTC2EXT):
+	case (GLCOMPRESSEDREDGREENRGTC2EXT):
+	case (GLETC1RGB8OES):
+	case (GLCOMPRESSEDRGB8ETC2):
+	case (GLCOMPRESSEDSRGB8ETC2):
+	case (GLCOMPRESSEDRGB8PUNCHTHROUGHALPHA1ETC2):
+	case (GLCOMPRESSEDSRGB8PUNCHTHROUGHALPHA1ETC2):
+	case (GLCOMPRESSEDRGBA8ETC2EAC):
+	case (GLCOMPRESSEDSRGB8ALPHA8ETC2EAC):
+	case (GLCOMPRESSEDR11EAC):
+	case (GLCOMPRESSEDSIGNEDR11EAC):
+	case (GLCOMPRESSEDRG11EAC):
+	case (GLCOMPRESSEDSIGNEDRG11EAC):
+	case (GLCOMPRESSEDRGBPVRTC4BPPV1IMG):
+	case (GLCOMPRESSEDRGBPVRTC2BPPV1IMG):
+	case (GLCOMPRESSEDRGBAPVRTC4BPPV1IMG):
+	case (GLCOMPRESSEDRGBAPVRTC2BPPV1IMG):
 		return true
 	}
 	return false
@@ -124,37 +124,37 @@ func (tex *Texture) GetCompressedSize(internalFormat int, width int, height int,
 	depth int) (int, int) {
 	var blockSize int = 0
 	var size int = 0
-	if tex.InternalFormat == GL_COMPRESSED_RGB_S3TC_DXT1_EXT ||
-		tex.InternalFormat == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT {
+	if tex.InternalFormat == GLCOMPRESSEDRGBS3TCDXT1EXT ||
+		tex.InternalFormat == GLCOMPRESSEDRGBAS3TCDXT1EXT {
 		blockSize = 8
-	} else if tex.InternalFormat == GL_COMPRESSED_RGBA_S3TC_DXT3_EXT ||
-		tex.InternalFormat == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT {
+	} else if tex.InternalFormat == GLCOMPRESSEDRGBAS3TCDXT3EXT ||
+		tex.InternalFormat == GLCOMPRESSEDRGBAS3TCDXT5EXT {
 		blockSize = 16
-	} else if tex.InternalFormat == GL_ETC1_RGB8_OES {
+	} else if tex.InternalFormat == GLETC1RGB8OES {
 		blockSize = 8
-	} else if tex.InternalFormat == GL_COMPRESSED_RGB8_ETC2 ||
-		tex.InternalFormat == GL_COMPRESSED_SRGB8_ETC2 {
+	} else if tex.InternalFormat == GLCOMPRESSEDRGB8ETC2 ||
+		tex.InternalFormat == GLCOMPRESSEDSRGB8ETC2 {
 		blockSize = 8
-	} else if tex.InternalFormat == GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 ||
-		tex.InternalFormat == GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 {
+	} else if tex.InternalFormat == GLCOMPRESSEDRGB8PUNCHTHROUGHALPHA1ETC2 ||
+		tex.InternalFormat == GLCOMPRESSEDSRGB8PUNCHTHROUGHALPHA1ETC2 {
 		blockSize = 8
-	} else if tex.InternalFormat == GL_COMPRESSED_RGBA8_ETC2_EAC ||
-		tex.InternalFormat == GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC {
+	} else if tex.InternalFormat == GLCOMPRESSEDRGBA8ETC2EAC ||
+		tex.InternalFormat == GLCOMPRESSEDSRGB8ALPHA8ETC2EAC {
 		blockSize = 16
-	} else if tex.InternalFormat == GL_COMPRESSED_R11_EAC ||
-		tex.InternalFormat == GL_COMPRESSED_SIGNED_R11_EAC {
+	} else if tex.InternalFormat == GLCOMPRESSEDR11EAC ||
+		tex.InternalFormat == GLCOMPRESSEDSIGNEDR11EAC {
 		blockSize = 8
-	} else if tex.InternalFormat == GL_COMPRESSED_RG11_EAC ||
-		tex.InternalFormat == GL_COMPRESSED_SIGNED_RG11_EAC {
+	} else if tex.InternalFormat == GLCOMPRESSEDRG11EAC ||
+		tex.InternalFormat == GLCOMPRESSEDSIGNEDRG11EAC {
 		blockSize = 16
-	} else if tex.InternalFormat == GL_COMPRESSED_RED_RGTC1_EXT ||
-		tex.InternalFormat == GL_COMPRESSED_SIGNED_RED_RGTC1_EXT {
+	} else if tex.InternalFormat == GLCOMPRESSEDREDRGTC1EXT ||
+		tex.InternalFormat == GLCOMPRESSEDSIGNEDREDRGTC1EXT {
 		blockSize = 8
-	} else if tex.InternalFormat == GL_COMPRESSED_RED_GREEN_RGTC2_EXT ||
-		tex.InternalFormat == GL_COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT {
+	} else if tex.InternalFormat == GLCOMPRESSEDREDGREENRGTC2EXT ||
+		tex.InternalFormat == GLCOMPRESSEDSIGNEDREDGREENRGTC2EXT {
 		blockSize = 16
-	} else if tex.InternalFormat == GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG ||
-		tex.InternalFormat == GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG {
+	} else if tex.InternalFormat == GLCOMPRESSEDRGBAPVRTC2BPPV1IMG ||
+		tex.InternalFormat == GLCOMPRESSEDRGBPVRTC2BPPV1IMG {
 		blockSize = 8 * 4
 		widthBlocks := width / 8
 		heightBlocks := height / 4
@@ -167,8 +167,8 @@ func (tex *Texture) GetCompressedSize(internalFormat int, width int, height int,
 			heightBlocks = 2
 		}
 		size = widthBlocks * heightBlocks * blockSize * bpp / 8
-	} else if tex.InternalFormat == GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG ||
-		tex.InternalFormat == GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG {
+	} else if tex.InternalFormat == GLCOMPRESSEDRGBAPVRTC4BPPV1IMG ||
+		tex.InternalFormat == GLCOMPRESSEDRGBPVRTC4BPPV1IMG {
 		blockSize = 4 * 4
 		widthBlocks := width / 4
 		heightBlocks := height / 4
@@ -191,14 +191,14 @@ func (tex *Texture) GetCompressedSize(internalFormat int, width int, height int,
 
 func (tex *Texture) SetWrap(which int, wrap int) {
 	switch which {
-	case WRAP_S:
-		tex.Wrap_S = wrap
+	case WRAPS:
+		tex.WrapS = wrap
 		break
-	case WRAP_T:
-		tex.Wrap_T = wrap
+	case WRAPT:
+		tex.WrapT = wrap
 		break
-	case WRAP_R:
-		tex.Wrap_R = wrap
+	case WRAPR:
+		tex.WrapR = wrap
 		break
 	default:
 		break
@@ -206,25 +206,25 @@ func (tex *Texture) SetWrap(which int, wrap int) {
 }
 
 func (tex *Texture) GetWrap(wrap int) int {
-	if tex.Wrap_S == wrap {
-		return WRAP_S
+	if tex.WrapS == wrap {
+		return WRAPS
 	}
-	if tex.Wrap_T == wrap {
-		return WRAP_T
+	if tex.WrapT == wrap {
+		return WRAPT
 	}
-	if tex.Wrap_R == wrap {
-		return WRAP_R
+	if tex.WrapR == wrap {
+		return WRAPR
 	}
-	return WRAP_S
+	return WRAPS
 }
 
 func (tex *Texture) SetFilter(which FilterParameter, filter int) {
 	switch which {
-	case MIN_FILTER:
-		tex.Min_Filter = filter
+	case MINFILTER:
+		tex.MinFilter = filter
 		break
-	case MAG_FILTER:
-		tex.Mag_Filter = filter
+	case MAGFILTER:
+		tex.MagFilter = filter
 		break
 	default:
 		break
@@ -233,18 +233,18 @@ func (tex *Texture) SetFilter(which FilterParameter, filter int) {
 
 func (tex *Texture) GetFilter(which FilterParameter) int {
 	switch which {
-	case MIN_FILTER:
-		return tex.Min_Filter
-	case MAG_FILTER:
-		return tex.Mag_Filter
+	case MINFILTER:
+		return tex.MinFilter
+	case MAGFILTER:
+		return tex.MagFilter
 	default:
-		return tex.Min_Filter
+		return tex.MinFilter
 	}
 }
 
 func NewTexture() Texture {
 	st := NewStateAttribute()
-	st.Type = TEXTURE_T
+	st.Type = TEXTURET
 	return Texture{
 		StateAttribute:              st,
 		MaxAnisotropy:               1,
@@ -261,7 +261,7 @@ func NewTexture() Texture {
 
 func NewTexture1d() Texture {
 	t := NewTexture()
-	t.Type = TEXTURE1D_T
+	t.Type = TEXTURE1DT
 	t.TextureHeight = 1
 	t.TextureDepth = 1
 	return t
@@ -269,13 +269,13 @@ func NewTexture1d() Texture {
 
 func NewTexture2d() Texture {
 	t := NewTexture()
-	t.Type = TEXTURE2D_T
+	t.Type = TEXTURE2DT
 	t.TextureDepth = 1
 	return t
 }
 
 func NewTexture3d() Texture {
 	t := NewTexture()
-	t.Type = TEXTURE3D_T
+	t.Type = TEXTURE3DT
 	return t
 }

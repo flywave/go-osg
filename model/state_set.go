@@ -28,36 +28,36 @@ type DefinePair struct {
 type DefineListType map[string]DefinePair
 
 const (
-	DEFAULT_BIN     = 0
-	OPAQUE_BIN      = 1
-	TRANSPARENT_BIN = 2
+	DEFAULTBIN     = 0
+	OPAQUEBIN      = 1
+	TRANSPARENTBIN = 2
 
-	INHERIT_RENDERBIN_DETAILS            = 0
-	USE_RENDERBIN_DETAILS                = 1
-	OVERRIDE_RENDERBIN_DETAILS           = 2
-	PROTECTED_RENDERBIN_DETAILS          = 4
-	OVERRIDE_PROTECTED_RENDERBIN_DETAILS = 6
+	INHERITRENDERBINDETAILS           = 0
+	USERENDERBINDETAILS               = 1
+	OVERRIDERENDERBINDETAILS          = 2
+	PROTECTEDRENDERBINDETAILS         = 4
+	OVERRIDEPROTECTEDRENDERBINDETAILS = 6
 
-	STATESET_T string = "osg::StateSet"
+	STATESETT string = "osg::StateSet"
 )
 
 var textureGlmodeMap map[int]bool
 
 func init() {
 	textureGlmodeMap = make(map[int]bool)
-	textureGlmodeMap[GL_TEXTURE_1D] = true
-	textureGlmodeMap[GL_TEXTURE_2D] = true
-	textureGlmodeMap[GL_TEXTURE_3D] = true
-	textureGlmodeMap[GL_TEXTURE_BUFFER] = true
+	textureGlmodeMap[GLTEXTURE1D] = true
+	textureGlmodeMap[GLTEXTURE2D] = true
+	textureGlmodeMap[GLTEXTURE3D] = true
+	textureGlmodeMap[GLTEXTUREBUFFER] = true
 
-	textureGlmodeMap[GL_TEXTURE_CUBE_MAP] = true
-	textureGlmodeMap[GL_TEXTURE_RECTANGLE] = true
-	textureGlmodeMap[GL_TEXTURE_2D_ARRAY] = true
+	textureGlmodeMap[GLTEXTURECUBEMAP] = true
+	textureGlmodeMap[GLTEXTURERECTANGLE] = true
+	textureGlmodeMap[GLTEXTURE2DARRAY] = true
 
-	textureGlmodeMap[GL_TEXTURE_GEN_Q] = true
-	textureGlmodeMap[GL_TEXTURE_GEN_R] = true
-	textureGlmodeMap[GL_TEXTURE_GEN_S] = true
-	textureGlmodeMap[GL_TEXTURE_GEN_T] = true
+	textureGlmodeMap[GLTEXTUREGENQ] = true
+	textureGlmodeMap[GLTEXTUREGENR] = true
+	textureGlmodeMap[GLTEXTUREGENS] = true
+	textureGlmodeMap[GLTEXTUREGENT] = true
 }
 
 type StateSet struct {
@@ -83,8 +83,8 @@ type StateSet struct {
 
 func NewStateSet() StateSet {
 	obj := NewObject()
-	obj.Type = STATESET_T
-	return StateSet{Object: obj, RenderingHint: DEFAULT_BIN, BinMode: INHERIT_RENDERBIN_DETAILS, NestRenderBins: true, BinNum: 0, BinName: ""}
+	obj.Type = STATESETT
+	return StateSet{Object: obj, RenderingHint: DEFAULTBIN, BinMode: INHERITRENDERBINDETAILS, NestRenderBins: true, BinNum: 0, BinName: ""}
 }
 
 func (ss *StateSet) setMode3(unit int, mode int, val int) {
@@ -109,7 +109,7 @@ func (ss *StateSet) setMode2(mode int, val int) {
 	_, ok := textureGlmodeMap[mode]
 	if ok {
 		ss.SetTextureMode(0, mode, val)
-	} else if mode == GL_COLOR_MATERIAL {
+	} else if mode == GLCOLORMATERIAL {
 
 	} else {
 		if (val & INHERIT) > 0 {

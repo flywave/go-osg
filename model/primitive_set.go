@@ -21,22 +21,22 @@ type PrimitiveIndexFunctor interface {
 }
 
 const (
-	POINTS                          = GL_POINTS
-	LINES                           = GL_LINES
-	LINE_STRIP                      = GL_LINE_STRIP
-	LINE_LOOP                       = GL_LINE_LOOP
-	TRIANGLES                       = GL_TRIANGLES
-	TRIANGLE_STRIP                  = GL_TRIANGLE_STRIP
-	TRIANGLE_FAN                    = GL_TRIANGLE_FAN
-	QUADS                           = GL_QUADS
-	QUAD_STRIP                      = GL_QUAD_STRIP
-	POLYGON                         = GL_POLYGON
-	LINES_ADJACENCY                 = GL_LINES_ADJACENCY
-	LINE_STRIP_ADJACENCY            = GL_LINE_STRIP_ADJACENCY
-	TRIANGLES_ADJACENCY             = GL_TRIANGLES_ADJACENCY
-	TRIANGLE_STRIP_ADJACENCY        = GL_TRIANGLE_STRIP_ADJACENCY
-	PATCHES                         = GL_PATCHES
-	PRIMITIVESET_T           string = "osg::PrimitiveSet"
+	POINTS                        = GLPOINTS
+	LINES                         = GLLINES
+	LINESTRIP                     = GLLINESTRIP
+	LINELOOP                      = GLLINELOOP
+	TRIANGLES                     = GLTRIANGLES
+	TRIANGLESTRIP                 = GLTRIANGLESTRIP
+	TRIANGLEFAN                   = GLTRIANGLEFAN
+	QUADS                         = GLQUADS
+	QUADSTRIP                     = GLQUADSTRIP
+	POLYGON                       = GLPOLYGON
+	LINESADJACENCY                = GLLINESADJACENCY
+	LINESTRIPADJACENCY            = GLLINESTRIPADJACENCY
+	TRIANGLESADJACENCY            = GLTRIANGLESADJACENCY
+	TRIANGLESTRIPADJACENCY        = GLTRIANGLESTRIPADJACENCY
+	PATCHES                       = GLPATCHES
+	PRIMITIVESETT          string = "osg::PrimitiveSet"
 )
 
 type PrimitiveSet struct {
@@ -48,16 +48,16 @@ type PrimitiveSet struct {
 
 func NewPrimitiveSet() PrimitiveSet {
 	bf := NewBufferData()
-	bf.Type = PRIMITIVESET_T
+	bf.Type = PRIMITIVESETT
 	return PrimitiveSet{BufferData: bf, NumInstances: 0, Mode: 0}
 }
 
 const (
-	DRAWARRAY_T          string = "osg::DrawArrays"
-	DRAWARRAYLENGHT_T    string = "osg::DrawArrayLengths"
-	DRWAELEMENTSUBYTE_T  string = "osg::DrawElementsUByte"
-	DRWAELEMENTSUSHORT_T string = "osg::DrawElementsUShort"
-	DRWAELEMENTSUINT_T   string = "osg::DrawElementsUInt"
+	DRAWARRAYT          string = "osg::DrawArrays"
+	DRAWARRAYLENGHTT    string = "osg::DrawArrayLengths"
+	DRWAELEMENTSUBYTET  string = "osg::DrawElementsUByte"
+	DRWAELEMENTSUSHORTT string = "osg::DrawElementsUShort"
+	DRWAELEMENTSUINTT   string = "osg::DrawElementsUInt"
 )
 
 type DrawArrays struct {
@@ -76,7 +76,7 @@ func (d *DrawArrays) Accept(functor interface{}) {
 
 func NewDrawArrays() DrawArrays {
 	p := NewPrimitiveSet()
-	p.Type = DRAWARRAY_T
+	p.Type = DRAWARRAYT
 	return DrawArrays{PrimitiveSet: p, First: 0, Count: 0}
 }
 
@@ -88,7 +88,7 @@ type DrawArrayLengths struct {
 
 func NewDrawArrayLengths() DrawArrayLengths {
 	p := NewPrimitiveSet()
-	p.Type = DRAWARRAYLENGHT_T
+	p.Type = DRAWARRAYLENGHTT
 	return DrawArrayLengths{PrimitiveSet: p, First: 0}
 }
 
@@ -113,11 +113,11 @@ func (dal *DrawArrayLengths) GetNumPrimitives() int {
 		return l / 3
 	case QUADS:
 		return l / 4
-	case LINE_STRIP:
-	case LINE_LOOP:
-	case TRIANGLE_STRIP:
-	case TRIANGLE_FAN:
-	case QUAD_STRIP:
+	case LINESTRIP:
+	case LINELOOP:
+	case TRIANGLESTRIP:
+	case TRIANGLEFAN:
+	case QUADSTRIP:
 	case PATCHES:
 	case POLYGON:
 		return l
@@ -156,7 +156,7 @@ func (dw *DrawElementsUByte) Accept(functor interface{}) {
 
 func NewDrawElementsUByte() DrawElementsUByte {
 	p := NewPrimitiveSet()
-	p.Type = DRWAELEMENTSUBYTE_T
+	p.Type = DRWAELEMENTSUBYTET
 	return DrawElementsUByte{PrimitiveSet: p}
 }
 
@@ -191,7 +191,7 @@ func (dw *DrawElementsUShort) Accept(functor interface{}) {
 
 func NewDrawElementsUShort() DrawElementsUShort {
 	p := NewPrimitiveSet()
-	p.Type = DRWAELEMENTSUSHORT_T
+	p.Type = DRWAELEMENTSUSHORTT
 	return DrawElementsUShort{PrimitiveSet: p}
 }
 
@@ -226,6 +226,6 @@ func (dw *DrawElementsUInt) Accept(functor interface{}) {
 
 func NewDrawElementsUInt() DrawElementsUInt {
 	p := NewPrimitiveSet()
-	p.Type = DRWAELEMENTSUINT_T
+	p.Type = DRWAELEMENTSUINTT
 	return DrawElementsUInt{PrimitiveSet: p}
 }

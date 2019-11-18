@@ -59,63 +59,63 @@ type SerType uint32
 type Usage uint32
 
 const (
-	RW_UNDEFINED       SerType = 0
-	RW_USER            SerType = 1
-	RW_OBJECT          SerType = 2
-	RW_IMAGE           SerType = 3
-	RW_LIST            SerType = 4
-	RW_BOOL            SerType = 5
-	RW_CHAR            SerType = 6
-	RW_UCHAR           SerType = 7
-	RW_SHORT           SerType = 8
-	RW_USHORT          SerType = 9
-	RW_INT             SerType = 10
-	RW_UINT            SerType = 11
-	RW_FLOAT           SerType = 12
-	RW_DOUBLE          SerType = 13
-	RW_VEC2F           SerType = 14
-	RW_VEC2D           SerType = 15
-	RW_VEC3F           SerType = 16
-	RW_VEC3D           SerType = 17
-	RW_VEC4F           SerType = 18
-	RW_VEC4D           SerType = 19
-	RW_QUAT            SerType = 20
-	RW_PLANE           SerType = 21
-	RW_MATRIXF         SerType = 22
-	RW_MATRIXD         SerType = 23
-	RW_MATRIX          SerType = 24
-	RW_GLENUM          SerType = 25
-	RW_STRING          SerType = 26
-	RW_ENUM            SerType = 27
-	RW_VEC2B           SerType = 28
-	RW_VEC2UB          SerType = 29
-	RW_VEC2S           SerType = 30
-	RW_VEC2US          SerType = 31
-	RW_VEC2I           SerType = 32
-	RW_VEC2UI          SerType = 33
-	RW_VEC3B           SerType = 34
-	RW_VEC3UB          SerType = 35
-	RW_VEC3S           SerType = 36
-	RW_VEC3US          SerType = 37
-	RW_VEC3I           SerType = 38
-	RW_VEC3UI          SerType = 39
-	RW_VEC4B           SerType = 40
-	RW_VEC4UB          SerType = 41
-	RW_VEC4S           SerType = 42
-	RW_VEC4US          SerType = 43
-	RW_VEC4I           SerType = 44
-	RW_VEC4UI          SerType = 45
-	RW_BOUNDINGBOXF    SerType = 46
-	RW_BOUNDINGBOXD    SerType = 47
-	RW_BOUNDINGSPHEREF SerType = 48
-	RW_BOUNDINGSPHERED SerType = 49
-	RW_VECTOR          SerType = 50
-	RW_MAP             SerType = 51
+	RWUNDEFINED       SerType = 0
+	RWUSER            SerType = 1
+	RWOBJECT          SerType = 2
+	RWIMAGE           SerType = 3
+	RWLIST            SerType = 4
+	RWBOOL            SerType = 5
+	RWCHAR            SerType = 6
+	RWUCHAR           SerType = 7
+	RWSHORT           SerType = 8
+	RWUSHORT          SerType = 9
+	RWINT             SerType = 10
+	RWUINT            SerType = 11
+	RWFLOAT           SerType = 12
+	RWDOUBLE          SerType = 13
+	RWVEC2F           SerType = 14
+	RWVEC2D           SerType = 15
+	RWVEC3F           SerType = 16
+	RWVEC3D           SerType = 17
+	RWVEC4F           SerType = 18
+	RWVEC4D           SerType = 19
+	RWQUAT            SerType = 20
+	RWPLANE           SerType = 21
+	RWMATRIXF         SerType = 22
+	RWMATRIXD         SerType = 23
+	RWMATRIX          SerType = 24
+	RWGLENUM          SerType = 25
+	RWSTRING          SerType = 26
+	RWENUM            SerType = 27
+	RWVEC2B           SerType = 28
+	RWVEC2UB          SerType = 29
+	RWVEC2S           SerType = 30
+	RWVEC2US          SerType = 31
+	RWVEC2I           SerType = 32
+	RWVEC2UI          SerType = 33
+	RWVEC3B           SerType = 34
+	RWVEC3UB          SerType = 35
+	RWVEC3S           SerType = 36
+	RWVEC3US          SerType = 37
+	RWVEC3I           SerType = 38
+	RWVEC3UI          SerType = 39
+	RWVEC4B           SerType = 40
+	RWVEC4UB          SerType = 41
+	RWVEC4S           SerType = 42
+	RWVEC4US          SerType = 43
+	RWVEC4I           SerType = 44
+	RWVEC4UI          SerType = 45
+	RWBOUNDINGBOXF    SerType = 46
+	RWBOUNDINGBOXD    SerType = 47
+	RWBOUNDINGSPHEREF SerType = 48
+	RWBOUNDINGSPHERED SerType = 49
+	RWVECTOR          SerType = 50
+	RWMAP             SerType = 51
 
-	READ_WRITE_PROPERTY Usage = 1
-	GET_PROPERTY        Usage = 2
-	SET_PROPERTY        Usage = 4
-	GET_SET_PROPERTY    Usage = GET_PROPERTY | SET_PROPERTY
+	READWRITEPROPERTY Usage = 1
+	GETPROPERTY       Usage = 2
+	SETPROPERTY       Usage = 4
+	GETSETPROPERTY    Usage = GETPROPERTY | SETPROPERTY
 )
 
 type Serializer interface {
@@ -138,15 +138,15 @@ type BaseSerializer struct {
 }
 
 func (bs *BaseSerializer) SupportsGetSet() bool {
-	return (bs.Usage & GET_SET_PROPERTY) != 0
+	return (bs.Usage & GETSETPROPERTY) != 0
 }
 
 func (bs *BaseSerializer) SupportsGet() bool {
-	return (bs.Usage & GET_PROPERTY) != 0
+	return (bs.Usage & GETPROPERTY) != 0
 }
 
 func (bs *BaseSerializer) SupportsSet() bool {
-	return (bs.Usage & GET_SET_PROPERTY) != 0
+	return (bs.Usage & GETSETPROPERTY) != 0
 }
 
 func (bs *BaseSerializer) GetSerializerName() string {
@@ -210,7 +210,7 @@ func (ser *UserSerializer) GetSerializerName() string {
 }
 
 func NewUserSerializer(name string, ck Checker, rd Reader, wt Writer) UserSerializer {
-	ser := NewBaseSerializer(READ_WRITE_PROPERTY)
+	ser := NewBaseSerializer(READWRITEPROPERTY)
 	return UserSerializer{BaseSerializer: ser, Name: name, Checker: ck, Rd: rd, Wt: wt}
 }
 
@@ -225,7 +225,7 @@ type TemplateSerializer struct {
 }
 
 func NewTemplateSerializer(name string, gt Getter, st Setter) TemplateSerializer {
-	ser := NewBaseSerializer(READ_WRITE_PROPERTY)
+	ser := NewBaseSerializer(READWRITEPROPERTY)
 	return TemplateSerializer{BaseSerializer: ser, Name: name, Getter: gt, Setter: st}
 }
 

@@ -13,11 +13,11 @@ func NewBufferData() BufferData {
 type Binding int32
 
 const (
-	BIND_UNDEFINED         = -1
-	BIND_OFF               = 0
-	BIND_OVERALL           = 1
-	BIND_PER_PRIMITIVE_SET = 2
-	BIND_PER_VERTEX        = 4
+	BINDUNDEFINED       = -1
+	BINDOFF             = 0
+	BINDOVERALL         = 1
+	BINDPERPRIMITIVESET = 2
+	BINDPERVERTEX       = 4
 )
 
 type Array struct {
@@ -32,5 +32,5 @@ type Array struct {
 
 func NewArray() Array {
 	buf := NewBufferData()
-	return Array{BufferData: buf, DataSize: 0, DataType: 0, Normalize: false, PreserveDataType: false, Binding: BIND_UNDEFINED}
+	return Array{BufferData: buf, DataSize: 0, DataType: 0, Normalize: false, PreserveDataType: false, Binding: BINDUNDEFINED}
 }

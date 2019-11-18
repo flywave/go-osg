@@ -5,7 +5,7 @@ import "reflect"
 type NodePath []interface{}
 
 const (
-	NODE_T string = "osg::Node"
+	NODET string = "osg::Node"
 )
 
 type ComputeBoundingSphereCallback struct {
@@ -32,7 +32,7 @@ type Node struct {
 
 func NewNode() Node {
 	obj := NewObject()
-	obj.Type = NODE_T
+	obj.Type = NODET
 	return Node{Object: obj, NodeMask: 0xffffffff}
 }
 

@@ -7,12 +7,12 @@ import (
 )
 
 const (
-	USE_BOUNDING_SPHERE_CENTER                       = 0
-	USER_DEFINED_CENTER                              = 1
-	UNION_OF_BOUNDING_SPHERE_AND_USER_DEFINED        = 2
-	DISTANCE_FROM_EYE_POINT                          = 0
-	PIXEL_SIZE_ON_SCREEN                             = 1
-	LOD_T                                     string = "osg::Lod"
+	USEBOUNDINGSPHERECENTER                       = 0
+	USERDEFINEDCENTER                              = 1
+	UNIONOFBOUNDINGSPHEREANDUSERDEFINED        = 2
+	DISTANCEFROMEYEPOINT                          = 0
+	PIXELSIZEONSCREEN                             = 1
+	LODT                                     string = "osg::Lod"
 )
 
 type RangeListType [][2]float32
@@ -28,8 +28,8 @@ type Lod struct {
 
 func NewLod() Lod {
 	g := NewGroup()
-	g.Type = LOD_T
-	return Lod{Group: g, Cmode: USE_BOUNDING_SPHERE_CENTER, Rmode: DISTANCE_FROM_EYE_POINT}
+	g.Type = LODT
+	return Lod{Group: g, Cmode: USEBOUNDINGSPHERECENTER, Rmode: DISTANCEFROMEYEPOINT}
 }
 
 func (lod *Lod) AddChild(n interface{}) {

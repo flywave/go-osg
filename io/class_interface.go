@@ -102,91 +102,91 @@ func GetTypeString(iter interface{}) string {
 func GetTypeEnum(t string) SerType {
 	switch t {
 	case "IMAGE":
-		return RW_IMAGE
+		return RWIMAGE
 	case "Object":
-		return RW_OBJECT
+		return RWOBJECT
 	case "BOOL":
-		return RW_BOOL
+		return RWBOOL
 	case "UCHAR":
-		return RW_UCHAR
+		return RWUCHAR
 	case "SHORT":
-		return RW_SHORT
+		return RWSHORT
 	case "INT":
-		return RW_INT
+		return RWINT
 	case "UINT":
-		return RW_UINT
+		return RWUINT
 	case "FLOAT":
-		return RW_FLOAT
+		return RWFLOAT
 	case "DOUBLE":
-		return RW_DOUBLE
+		return RWDOUBLE
 	case "VEC2F":
-		return RW_VEC2F
+		return RWVEC2F
 	case "VEC2D":
-		return RW_VEC2D
+		return RWVEC2D
 	case "VEC3F":
-		return RW_VEC3F
+		return RWVEC3F
 	case "VEC3D":
-		return RW_VEC3D
+		return RWVEC3D
 	case "VEC4F":
-		return RW_VEC4F
+		return RWVEC4F
 	case "VEC4D":
-		return RW_VEC4D
+		return RWVEC4D
 	case "QUAT":
-		return RW_QUAT
+		return RWQUAT
 	case "PLANE":
-		return RW_PLANE
+		return RWPLANE
 	case "STRING":
-		return RW_STRING
+		return RWSTRING
 	case "MATRIXF":
-		return RW_MATRIXF
+		return RWMATRIXF
 	case "MATRIXD":
-		return RW_MATRIXD
+		return RWMATRIXD
 	case "VEC2UB":
-		return RW_VEC2UB
+		return RWVEC2UB
 	case "VEC2B":
-		return RW_VEC2B
+		return RWVEC2B
 	case "VEC2S":
-		return RW_VEC2S
+		return RWVEC2S
 	case "VEC2US":
-		return RW_VEC2US
+		return RWVEC2US
 	case "VEC2I":
-		return RW_VEC2I
+		return RWVEC2I
 	case "VEC2UI":
-		return RW_VEC2UI
+		return RWVEC2UI
 	case "VEC3UB":
-		return RW_VEC3UB
+		return RWVEC3UB
 	case "VEC3B":
-		return RW_VEC3B
+		return RWVEC3B
 	case "VEC3S":
-		return RW_VEC3S
+		return RWVEC3S
 	case "VEC3US":
-		return RW_VEC3US
+		return RWVEC3US
 	case "VEC3I":
-		return RW_VEC3I
+		return RWVEC3I
 	case "VEC3UI":
-		return RW_VEC3UI
+		return RWVEC3UI
 	case "VEC4UB":
-		return RW_VEC4UB
+		return RWVEC4UB
 	case "VEC4B":
-		return RW_VEC4B
+		return RWVEC4B
 	case "VEC4S":
-		return RW_VEC4S
+		return RWVEC4S
 	case "VEC4US":
-		return RW_VEC4US
+		return RWVEC4US
 	case "VEC4I":
-		return RW_VEC4I
+		return RWVEC4I
 	case "VEC4UI":
-		return RW_VEC4UI
+		return RWVEC4UI
 	case "BOUNDINGBOXF":
-		return RW_BOUNDINGBOXF
+		return RWBOUNDINGBOXF
 	case "BOUNDINGBOXD":
-		return RW_BOUNDINGBOXD
+		return RWBOUNDINGBOXD
 	case "BOUNDINGSPHEREF":
-		return RW_BOUNDINGSPHEREF
+		return RWBOUNDINGSPHEREF
 	case "BOUNDINGSPHERED":
-		return RW_BOUNDINGSPHERED
+		return RWBOUNDINGSPHERED
 	}
-	return RW_UNDEFINED
+	return RWUNDEFINED
 }
 
 type PropertyMapType map[string]SerType
@@ -204,166 +204,166 @@ type ClassInterface struct {
 
 func NewClassInterface() ClassInterface {
 	cf := ClassInterface{PropertyMap: make(PropertyMapType), TypeMap: make(TypeMapType), WhiteList: make(ObjectPropertyMapType), BlackList: make(ObjectPropertyMapType)}
-	cf.TypeMap[RW_UNDEFINED] = "UNDEFINED"
-	cf.PropertyMap["UNDEFINED"] = RW_UNDEFINED
+	cf.TypeMap[RWUNDEFINED] = "UNDEFINED"
+	cf.PropertyMap["UNDEFINED"] = RWUNDEFINED
 
-	cf.TypeMap[RW_USER] = "USER"
-	cf.PropertyMap["USER"] = RW_USER
+	cf.TypeMap[RWUSER] = "USER"
+	cf.PropertyMap["USER"] = RWUSER
 
-	cf.TypeMap[RW_OBJECT] = "OBJECT"
-	cf.PropertyMap["OBJECT"] = RW_OBJECT
+	cf.TypeMap[RWOBJECT] = "OBJECT"
+	cf.PropertyMap["OBJECT"] = RWOBJECT
 
-	cf.TypeMap[RW_IMAGE] = "IMAGE"
-	cf.PropertyMap["IMAGE"] = RW_IMAGE
+	cf.TypeMap[RWIMAGE] = "IMAGE"
+	cf.PropertyMap["IMAGE"] = RWIMAGE
 
-	cf.TypeMap[RW_LIST] = "LIST"
-	cf.PropertyMap["LIST"] = RW_LIST
+	cf.TypeMap[RWLIST] = "LIST"
+	cf.PropertyMap["LIST"] = RWLIST
 
-	cf.TypeMap[RW_BOOL] = "BOOL"
-	cf.PropertyMap["BOOL"] = RW_BOOL
+	cf.TypeMap[RWBOOL] = "BOOL"
+	cf.PropertyMap["BOOL"] = RWBOOL
 
-	cf.TypeMap[RW_BOOL] = "BOOL"
-	cf.PropertyMap["BOOL"] = RW_BOOL
+	cf.TypeMap[RWBOOL] = "BOOL"
+	cf.PropertyMap["BOOL"] = RWBOOL
 
-	cf.TypeMap[RW_CHAR] = "CHAR"
-	cf.PropertyMap["CHAR"] = RW_CHAR
+	cf.TypeMap[RWCHAR] = "CHAR"
+	cf.PropertyMap["CHAR"] = RWCHAR
 
-	cf.TypeMap[RW_UCHAR] = "UCHAR"
-	cf.PropertyMap["UCHAR"] = RW_UCHAR
+	cf.TypeMap[RWUCHAR] = "UCHAR"
+	cf.PropertyMap["UCHAR"] = RWUCHAR
 
-	cf.TypeMap[RW_SHORT] = "SHORT"
-	cf.PropertyMap["SHORT"] = RW_SHORT
+	cf.TypeMap[RWSHORT] = "SHORT"
+	cf.PropertyMap["SHORT"] = RWSHORT
 
-	cf.TypeMap[RW_USHORT] = "USHORT"
-	cf.PropertyMap["USHORT"] = RW_USHORT
+	cf.TypeMap[RWUSHORT] = "USHORT"
+	cf.PropertyMap["USHORT"] = RWUSHORT
 
-	cf.TypeMap[RW_INT] = "INT"
-	cf.PropertyMap["INT"] = RW_INT
+	cf.TypeMap[RWINT] = "INT"
+	cf.PropertyMap["INT"] = RWINT
 
-	cf.TypeMap[RW_UINT] = "UINT"
-	cf.PropertyMap["UINT"] = RW_UINT
+	cf.TypeMap[RWUINT] = "UINT"
+	cf.PropertyMap["UINT"] = RWUINT
 
-	cf.TypeMap[RW_FLOAT] = "FLOAT"
-	cf.PropertyMap["FLOAT"] = RW_FLOAT
+	cf.TypeMap[RWFLOAT] = "FLOAT"
+	cf.PropertyMap["FLOAT"] = RWFLOAT
 
-	cf.TypeMap[RW_DOUBLE] = "DOUBLE"
-	cf.PropertyMap["DOUBLE"] = RW_DOUBLE
+	cf.TypeMap[RWDOUBLE] = "DOUBLE"
+	cf.PropertyMap["DOUBLE"] = RWDOUBLE
 
-	cf.TypeMap[RW_VEC2F] = "VEC2F"
-	cf.PropertyMap["VEC2F"] = RW_VEC2F
+	cf.TypeMap[RWVEC2F] = "VEC2F"
+	cf.PropertyMap["VEC2F"] = RWVEC2F
 
-	cf.TypeMap[RW_VEC2D] = "VEC2D"
-	cf.PropertyMap["VEC2D"] = RW_VEC2D
+	cf.TypeMap[RWVEC2D] = "VEC2D"
+	cf.PropertyMap["VEC2D"] = RWVEC2D
 
-	cf.TypeMap[RW_VEC3F] = "VEC3F"
-	cf.PropertyMap["VEC3F"] = RW_VEC3F
+	cf.TypeMap[RWVEC3F] = "VEC3F"
+	cf.PropertyMap["VEC3F"] = RWVEC3F
 
-	cf.TypeMap[RW_VEC3D] = "VEC3D"
-	cf.PropertyMap["VEC3D"] = RW_VEC3D
+	cf.TypeMap[RWVEC3D] = "VEC3D"
+	cf.PropertyMap["VEC3D"] = RWVEC3D
 
-	cf.TypeMap[RW_VEC4F] = "VEC4F"
-	cf.PropertyMap["VEC4F"] = RW_VEC4F
+	cf.TypeMap[RWVEC4F] = "VEC4F"
+	cf.PropertyMap["VEC4F"] = RWVEC4F
 
-	cf.TypeMap[RW_VEC4D] = "VEC4D"
-	cf.PropertyMap["VEC4D"] = RW_VEC4D
+	cf.TypeMap[RWVEC4D] = "VEC4D"
+	cf.PropertyMap["VEC4D"] = RWVEC4D
 
-	cf.TypeMap[RW_QUAT] = "QUAT"
-	cf.PropertyMap["QUAT"] = RW_QUAT
+	cf.TypeMap[RWQUAT] = "QUAT"
+	cf.PropertyMap["QUAT"] = RWQUAT
 
-	cf.TypeMap[RW_PLANE] = "PLANE"
-	cf.PropertyMap["PLANE"] = RW_PLANE
+	cf.TypeMap[RWPLANE] = "PLANE"
+	cf.PropertyMap["PLANE"] = RWPLANE
 
-	cf.TypeMap[RW_MATRIXF] = "MATRIXF"
-	cf.PropertyMap["MATRIXF"] = RW_MATRIXF
+	cf.TypeMap[RWMATRIXF] = "MATRIXF"
+	cf.PropertyMap["MATRIXF"] = RWMATRIXF
 
-	cf.TypeMap[RW_MATRIXD] = "MATRIXD"
-	cf.PropertyMap["MATRIXD"] = RW_MATRIXD
+	cf.TypeMap[RWMATRIXD] = "MATRIXD"
+	cf.PropertyMap["MATRIXD"] = RWMATRIXD
 
-	cf.TypeMap[RW_MATRIX] = "MATRIX"
-	cf.PropertyMap["MATRIX"] = RW_MATRIX
+	cf.TypeMap[RWMATRIX] = "MATRIX"
+	cf.PropertyMap["MATRIX"] = RWMATRIX
 
-	cf.TypeMap[RW_BOUNDINGBOXF] = "BOUNDINGBOXF"
-	cf.PropertyMap["BOUNDINGBOXF"] = RW_BOUNDINGBOXF
-	cf.TypeMap[RW_BOUNDINGBOXD] = "BOUNDINGBOXD"
-	cf.PropertyMap["BOUNDINGBOXD"] = RW_BOUNDINGBOXD
+	cf.TypeMap[RWBOUNDINGBOXF] = "BOUNDINGBOXF"
+	cf.PropertyMap["BOUNDINGBOXF"] = RWBOUNDINGBOXF
+	cf.TypeMap[RWBOUNDINGBOXD] = "BOUNDINGBOXD"
+	cf.PropertyMap["BOUNDINGBOXD"] = RWBOUNDINGBOXD
 
-	cf.TypeMap[RW_BOUNDINGSPHEREF] = "BOUNDINGSPHEREF"
-	cf.PropertyMap["BOUNDINGSPHEREF"] = RW_BOUNDINGSPHEREF
+	cf.TypeMap[RWBOUNDINGSPHEREF] = "BOUNDINGSPHEREF"
+	cf.PropertyMap["BOUNDINGSPHEREF"] = RWBOUNDINGSPHEREF
 
-	cf.TypeMap[RW_BOUNDINGSPHERED] = "BOUNDINGSPHERED"
-	cf.PropertyMap["BOUNDINGSPHERED"] = RW_BOUNDINGSPHERED
+	cf.TypeMap[RWBOUNDINGSPHERED] = "BOUNDINGSPHERED"
+	cf.PropertyMap["BOUNDINGSPHERED"] = RWBOUNDINGSPHERED
 
-	cf.TypeMap[RW_GLENUM] = "GLENUM"
-	cf.PropertyMap["GLENUM"] = RW_GLENUM
+	cf.TypeMap[RWGLENUM] = "GLENUM"
+	cf.PropertyMap["GLENUM"] = RWGLENUM
 
-	cf.TypeMap[RW_STRING] = "STRING"
-	cf.PropertyMap["STRING"] = RW_STRING
+	cf.TypeMap[RWSTRING] = "STRING"
+	cf.PropertyMap["STRING"] = RWSTRING
 
-	cf.TypeMap[RW_ENUM] = "ENUM"
-	cf.PropertyMap["ENUM"] = RW_ENUM
+	cf.TypeMap[RWENUM] = "ENUM"
+	cf.PropertyMap["ENUM"] = RWENUM
 
-	cf.TypeMap[RW_VEC2B] = "VEC2B"
-	cf.PropertyMap["VEC2B"] = RW_VEC2B
+	cf.TypeMap[RWVEC2B] = "VEC2B"
+	cf.PropertyMap["VEC2B"] = RWVEC2B
 
-	cf.TypeMap[RW_VEC2UB] = "VEC2UB"
-	cf.PropertyMap["VEC2UB"] = RW_VEC2UB
+	cf.TypeMap[RWVEC2UB] = "VEC2UB"
+	cf.PropertyMap["VEC2UB"] = RWVEC2UB
 
-	cf.TypeMap[RW_VEC2S] = "VEC2S"
-	cf.PropertyMap["VEC2S"] = RW_VEC2S
+	cf.TypeMap[RWVEC2S] = "VEC2S"
+	cf.PropertyMap["VEC2S"] = RWVEC2S
 
-	cf.TypeMap[RW_VEC2US] = "VEC2US"
-	cf.PropertyMap["VEC2US"] = RW_VEC2US
+	cf.TypeMap[RWVEC2US] = "VEC2US"
+	cf.PropertyMap["VEC2US"] = RWVEC2US
 
-	cf.TypeMap[RW_VEC2I] = "VEC2I"
-	cf.PropertyMap["VEC2I"] = RW_VEC2I
+	cf.TypeMap[RWVEC2I] = "VEC2I"
+	cf.PropertyMap["VEC2I"] = RWVEC2I
 
-	cf.TypeMap[RW_VEC2UI] = "VEC2UI"
-	cf.PropertyMap["VEC2UI"] = RW_VEC2UI
+	cf.TypeMap[RWVEC2UI] = "VEC2UI"
+	cf.PropertyMap["VEC2UI"] = RWVEC2UI
 
-	cf.TypeMap[RW_VEC3B] = "VEC3B"
-	cf.PropertyMap["VEC3B"] = RW_VEC3B
+	cf.TypeMap[RWVEC3B] = "VEC3B"
+	cf.PropertyMap["VEC3B"] = RWVEC3B
 
-	cf.TypeMap[RW_VEC3UB] = "VEC3UB"
-	cf.PropertyMap["VEC3UB"] = RW_VEC3UB
+	cf.TypeMap[RWVEC3UB] = "VEC3UB"
+	cf.PropertyMap["VEC3UB"] = RWVEC3UB
 
-	cf.TypeMap[RW_VEC3S] = "VEC3S"
-	cf.PropertyMap["VEC3S"] = RW_VEC3S
+	cf.TypeMap[RWVEC3S] = "VEC3S"
+	cf.PropertyMap["VEC3S"] = RWVEC3S
 
-	cf.TypeMap[RW_VEC3US] = "VEC3US"
-	cf.PropertyMap["VEC3US"] = RW_VEC3US
+	cf.TypeMap[RWVEC3US] = "VEC3US"
+	cf.PropertyMap["VEC3US"] = RWVEC3US
 
-	cf.TypeMap[RW_VEC3I] = "VEC3I"
-	cf.PropertyMap["VEC3I"] = RW_VEC3I
+	cf.TypeMap[RWVEC3I] = "VEC3I"
+	cf.PropertyMap["VEC3I"] = RWVEC3I
 
-	cf.TypeMap[RW_VEC3UI] = "VEC3UI"
-	cf.PropertyMap["VEC3UI"] = RW_VEC3UI
+	cf.TypeMap[RWVEC3UI] = "VEC3UI"
+	cf.PropertyMap["VEC3UI"] = RWVEC3UI
 
-	cf.TypeMap[RW_VEC4B] = "VEC4B"
-	cf.PropertyMap["VEC4B"] = RW_VEC4B
+	cf.TypeMap[RWVEC4B] = "VEC4B"
+	cf.PropertyMap["VEC4B"] = RWVEC4B
 
-	cf.TypeMap[RW_VEC4UB] = "VEC4UB"
-	cf.PropertyMap["VEC4UB"] = RW_VEC4UB
+	cf.TypeMap[RWVEC4UB] = "VEC4UB"
+	cf.PropertyMap["VEC4UB"] = RWVEC4UB
 
-	cf.TypeMap[RW_VEC4S] = "VEC4S"
-	cf.PropertyMap["VEC4S"] = RW_VEC4S
+	cf.TypeMap[RWVEC4S] = "VEC4S"
+	cf.PropertyMap["VEC4S"] = RWVEC4S
 
-	cf.TypeMap[RW_VEC4US] = "VEC4US"
-	cf.PropertyMap["VEC4US"] = RW_VEC4US
+	cf.TypeMap[RWVEC4US] = "VEC4US"
+	cf.PropertyMap["VEC4US"] = RWVEC4US
 
-	cf.TypeMap[RW_VEC4I] = "VEC4I"
-	cf.PropertyMap["VEC4I"] = RW_VEC4I
+	cf.TypeMap[RWVEC4I] = "VEC4I"
+	cf.PropertyMap["VEC4I"] = RWVEC4I
 
-	cf.TypeMap[RW_VEC4UI] = "VEC4UI"
-	cf.PropertyMap["VEC4UI"] = RW_VEC4UI
+	cf.TypeMap[RWVEC4UI] = "VEC4UI"
+	cf.PropertyMap["VEC4UI"] = RWVEC4UI
 
-	cf.TypeMap[RW_LIST] = "LIST"
-	cf.PropertyMap["LIST"] = RW_LIST
+	cf.TypeMap[RWLIST] = "LIST"
+	cf.PropertyMap["LIST"] = RWLIST
 
-	cf.TypeMap[RW_VECTOR] = "VECTOR"
-	cf.PropertyMap["VECTOR"] = RW_VECTOR
+	cf.TypeMap[RWVECTOR] = "VECTOR"
+	cf.PropertyMap["VECTOR"] = RWVECTOR
 
-	cf.TypeMap[RW_MAP] = "MAP"
-	cf.PropertyMap["MAP"] = RW_MAP
+	cf.TypeMap[RWMAP] = "MAP"
+	cf.PropertyMap["MAP"] = RWMAP
 	return cf
 }
 
@@ -372,29 +372,29 @@ func (cl *ClassInterface) AreTypesCompatible(lhs SerType, rhs SerType) bool {
 		return true
 	}
 
-	if lhs == RW_MATRIX {
-		lhs = RW_MATRIXD
+	if lhs == RWMATRIX {
+		lhs = RWMATRIXD
 	}
-	if rhs == RW_MATRIX {
-		rhs = RW_MATRIXD
-	}
-
-	if lhs == RW_GLENUM {
-		lhs = RW_UINT
-	}
-	if rhs == RW_GLENUM {
-		rhs = RW_UINT
+	if rhs == RWMATRIX {
+		rhs = RWMATRIXD
 	}
 
-	if lhs == RW_ENUM {
-		lhs = RW_INT
+	if lhs == RWGLENUM {
+		lhs = RWUINT
 	}
-	if rhs == RW_ENUM {
-		rhs = RW_INT
+	if rhs == RWGLENUM {
+		rhs = RWUINT
 	}
 
-	if lhs == RW_IMAGE {
-		lhs = RW_OBJECT
+	if lhs == RWENUM {
+		lhs = RWINT
+	}
+	if rhs == RWENUM {
+		rhs = RWINT
+	}
+
+	if lhs == RWIMAGE {
+		lhs = RWOBJECT
 	}
 
 	return lhs == rhs
@@ -413,7 +413,7 @@ func (cl *ClassInterface) GetType(name string) SerType {
 	if ok {
 		return t
 	}
-	return RW_UNDEFINED
+	return RWUNDEFINED
 }
 
 func (cl *ClassInterface) GetObjectWrapper(obj *model.Object) *ObjectWrapper {

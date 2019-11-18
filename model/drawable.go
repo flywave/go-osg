@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	DRAWABLE_T string = "osg::Drawable"
+	DRAWABLET string = "osg::Drawable"
 )
 
 type DrawCallback struct {
@@ -40,7 +40,7 @@ func (d *Drawable) IsDrawableInterface() bool {
 
 func NewDrawable() Drawable {
 	n := NewNode()
-	n.Type = DRAWABLE_T
+	n.Type = DRAWABLET
 	return Drawable{Node: n}
 }
 

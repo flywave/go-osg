@@ -4,13 +4,13 @@ import "reflect"
 
 type DataVariance int32
 
-var Type_Mapping map[string]interface{}
+var TypeMapping map[string]interface{}
 
 const (
 	DYNAMIC            = 0
 	STATIC             = 1
 	UNSPECIFIED        = 2
-	OBJECT_T    string = "osg::Object"
+	OBJECTT    string = "osg::Object"
 )
 
 type ObjectInterface interface {
@@ -27,7 +27,7 @@ type Object struct {
 
 func NewObject() Object {
 	udc := NewUserDataContainer()
-	return Object{Type: OBJECT_T, DataVariance: UNSPECIFIED, Propertys: make(map[string]string), Udc: &udc}
+	return Object{Type: OBJECTT, DataVariance: UNSPECIFIED, Propertys: make(map[string]string), Udc: &udc}
 }
 
 func (obj *Object) IsObject() bool {

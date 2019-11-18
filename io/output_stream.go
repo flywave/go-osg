@@ -14,10 +14,23 @@ type OsgOstreamOptions struct {
 }
 
 type OsgOstream struct {
-	PROPERTY      *model.ObjectProperty
-	BEGIN_BRACKET *model.ObjectMark
-	END_BRACKET   *model.ObjectMark
-	CRLF          CrlfType
+	PROPERTY     *model.ObjectProperty
+	BEGINBRACKET *model.ObjectMark
+	ENDBRACKET   *model.ObjectMark
+	CRLF         CrlfType
+}
+
+func NewOsgOstream() OsgOstream {
+	p := model.NewObjectProperty()
+	bb := model.NewObjectMark()
+	bb.Name = "{"
+	bb.IndentDelta = INDENT_VALUE
+	eb := model.NewObjectMark()
+	bb.Name = "}"
+	bb.IndentDelta = -INDENT_VALUE
+
+	osg := OsgOstream{PROPERTY: &p, BEGINBRACKET: &bb, ENDBRACKET: &eb}
+	return osg
 }
 
 func (os *OsgOstream) Write(inter interface{}) {
