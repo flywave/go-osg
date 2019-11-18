@@ -51,7 +51,7 @@ func readDescriptions(is *io.OsgIstream, obj interface{}) {
 	is.Read(is.BEGIN_BRACKET)
 	for i := 0; i < size; i++ {
 		var str string
-		is.ReadWrappedString(str)
+		is.ReadWrappedString(&str)
 		node.Dscriptions = append(node.Dscriptions, str)
 	}
 	is.Read(is.END_BRACKET)

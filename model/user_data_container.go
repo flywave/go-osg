@@ -6,6 +6,7 @@ const (
 )
 
 type UserDataContainer struct {
+	DataVariance    int
 	UserData        interface{}
 	DescriptionList []string
 	ObjectList      []interface{}

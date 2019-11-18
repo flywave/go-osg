@@ -13,7 +13,7 @@ func readValue(is *io.OsgIstream) int {
 	if is.IsBinary() {
 		is.Read(&val)
 	} else {
-		is.Read(str)
+		is.Read(&str)
 		if strings.Contains(str, "OFF") {
 			val = model.OFF
 		}
@@ -272,8 +272,8 @@ func readDefineList(is *io.OsgIstream, obj interface{}) {
 	size := is.ReadSize()
 	var defineName, defineValue string
 	for i := 0; i < size; i++ {
-		is.ReadWrappedString(defineName)
-		is.ReadWrappedString(defineValue)
+		is.ReadWrappedString(&defineName)
+		is.ReadWrappedString(&defineValue)
 		is.PROPERTY.Name = "Value"
 		is.Read(is.PROPERTY)
 		val := readValue(is)
@@ -332,7 +332,7 @@ func setBinNumber(obj interface{}, val interface{}) {
 
 func getBinName(obj interface{}) interface{} {
 	ss := obj.(*model.StateSet)
-	return ss.BinName
+	return &ss.BinName
 }
 
 func setBinName(obj interface{}, val interface{}) {

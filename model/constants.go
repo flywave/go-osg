@@ -1,21 +1,20 @@
 package model
 
-type Sizes uint32
 type ArrayTable uint32
 type TextureShadowCompareFunc uint32
 type TextureShadowTextureMode uint32
 
 const (
-	INDENT_VALUE uint32 = 2
-	BOOL_SIZE    Sizes  = 1
-	CHAR_SIZE    Sizes  = 1
-	SHORT_SIZE   Sizes  = 2
-	INT_SIZE     Sizes  = 4
-	LONG_SIZE    Sizes  = 4
-	INT64_SIZE   Sizes  = 8
-	FLOAT_SIZE   Sizes  = 4
-	DOUBLE_SIZE  Sizes  = 8
-	GLENUM_SIZE  Sizes  = 4
+	INDENT_VALUE = 2
+	BOOL_SIZE    = 1
+	CHAR_SIZE    = 1
+	SHORT_SIZE   = 2
+	INT_SIZE     = 4
+	LONG_SIZE    = 4
+	INT64_SIZE   = 8
+	FLOAT_SIZE   = 4
+	DOUBLE_SIZE  = 8
+	GLENUM_SIZE  = 4
 
 	ID_BYTE_ARRAY   = 0
 	ID_UBYTE_ARRAY  = 1

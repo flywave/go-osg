@@ -244,7 +244,7 @@ func stringToSwizzle(str string) [4]int {
 
 func readSwizzle(is *io.OsgIstream, obj interface{}) {
 	var swizzleString string
-	is.Read(swizzleString)
+	is.Read(&swizzleString)
 	tex := obj.(*model.Texture)
 	tex.Swizzle = stringToSwizzle(swizzleString)
 }

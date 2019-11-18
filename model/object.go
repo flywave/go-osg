@@ -22,11 +22,12 @@ type Object struct {
 	Type         string
 	Propertys    map[string]string
 	DataVariance int
-	Udc          UserDataContainer
+	Udc          *UserDataContainer
 }
 
 func NewObject() Object {
-	return Object{Type: OBJECT_T, DataVariance: UNSPECIFIED, Propertys: make(map[string]string), Udc: NewUserDataContainer()}
+	udc := NewUserDataContainer()
+	return Object{Type: OBJECT_T, DataVariance: UNSPECIFIED, Propertys: make(map[string]string), Udc: &udc}
 }
 
 func (obj *Object) IsObject() bool {
@@ -43,4 +44,15 @@ func TypeBaseOfObject(obj interface{}) bool {
 	baset := reflect.TypeOf(no)
 	t := reflect.TypeOf(obj)
 	return t.Implements(baset)
+}
+
+type ValueObject struct {
+	Object
+	Value interface{}
+}
+
+func NewValueObject() ValueObject {
+	ob := NewObject()
+	ob.Type = "osg:ValueObject"
+	return ValueObject{Object: ob}
 }

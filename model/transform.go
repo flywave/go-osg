@@ -1,18 +1,16 @@
 package model
 
-type ReferenceFrame uint32
-
 const (
-	RELATIVE_RF                   ReferenceFrame = 0
-	ABSOLUTE_RF                   ReferenceFrame = 1
-	ABSOLUTE_RF_INHERIT_VIEWPOINT ReferenceFrame = 2
+	RELATIVE_RF                   = 0
+	ABSOLUTE_RF                   = 1
+	ABSOLUTE_RF_INHERIT_VIEWPOINT = 2
 
 	TRANSFORM_T string = "osg::Transform"
 )
 
 type Transform struct {
 	Group
-	ReferenceFrame ReferenceFrame
+	ReferenceFrame int
 }
 
 func NewTransform() Transform {

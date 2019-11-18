@@ -8,7 +8,7 @@ import (
 
 func init() {
 	fn := func() interface{} {
-		td := model.NewTexture1d()
+		td := model.NewTexture2d()
 		return &td
 	}
 	wrap := io.NewObjectWrapper("Texture2D", fn, "osg::Object osg::StateAttribute osg::Texture osg::Texture1D")

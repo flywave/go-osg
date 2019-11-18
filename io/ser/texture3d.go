@@ -18,7 +18,7 @@ func setTextureDepth(obj interface{}, val interface{}) {
 
 func init() {
 	fn := func() interface{} {
-		td := model.NewTexture1d()
+		td := model.NewTexture3d()
 		return &td
 	}
 	wrap := io.NewObjectWrapper("Texture3D", fn, "osg::Object osg::StateAttribute osg::Texture osg::Texture1D")

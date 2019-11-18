@@ -26,23 +26,47 @@ func writeUserData(os *io.OsgOstream, obj interface{}) {
 }
 
 func getObjeName(obj interface{}) interface{} {
-	ob := obj.(*model.Object)
-	return ob.Name
+	switch ob := obj.(type) {
+	case *model.Object:
+	case *model.UserDataContainer:
+		return &ob.Name
+	}
+	return nil
 }
 
 func setObjName(obj interface{}, val interface{}) {
-	ob := obj.(*model.Object)
-	ob.Name = val.(string)
+	switch ob := obj.(type) {
+	case *model.Object:
+	case *model.UserDataContainer:
+		ob.Name = val.(string)
+	}
 }
 
 func getDataVariance(obj interface{}) interface{} {
-	ob := obj.(*model.Object)
-	return &ob.DataVariance
+	switch ob := obj.(type) {
+	case *model.Object:
+	case *model.UserDataContainer:
+		return &ob.DataVariance
+	}
+	return nil
 }
 
 func setDataVariance(obj interface{}, val interface{}) {
+	switch ob := obj.(type) {
+	case *model.Object:
+	case *model.UserDataContainer:
+		ob.DataVariance = val.(int)
+	}
+}
+
+func getUserDataContainer(obj interface{}) interface{} {
 	ob := obj.(*model.Object)
-	ob.DataVariance = val.(int)
+	return ob.Udc
+}
+
+func setUserDataContainer(obj interface{}, val interface{}) {
+	ob := obj.(*model.Object)
+	ob.Udc = val.(*model.UserDataContainer)
 }
 
 func init() {
@@ -60,5 +84,11 @@ func init() {
 	wrap.AddSerializer(&ser1, io.RW_STRING)
 	wrap.AddSerializer(&ser2, io.RW_ENUM)
 	wrap.AddSerializer(&ser3, io.RW_USER)
+
+	io.AddUpdateWrapperVersionProxy(&wrap, 77)
+	wrap.MarkSerializerAsRemoved("UserData")
+	ser4 := io.NewObjectSerializer("UserDataContainer", getUserDataContainer, setUserDataContainer)
+	wrap.AddSerializer(&ser4, io.RW_OBJECT)
+
 	io.GetObjectWrapperManager().AddWrap(&wrap)
 }

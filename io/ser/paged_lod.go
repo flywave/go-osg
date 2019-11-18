@@ -18,9 +18,7 @@ func readDatabasePath(is *io.OsgIstream, obj interface{}) {
 			lod.DataBasePath = is.Options.DbPath
 		}
 	} else {
-		var str string
-		is.ReadWrappedString(str)
-		lod.DataBasePath = str
+		is.ReadWrappedString(&lod.DataBasePath)
 	}
 }
 
@@ -71,7 +69,7 @@ func readRangeDataList(is *io.OsgIstream, obj interface{}) {
 	lod.PerRangeDataList = make([]model.PerRangeData, size, size)
 	for i := 0; i < size; i++ {
 		var str string
-		is.ReadWrappedString(str)
+		is.ReadWrappedString(&str)
 		lod.SetFileName(i, str)
 	}
 	is.Read(is.END_BRACKET)

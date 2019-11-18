@@ -13,8 +13,7 @@ func readAttributeBinding(is *io.OsgIstream) int {
 		is.Read(&val)
 		return val
 	} else {
-		var str string
-		is.Read(str)
+		str := is.ReadString()
 		return lookup.GetValue(str)
 	}
 }

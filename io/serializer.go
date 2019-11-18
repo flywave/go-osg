@@ -38,7 +38,7 @@ func (lk *IntLookup) Add2(str string, newStr string, val int) {
 
 func (lk *IntLookup) GetValue(str string) int {
 	v, ok := lk.StringToValue[str]
-	if ok {
+	if !ok {
 		var val int = int(str[0])
 		lk.StringToValue[str] = val
 		return val
