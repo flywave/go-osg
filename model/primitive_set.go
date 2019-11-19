@@ -1,23 +1,23 @@
 package model
 
 type PrimitiveFunctor interface {
-	DrawArrays(mode int, first int, count uint64)
+	DrawArrays(mode int32, first int32, count int32)
 
-	DrawElements8(mode int, count uint64, indices []uint8)
+	DrawElements8(mode int32, count int32, indices []uint8)
 
-	DrawElements16(mode int, count uint64, indices []uint16)
+	DrawElements16(mode int32, count int32, indices []uint16)
 
-	DrawElements32(mode int, count uint64, indices []uint32)
+	DrawElements32(mode int32, count int32, indices []uint32)
 }
 
 type PrimitiveIndexFunctor interface {
-	DrawArrays(mode int, first int, count uint64)
+	DrawArrays(mode int32, first int32, count int32)
 
-	DrawElements8(mode int, count uint64, indices []uint8)
+	DrawElements8(mode int32, count int32, indices []uint8)
 
-	DrawElements16(mode int, count uint64, indices []uint16)
+	DrawElements16(mode int32, count int32, indices []uint16)
 
-	DrawElements32(mode int, count uint64, indices []uint32)
+	DrawElements32(mode int32, count int32, indices []uint32)
 }
 
 const (
@@ -41,9 +41,9 @@ const (
 
 type PrimitiveSet struct {
 	BufferData
-	PrimitiveType int
-	NumInstances  int
-	Mode          uint
+	PrimitiveType int32
+	NumInstances  int32
+	Mode          int32
 }
 
 func NewPrimitiveSet() PrimitiveSet {
@@ -62,15 +62,15 @@ const (
 
 type DrawArrays struct {
 	PrimitiveSet
-	First int
-	Count uint64
+	First int32
+	Count int32
 }
 
 func (d *DrawArrays) Accept(functor interface{}) {
 	switch f := functor.(type) {
 	case PrimitiveFunctor:
 	case PrimitiveIndexFunctor:
-		f.DrawArrays(int(d.Mode), d.First, d.Count)
+		f.DrawArrays(d.Mode, d.First, d.Count)
 	}
 }
 
@@ -82,8 +82,8 @@ func NewDrawArrays() DrawArrays {
 
 type DrawArrayLengths struct {
 	PrimitiveSet
-	Data  []uint64
-	First int
+	Data  []int32
+	First int32
 }
 
 func NewDrawArrayLengths() DrawArrayLengths {
@@ -97,7 +97,7 @@ func (dal *DrawArrayLengths) Accept(functor interface{}) {
 	case PrimitiveFunctor:
 	case PrimitiveIndexFunctor:
 		for _, v := range dal.Data {
-			f.DrawArrays(int(dal.Mode), dal.First, v)
+			f.DrawArrays(dal.Mode, dal.First, v)
 		}
 	}
 }
@@ -150,7 +150,7 @@ func (dw *DrawElementsUByte) Accept(functor interface{}) {
 	switch f := functor.(type) {
 	case PrimitiveFunctor:
 	case PrimitiveIndexFunctor:
-		f.DrawElements8(int(dw.Mode), uint64(l), dw.Data)
+		f.DrawElements8(dw.Mode, int32(l), dw.Data)
 	}
 }
 
@@ -185,7 +185,7 @@ func (dw *DrawElementsUShort) Accept(functor interface{}) {
 	switch f := functor.(type) {
 	case PrimitiveFunctor:
 	case PrimitiveIndexFunctor:
-		f.DrawElements16(int(dw.Mode), uint64(l), dw.Data)
+		f.DrawElements16(dw.Mode, int32(l), dw.Data)
 	}
 }
 
@@ -220,7 +220,7 @@ func (dw *DrawElementsUInt) Accept(functor interface{}) {
 	switch f := functor.(type) {
 	case PrimitiveFunctor:
 	case PrimitiveIndexFunctor:
-		f.DrawElements32(int(dw.Mode), uint64(l), dw.Data)
+		f.DrawElements32(dw.Mode, int32(l), dw.Data)
 	}
 }
 

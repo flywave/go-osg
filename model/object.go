@@ -10,7 +10,7 @@ const (
 	DYNAMIC            = 0
 	STATIC             = 1
 	UNSPECIFIED        = 2
-	OBJECTT    string = "osg::Object"
+	OBJECTT     string = "osg::Object"
 )
 
 type ObjectInterface interface {
@@ -39,7 +39,7 @@ type Callback struct {
 	Callback *Callback
 }
 
-func TypeBaseOfObject(obj interface{}) bool {
+func IsBaseOfObject(obj interface{}) bool {
 	no := NewObject()
 	baset := reflect.TypeOf(no)
 	t := reflect.TypeOf(obj)

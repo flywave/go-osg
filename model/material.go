@@ -1,15 +1,13 @@
 package model
 
-import "github.com/ungerik/go3d/vec4"
-
 const (
-	MTLT               = "osg::Material"
-	AMBIENT             = 0x1200
-	DIFFUSE             = 0x1201
-	SPECULAR            = 0x1202
-	EMISSION            = 0x1600
+	MTLT              = "osg::Material"
+	AMBIENT           = 0x1200
+	DIFFUSE           = 0x1201
+	SPECULAR          = 0x1202
+	EMISSION          = 0x1600
 	AMBIENTANDDIFFUSE = 0x1602
-	MTLOFF              = 0x1602 + 1
+	MTLOFF            = 0x1602 + 1
 )
 
 type Material struct {
@@ -20,17 +18,17 @@ type Material struct {
 	EmissionFrontAndBack  bool
 	ShininessFrontAndBack bool
 
-	AmbientFront vec4.T
-	AmbientBack  vec4.T
+	AmbientFront [4]float32
+	AmbientBack  [4]float32
 
-	DiffuseFront vec4.T
-	DiffuseBack  vec4.T
+	DiffuseFront [4]float32
+	DiffuseBack  [4]float32
 
-	SpecularFront vec4.T
-	SpecularBack  vec4.T
+	SpecularFront [4]float32
+	SpecularBack  [4]float32
 
-	EmissionFront vec4.T
-	EmissionBack  vec4.T
+	EmissionFront [4]float32
+	EmissionBack  [4]float32
 
 	ShininessFront float32
 	ShininessBack  float32
@@ -46,21 +44,21 @@ func NewMaterial() Material {
 		SpecularFrontAndBack:  true,
 		EmissionFrontAndBack:  true,
 		ShininessFrontAndBack: true,
-		AmbientFront:          vec4.T{0.2, 0.2, 0.2, 1.0},
-		AmbientBack:           vec4.T{0.2, 0.2, 0.2, 1.0},
-		DiffuseFront:          vec4.T{0.8, 0.8, 0.8, 1.0},
-		DiffuseBack:           vec4.T{0.8, 0.8, 0.8, 1.0},
-		SpecularFront:         vec4.T{0.0, 0.0, 0.0, 1.0},
-		SpecularBack:          vec4.T{0.0, 0.0, 0.0, 1.0},
-		EmissionFront:         vec4.T{0.0, 0.0, 0.0, 1.0},
-		EmissionBack:          vec4.T{0.0, 0.0, 0.0, 1.0},
+		AmbientFront:          [4]float32{0.2, 0.2, 0.2, 1.0},
+		AmbientBack:           [4]float32{0.2, 0.2, 0.2, 1.0},
+		DiffuseFront:          [4]float32{0.8, 0.8, 0.8, 1.0},
+		DiffuseBack:           [4]float32{0.8, 0.8, 0.8, 1.0},
+		SpecularFront:         [4]float32{0.0, 0.0, 0.0, 1.0},
+		SpecularBack:          [4]float32{0.0, 0.0, 0.0, 1.0},
+		EmissionFront:         [4]float32{0.0, 0.0, 0.0, 1.0},
+		EmissionBack:          [4]float32{0.0, 0.0, 0.0, 1.0},
 		ShininessFront:        0.0,
 		ShininessBack:         0.0,
 		Cmod:                  MTLOFF,
 	}
 }
 
-func (mt *Material) SetAmbient(face int, ambient vec4.T) {
+func (mt *Material) SetAmbient(face int, ambient [4]float32) {
 	switch face {
 	case GLFRONT:
 		mt.AmbientFrontAndBack = false
@@ -78,7 +76,7 @@ func (mt *Material) SetAmbient(face int, ambient vec4.T) {
 	}
 }
 
-func (mt *Material) GetAmbient(face int) vec4.T {
+func (mt *Material) GetAmbient(face int) [4]float32 {
 	switch face {
 	case GLFRONT:
 		return mt.AmbientFront
@@ -91,7 +89,7 @@ func (mt *Material) GetAmbient(face int) vec4.T {
 	}
 	return mt.AmbientFront
 }
-func (mt *Material) SetDiffuse(face int, diffuse vec4.T) {
+func (mt *Material) SetDiffuse(face int, diffuse [4]float32) {
 	switch face {
 	case GLFRONT:
 		mt.DiffuseFrontAndBack = false
@@ -109,7 +107,7 @@ func (mt *Material) SetDiffuse(face int, diffuse vec4.T) {
 	}
 }
 
-func (mt *Material) GetDiffuse(face int) vec4.T {
+func (mt *Material) GetDiffuse(face int) [4]float32 {
 	switch face {
 	case GLFRONT:
 		return mt.DiffuseFront
@@ -123,7 +121,7 @@ func (mt *Material) GetDiffuse(face int) vec4.T {
 	return mt.DiffuseFront
 }
 
-func (mt *Material) SetSpecular(face int, specular vec4.T) {
+func (mt *Material) SetSpecular(face int, specular [4]float32) {
 	switch face {
 	case GLFRONT:
 		mt.SpecularFrontAndBack = false
@@ -143,7 +141,7 @@ func (mt *Material) SetSpecular(face int, specular vec4.T) {
 	}
 }
 
-func (mt *Material) GetSpecular(face int) vec4.T {
+func (mt *Material) GetSpecular(face int) [4]float32 {
 	switch face {
 	case GLFRONT:
 		return mt.SpecularFront
@@ -157,7 +155,7 @@ func (mt *Material) GetSpecular(face int) vec4.T {
 	return mt.SpecularFront
 }
 
-func (mt *Material) SetEmission(face int, emission vec4.T) {
+func (mt *Material) SetEmission(face int, emission [4]float32) {
 	switch face {
 	case GLFRONT:
 		mt.EmissionFrontAndBack = false
@@ -177,7 +175,7 @@ func (mt *Material) SetEmission(face int, emission vec4.T) {
 	}
 }
 
-func (mt *Material) GetEmission(face int) vec4.T {
+func (mt *Material) GetEmission(face int) [4]float32 {
 	switch face {
 	case GLFRONT:
 		return mt.EmissionFront

@@ -28,9 +28,15 @@ type Array struct {
 	Binding          int32
 	Normalize        bool
 	PreserveDataType bool
+	Data             interface{}
 }
 
-func NewArray() Array {
+func NewArray2() Array {
 	buf := NewBufferData()
-	return Array{BufferData: buf, DataSize: 0, DataType: 0, Normalize: false, PreserveDataType: false, Binding: BINDUNDEFINED}
+	return Array{BufferData: buf, Normalize: false, PreserveDataType: false, Binding: BINDUNDEFINED}
+}
+
+func NewArray(ty ArrayTable, dt int32, dsize int32) Array {
+	buf := NewBufferData()
+	return Array{BufferData: buf, Type: ty, DataType: dt, DataSize: dsize, Normalize: false, PreserveDataType: false, Binding: BINDUNDEFINED}
 }
