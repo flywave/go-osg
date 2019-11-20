@@ -19,16 +19,39 @@ func NewAsciiInputIterator(rd *bufio.Reader) AsciiInputIterator {
 	return AsciiInputIterator{InputIterator: it}
 }
 
+func (iter *AsciiInputIterator) skip() byte {
+	for {
+		c, e := iter.In.ReadByte()
+		if e != nil {
+			return 0
+		}
+		switch c {
+		case ' ':
+			break
+		case '\n':
+			break
+		case '\r':
+			_, e = iter.In.ReadByte()
+			break
+		default:
+			return c
+		}
+	}
+}
+
 func (iter *AsciiInputIterator) ReadWordConsumer() string {
 	var b strings.Builder
 	done := false
+	b.WriteRune(rune(iter.skip()))
 	for {
 		c, e := iter.In.ReadByte()
-		if e != nil || done {
+		if e != nil {
 			break
 		}
 		switch c {
 		case ' ':
+			done = true
+			break
 		case '\n':
 			done = true
 			break
@@ -38,6 +61,9 @@ func (iter *AsciiInputIterator) ReadWordConsumer() string {
 			break
 		default:
 			b.WriteRune(rune(c))
+		}
+		if done {
+			break
 		}
 	}
 	return b.String()

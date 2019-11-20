@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestHello(t *testing.T) {
+func TestReadNode(t *testing.T) {
 	rw := NewReadWrite()
-	rw.ReadNode("test_data/simpleroom.osgt", nil)
+	rw.ReadNode("test_data/cessna.osgb", nil)
 }

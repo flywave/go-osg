@@ -1,8 +1,8 @@
 package model
 
 const (
-	RELATIVERF                   = 0
-	ABSOLUTERF                   = 1
+	RELATIVERF                 = 0
+	ABSOLUTERF                 = 1
 	ABSOLUTERFINHERITVIEWPOINT = 2
 
 	TRANSFORMT string = "osg::Transform"

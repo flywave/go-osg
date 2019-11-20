@@ -1,7 +1,5 @@
 package model
 
-import "reflect"
-
 type DataVariance int32
 
 var TypeMapping map[string]interface{}
@@ -15,13 +13,20 @@ const (
 
 type ObjectInterface interface {
 	IsObject() bool
+	GetName() *string
+	SetName(name string)
+	GetProperty() map[string]string
+	GetDataVariance() *int32
+	SetDataVariance(int32)
+	GetUserDataContainer() *UserDataContainer
+	SetUserDataContainer(udc *UserDataContainer)
 }
 
 type Object struct {
 	Name         string
 	Type         string
 	Propertys    map[string]string
-	DataVariance int
+	DataVariance int32
 	Udc          *UserDataContainer
 }
 
@@ -30,20 +35,40 @@ func NewObject() Object {
 	return Object{Type: OBJECTT, DataVariance: UNSPECIFIED, Propertys: make(map[string]string), Udc: &udc}
 }
 
+func (obj *Object) GetUserDataContainer() *UserDataContainer {
+	return obj.Udc
+}
+func (obj *Object) SetUserDataContainer(udc *UserDataContainer) {
+	obj.Udc = udc
+}
+
+func (obj *Object) GetDataVariance() *int32 {
+	return &obj.DataVariance
+}
+
+func (obj *Object) SetDataVariance(d int32) {
+	obj.DataVariance = d
+}
+
 func (obj *Object) IsObject() bool {
 	return true
+}
+
+func (obj *Object) GetName() *string {
+	return &obj.Name
+}
+
+func (obj *Object) SetName(name string) {
+	obj.Name = name
+}
+
+func (obj *Object) GetProperty() map[string]string {
+	return obj.Propertys
 }
 
 type Callback struct {
 	Object
 	Callback *Callback
-}
-
-func IsBaseOfObject(obj interface{}) bool {
-	no := NewObject()
-	baset := reflect.TypeOf(no)
-	t := reflect.TypeOf(obj)
-	return t.Implements(baset)
 }
 
 type ValueObject struct {

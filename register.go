@@ -6,11 +6,9 @@ import (
 	"github.com/flywave/go-osg/model"
 )
 
-var manager *objectWrapperManager
+const INT32_MAX = int32(^uint32(0) >> 1)
 
-func init() {
-	manager = newObjectWrapperManager()
-}
+var manager *objectWrapperManager
 
 type ObjectWrapperAssociate struct {
 	FirstVersion int32
@@ -45,14 +43,14 @@ func NewObjectWrapper2(name string, domain string, fn CreateInstanceFuncType, as
 }
 
 func (wp *ObjectWrapper) SplitAssociates(str string, separator string) {
-	list := strings.Split(separator, str)
+	list := strings.Split(str, separator)
 	if separator == "" {
 		separator = " "
 	}
 
 	for _, l := range list {
 		if l != separator {
-			owa := ObjectWrapperAssociate{Name: l}
+			owa := ObjectWrapperAssociate{Name: l, FirstVersion: 0, LastVersion: INT32_MAX}
 			wp.Associates = append(wp.Associates, &owa)
 		}
 	}
@@ -142,8 +140,10 @@ func (wp *ObjectWrapper) Read(is *OsgIstream, obj interface{}) {
 	inputVersion := is.GetFileVersion(wp.Domain)
 	for _, s := range wp.Serializers {
 		ser := s.(Serializer)
-		if ser.GetFirstVersion() <= inputVersion &&
-			inputVersion <= ser.GetLastVersion() && ser.SupportsGetSet() {
+		fv := ser.GetFirstVersion()
+		lv := ser.GetLastVersion()
+		srw := ser.SupportsReadWrite()
+		if fv <= inputVersion && inputVersion <= lv && srw {
 			s := Serializer(ser)
 			s.Read(is, obj)
 		}
@@ -518,6 +518,9 @@ func newObjectWrapperManager() *objectWrapperManager {
 }
 
 func GetObjectWrapperManager() *objectWrapperManager {
+	if manager == nil {
+		manager = newObjectWrapperManager()
+	}
 	return manager
 }
 
@@ -525,7 +528,7 @@ func (man *objectWrapperManager) AddWrap(wrap *ObjectWrapper) {
 	if wrap == nil {
 		return
 	}
-	manager.Wraps[strings.ToLower(wrap.Name)] = wrap
+	manager.Wraps["osg::"+strings.ToLower(wrap.Name)] = wrap
 }
 
 func (man *objectWrapperManager) RemoveWrap(wrap *ObjectWrapper) {
@@ -535,7 +538,6 @@ func (man *objectWrapperManager) RemoveWrap(wrap *ObjectWrapper) {
 
 func (man *objectWrapperManager) FindWrap(str string) *ObjectWrapper {
 	nm := strings.ToLower(str)
-	nm = "flywave::" + nm
 	w, ok := manager.Wraps[nm]
 	if ok {
 		return w

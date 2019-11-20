@@ -27,13 +27,11 @@ func NewOsgOptions() OsgOptions {
 	return OsgOptions{FileType: FileType}
 }
 
-type ReadType int
-
 const (
-	READUNKNOWN ReadType = 0
-	READSCENE   ReadType = 1
-	READIMAGE   ReadType = 2
-	READOBJECT  ReadType = 3
+	READUNKNOWN uint32 = 0
+	READSCENE   uint32 = 1
+	READIMAGE   uint32 = 2
+	READOBJECT  uint32 = 3
 )
 
 type OsgIstreamOptions struct {
@@ -50,7 +48,7 @@ func NewOsgIstreamOptions() OsgIstreamOptions {
 
 type StreamHeader struct {
 	Version       int32
-	Type          ReadType
+	Type          uint32
 	Attributes    int32
 	NumDomains    int32
 	DomainName    string
@@ -965,8 +963,7 @@ func (is *OsgIstream) ReadObjectFields(className string, id int32, obj interface
 	}
 	ver := is.GetFileVersion(wrap.Domain)
 	if obj == nil {
-		inst := wrap.CreateInstanceFunc()
-		obj = &inst
+		obj = wrap.CreateInstanceFunc()
 	}
 	is.IdentifierMap[id] = obj
 	for _, ass := range wrap.Associates {
@@ -987,9 +984,9 @@ func (is *OsgIstream) ReadObjectFields(className string, id int32, obj interface
 }
 
 func (is *OsgIstream) ReadSize() int {
-	var size int
+	var size int32
 	is.Read(&size)
-	return size
+	return int(size)
 }
 
 func (is *OsgIstream) GetFileVersion(domain string) int32 {
@@ -1007,7 +1004,7 @@ func (is *OsgIstream) AdvanceToCurrentEndBracket() {
 	is.In.AdvanceToCurrentEndBracket()
 }
 
-func (is *OsgIstream) Start(iter OsgInputIterator) (ReadType, error) {
+func (is *OsgIstream) Start(iter OsgInputIterator) (uint32, error) {
 	is.In = iter
 	is.Fields = []string{}
 	is.Fields = append(is.Fields, "Start")
@@ -1018,7 +1015,7 @@ func (is *OsgIstream) Start(iter OsgInputIterator) (ReadType, error) {
 	iter.SetInputSteam(is)
 	header := StreamHeader{}
 	if iter.IsBinary() {
-		is.Read((*int)(&header.Type))
+		is.Read(&header.Type)
 		is.Read(&header.Version)
 		is.Read(&header.Attributes)
 		if header.Attributes&0x4 > 0 {
@@ -1045,10 +1042,12 @@ func (is *OsgIstream) Start(iter OsgInputIterator) (ReadType, error) {
 		} else if header.TypeString == "Object" {
 			header.Type = READOBJECT
 		}
-		v := model.ObjectProperty{Name: "#Version"}
-		is.Read(&v)
-		g := model.ObjectProperty{Name: "#Generator"}
-		is.Read(&g)
+		is.PROPERTY.Name = "#Version"
+		is.Read(is.PROPERTY)
+		is.Read(&header.Version)
+		is.Read(header.Version)
+		is.PROPERTY.Name = "#Generator"
+		is.Read(is.PROPERTY)
 		is.Read(&header.OsgName)
 		is.Read(&header.OsgVersion)
 		for {
@@ -1057,6 +1056,7 @@ func (is *OsgIstream) Start(iter OsgInputIterator) (ReadType, error) {
 				is.Read(&header.DomainName)
 				is.Read(&header.DomainVersion)
 				is.DomainVersionMap[header.DomainName] = header.DomainVersion
+			} else {
 				break
 			}
 		}
@@ -1068,7 +1068,7 @@ func (is *OsgIstream) Start(iter OsgInputIterator) (ReadType, error) {
 }
 
 func (is *OsgIstream) Decompress() {
-	if is.IsBinary() {
+	if is.IsBinary() || !is.Options.Compressed {
 		return
 	}
 	is.Fields = []string{}
@@ -1078,7 +1078,8 @@ func (is *OsgIstream) Decompress() {
 	}
 	compressor := GetObjectWrapperManager().FindCompressor(compressorName)
 	if compressor == nil {
-		panic("inputstream: Failed to decompress stream, No such compressor.")
+		// panic("inputstream: Failed to decompress stream, No such compressor.")
+		return
 	}
 	var src []byte
 	compressor.DeCompress(is.In.GetIterator(), src)

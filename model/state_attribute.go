@@ -1,7 +1,5 @@
 package model
 
-import "reflect"
-
 const (
 	TEXTURE                        = 0
 	POLYGONMODE                    = 1
@@ -47,19 +45,19 @@ const (
 	CLIPCONTROL                    = 41
 	VALIDATOR                      = 42
 	VIEWMATRIXEXTRACTOR            = 43
-	OSGNVPARAMETERBLOCK          = 44
-	OSGNVEXTTEXTURESHADER        = 45
-	OSGNVEXTVERTEXPROGRAM        = 46
-	OSGNVEXTREGISTERCOMBINERS    = 47
-	OSGNVCGPROGRAM                = 48
-	OSGNVSLANGPROGRAM             = 49
-	OSGNVPARSEPROGRAMPARSER      = 50
+	OSGNVPARAMETERBLOCK            = 44
+	OSGNVEXTTEXTURESHADER          = 45
+	OSGNVEXTVERTEXPROGRAM          = 46
+	OSGNVEXTREGISTERCOMBINERS      = 47
+	OSGNVCGPROGRAM                 = 48
+	OSGNVSLANGPROGRAM              = 49
+	OSGNVPARSEPROGRAMPARSER        = 50
 	UNIFORMBUFFERBINDING           = 51
 	TRANSFORMFEEDBACKBUFFERBINDING = 52
 	ATOMICCOUNTERBUFFERBINDING     = 53
-	PATCHPARAMETER                = 54
-	FRAMEBUFFEROBJECT            = 55
-	VERTEXATTRIBDIVISOR          = 56
+	PATCHPARAMETER                 = 54
+	FRAMEBUFFEROBJECT              = 55
+	VERTEXATTRIBDIVISOR            = 56
 	SHADERSTORAGEBUFFERBINDING     = 57
 	INDIRECTDRAWBUFFERBINDING      = 58
 	VIEWPORTINDEXED                = 59
@@ -85,6 +83,8 @@ type StateAttributeInterface interface {
 	IsStateAttributeInterface() bool
 	IsTextureAttribute() bool
 	GetType() int
+	GetParents() []*StateSet
+	SetParents([]*StateSet)
 }
 
 type StateAttribute struct {
@@ -92,6 +92,14 @@ type StateAttribute struct {
 	Parents        []*StateSet
 	UpdateCallback *Callback
 	EventCallback  *Callback
+}
+
+func (n *StateAttribute) GetParents() []*StateSet {
+	return n.Parents
+}
+
+func (n *StateAttribute) SetParents(g []*StateSet) {
+	n.Parents = g
 }
 
 func (s *StateAttribute) IsStateAttributeInterface() bool {
@@ -129,14 +137,4 @@ func NewShadeModel() ShadeModel {
 	a := NewStateAttribute()
 	a.Type = SHADEMODELT
 	return ShadeModel{StateAttribute: a}
-}
-
-func IsBaseOfStateAttribute(obj interface{}) bool {
-	if obj == nil {
-		return false
-	}
-	ss := StateAttribute{}
-	baset := reflect.TypeOf(ss)
-	t := reflect.TypeOf(obj)
-	return t.Implements(baset)
 }

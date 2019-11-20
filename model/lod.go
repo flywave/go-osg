@@ -2,25 +2,38 @@ package model
 
 import (
 	"errors"
-
-	"github.com/ungerik/go3d/vec3"
 )
 
 const (
-	USEBOUNDINGSPHERECENTER                       = 0
-	USERDEFINEDCENTER                              = 1
+	USEBOUNDINGSPHERECENTER                    = 0
+	USERDEFINEDCENTER                          = 1
 	UNIONOFBOUNDINGSPHEREANDUSERDEFINED        = 2
-	DISTANCEFROMEYEPOINT                          = 0
-	PIXELSIZEONSCREEN                             = 1
-	LODT                                     string = "osg::Lod"
+	DISTANCEFROMEYEPOINT                       = 0
+	PIXELSIZEONSCREEN                          = 1
+	LODT                                string = "osg::Lod"
 )
+
+type LodInterface interface {
+	GetCmode() *uint32
+	SetCmode(*uint32)
+	GetCenter() *[3]float32
+	SetCenter([3]float32)
+	GetRadius() *float32
+	SetRadius(float32)
+	GetRangeList() RangeListType
+	SetRangeList(RangeListType)
+	AddChild(interface{})
+	AddChild3(interface{}, float32, float32)
+	RemoveChild2(int, int) error
+	SetRange(int, float32, float32)
+}
 
 type RangeListType [][2]float32
 
 type Lod struct {
 	Group
 	Cmode     uint32
-	Center    vec3.T
+	Center    [3]float32
 	Radius    float32
 	Rmode     uint32
 	RangeList RangeListType
@@ -30,6 +43,31 @@ func NewLod() Lod {
 	g := NewGroup()
 	g.Type = LODT
 	return Lod{Group: g, Cmode: USEBOUNDINGSPHERECENTER, Rmode: DISTANCEFROMEYEPOINT}
+}
+
+func (lod *Lod) GetCmode() *uint32 {
+	return &lod.Cmode
+}
+func (lod *Lod) SetCmode(c uint32) {
+	lod.Cmode = c
+}
+func (lod *Lod) GetCenter() *[3]float32 {
+	return &lod.Center
+}
+func (lod *Lod) SetCenter(ct [3]float32) {
+	lod.Center = ct
+}
+func (lod *Lod) GetRadius() *float32 {
+	return &lod.Radius
+}
+func (lod *Lod) SetRadius(r float32) {
+	lod.Radius = r
+}
+func (lod *Lod) GetRangeList() RangeListType {
+	return lod.RangeList
+}
+func (lod *Lod) SetRangeList(rl RangeListType) {
+	lod.RangeList = rl
 }
 
 func (lod *Lod) AddChild(n interface{}) {

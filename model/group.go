@@ -6,9 +6,30 @@ const (
 	GROUPT string = "osg::Group"
 )
 
+type GroupInterface interface {
+	SetChildren(c []interface{})
+	GetChildren() []interface{}
+	AddChild(n interface{})
+	InsertChild(index int, n interface{})
+	GetIndex(n interface{}) int
+	RemoveChild(n interface{}) error
+	RemoveChild2(pos int, count int) error
+	ReplaceChild(origChild interface{}, newChild interface{}) error
+	SetChild(index int, newChild interface{}) error
+	Containsnode(n interface{}) bool
+}
+
 type Group struct {
 	Node
 	Children []interface{}
+}
+
+func (g *Group) GetChildren() []interface{} {
+	return g.Children
+}
+
+func (g *Group) SetChildren(c []interface{}) {
+	g.Children = c
 }
 
 func NewGroup() Group {

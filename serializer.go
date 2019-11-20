@@ -133,12 +133,17 @@ type Serializer interface {
 	SupportsSet() bool
 	SupportsGet() bool
 	SupportsGetSet() bool
+	SupportsReadWrite() bool
 }
 
 type BaseSerializer struct {
 	FirstVersion int32
 	LastVersion  int32
 	Usage        Usage
+}
+
+func (bs *BaseSerializer) SupportsReadWrite() bool {
+	return (bs.Usage & READWRITEPROPERTY) != 0
 }
 
 func (bs *BaseSerializer) SupportsGetSet() bool {
@@ -150,7 +155,7 @@ func (bs *BaseSerializer) SupportsGet() bool {
 }
 
 func (bs *BaseSerializer) SupportsSet() bool {
-	return (bs.Usage & GETSETPROPERTY) != 0
+	return (bs.Usage & SETPROPERTY) != 0
 }
 
 func (bs *BaseSerializer) GetSerializerName() string {
@@ -176,7 +181,7 @@ func (ser *BaseSerializer) SetLastVersion(v int32) {
 }
 
 func NewBaseSerializer(usg Usage) BaseSerializer {
-	return BaseSerializer{Usage: usg}
+	return BaseSerializer{Usage: usg, FirstVersion: 0, LastVersion: INT32_MAX}
 }
 
 type Checker func(interface{}) bool
@@ -355,14 +360,14 @@ func (ser *ObjectSerializer) Read(is *OsgIstream, obj interface{}) {
 		is.Read(&hasObj)
 		if hasObj {
 			is.Read(ser.Getter(obj))
-			ser.Setter(is, is.ReadObject(nil))
+			ser.Setter(obj, is.ReadObject(nil))
 		}
 	} else {
 		if is.MatchString(ser.Name) {
 			is.Read(&hasObj)
 			if hasObj {
 				is.Read(is.BEGINBRACKET)
-				ser.Setter(is, is.ReadObject(nil))
+				ser.Setter(obj, is.ReadObject(nil))
 				is.Read(is.ENDBRACKET)
 			}
 		}
@@ -385,14 +390,14 @@ func (ser *ImageSerializer) Read(is *OsgIstream, obj interface{}) {
 	if is.IsBinary() {
 		is.Read(&hasObj)
 		if hasObj {
-			ser.Setter(is, is.ReadImage(true))
+			ser.Setter(obj, is.ReadImage(true))
 		}
 	} else {
 		if is.MatchString(ser.Name) {
 			is.Read(&hasObj)
 			if hasObj {
 				is.Read(is.BEGINBRACKET)
-				ser.Setter(is, is.ReadImage(true))
+				ser.Setter(obj, is.ReadImage(true))
 				is.Read(is.ENDBRACKET)
 			}
 		}
@@ -423,7 +428,7 @@ func (ser *EnumSerializer) Read(is *OsgIstream, obj interface{}) {
 		if is.MatchString(ser.Name) {
 			var str string
 			is.Read(str)
-			ser.Setter(is, ser.LookUp.GetValue(str))
+			ser.Setter(obj, ser.LookUp.GetValue(str))
 		}
 	}
 }
@@ -446,21 +451,22 @@ func (ser *VectorSerializer) Read(is *OsgIstream, obj interface{}) {
 	if is.IsBinary() {
 		size := is.ReadSize()
 		for i := 0; i < size; i++ {
-			if model.IsBaseOfObject(ser.Element) {
+			_, ok := ser.Element.(*model.Object)
+			if ok {
 				list = append(list, is.ReadObject(nil))
 			} else {
 				is.Read(ser.Element)
 				list = append(list, ser.Element)
 			}
 		}
-		ser.Setter(is, list)
 	} else {
 		if is.MatchString(ser.Name) {
 			size := is.ReadSize()
 			is.Read(is.BEGINBRACKET)
 			if size > 0 {
-				for i := 0; i < size; i++ {
-					if model.IsBaseOfObject(ser.Element) {
+				for i := 0; i < int(size); i++ {
+					_, ok := ser.Element.(*model.Object)
+					if ok {
 						list = append(list, is.ReadObject(nil))
 					} else {
 						is.Read(ser.Element)
@@ -471,6 +477,7 @@ func (ser *VectorSerializer) Read(is *OsgIstream, obj interface{}) {
 			is.Read(is.ENDBRACKET)
 		}
 	}
+	ser.Setter(obj, list)
 }
 
 func (ser *VectorSerializer) Writer(is *OsgOstream, obj interface{}) {}

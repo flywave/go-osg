@@ -1,11 +1,5 @@
 package model
 
-import (
-	"reflect"
-
-	"github.com/ungerik/go3d/vec3"
-)
-
 const (
 	DRAWABLET string = "osg::Drawable"
 )
@@ -20,11 +14,27 @@ type ComputeBoundingBoxCallback struct {
 
 type DrawableInterface interface {
 	IsDrawableInterface() bool
+	GetBoundingBox() *[2][3]float32
+	SetBoundingBox(*[2][3]float32)
+	GetShape() *Shape
+	SetShape(*Shape)
+	GetSupportsDisplayList() *bool
+	SetSupportsDisplayList(bool)
+	GetUseDisplayList() *bool
+	SetUseDisplayList(bool)
+	GetUseVertexBufferObjects() *bool
+	SetUseVertexBufferObjects(bool)
+
+	GetCallback() *ComputeBoundingBoxCallback
+	SetCallback(*ComputeBoundingBoxCallback)
+
+	GetDwCallback() *DrawCallback
+	SetDwCallback(*DrawCallback)
 }
 
 type Drawable struct {
 	Node
-	BoundingBox            vec3.Box
+	BoundingBox            *[2][3]float32
 	Shape                  *Shape
 	SupportsDisplayList    bool
 	UseDisplayList         bool
@@ -38,18 +48,53 @@ func (d *Drawable) IsDrawableInterface() bool {
 	return true
 }
 
+func (d *Drawable) GetBoundingBox() *[2][3]float32 {
+	return d.BoundingBox
+}
+func (d *Drawable) SetBoundingBox(bx *[2][3]float32) {
+	d.BoundingBox = bx
+}
+func (d *Drawable) GetShape() *Shape {
+	return d.Shape
+}
+func (d *Drawable) SetShape(sp *Shape) {
+	d.Shape = sp
+}
+func (d *Drawable) GetSupportsDisplayList() *bool {
+	return &d.SupportsDisplayList
+}
+func (d *Drawable) SetSupportsDisplayList(b bool) {
+	d.SupportsDisplayList = b
+}
+func (d *Drawable) GetUseDisplayList() *bool {
+	return &d.UseDisplayList
+}
+func (d *Drawable) SetUseDisplayList(b bool) {
+	d.UseDisplayList = b
+}
+func (d *Drawable) GetUseVertexBufferObjects() *bool {
+	return &d.UseVertexBufferObjects
+}
+func (d *Drawable) SetUseVertexBufferObjects(b bool) {
+	d.UseVertexBufferObjects = b
+}
+
+func (d *Drawable) GetCallback() *ComputeBoundingBoxCallback {
+	return d.Callback
+}
+func (d *Drawable) SetCallback(cb *ComputeBoundingBoxCallback) {
+	d.Callback = cb
+}
+
+func (d *Drawable) GetDwCallback() *DrawCallback {
+	return d.DwCallback
+}
+func (d *Drawable) SetDwCallback(cb *DrawCallback) {
+	d.DwCallback = cb
+}
+
 func NewDrawable() Drawable {
 	n := NewNode()
 	n.Type = DRAWABLET
 	return Drawable{Node: n}
-}
-
-func IsBaseOfDrawable(obj interface{}) bool {
-	if obj == nil {
-		return false
-	}
-	ss := Drawable{}
-	baset := reflect.TypeOf(ss)
-	t := reflect.TypeOf(obj)
-	return t.Implements(baset)
 }
