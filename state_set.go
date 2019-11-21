@@ -6,8 +6,8 @@ import (
 	"github.com/flywave/go-osg/model"
 )
 
-func readValue(is *OsgIstream) int {
-	var val int
+func readValue(is *OsgIstream) int32 {
+	var val int32
 	var str string
 	if is.IsBinary() {
 		is.Read(&val)
@@ -35,8 +35,9 @@ func readValue(is *OsgIstream) int {
 func readModes(is *OsgIstream, mdlist model.ModeListType) {
 	size := is.ReadSize()
 	if size > 0 {
+		is.Read(is.BEGINBRACKET)
 		for i := 0; i < size; i++ {
-			var md int
+			var md int32
 			is.Read(&md)
 			val := readValue(is)
 			mdlist[md] = val
@@ -64,7 +65,7 @@ func readAttributes(is *OsgIstream, attr model.AttributeListType) {
 	}
 }
 
-func writeValue(os *OsgOstream, val int) {
+func writeValue(os *OsgOstream, val int32) {
 	if os.IsBinary() {
 		os.Write(val)
 	} else {
@@ -306,7 +307,7 @@ func getRenderingHint(obj interface{}) interface{} {
 
 func setRenderingHint(obj interface{}, val interface{}) {
 	ss := obj.(*model.StateSet)
-	ss.RenderingHint = val.(int)
+	ss.RenderingHint = val.(int32)
 }
 
 func getRenderBinMode(obj interface{}) interface{} {
@@ -316,7 +317,7 @@ func getRenderBinMode(obj interface{}) interface{} {
 
 func setRenderBinMode(obj interface{}, val interface{}) {
 	ss := obj.(*model.StateSet)
-	ss.BinMode = val.(int)
+	ss.BinMode = val.(int32)
 }
 
 func getBinNumber(obj interface{}) interface{} {
@@ -326,7 +327,7 @@ func getBinNumber(obj interface{}) interface{} {
 
 func setBinNumber(obj interface{}, val interface{}) {
 	ss := obj.(*model.StateSet)
-	ss.BinNum = val.(int)
+	ss.BinNum = val.(int32)
 }
 
 func getBinName(obj interface{}) interface{} {

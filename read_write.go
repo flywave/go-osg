@@ -304,8 +304,8 @@ func (rw *ReadWrite) ReadNodeWithReader(rd *bufio.Reader, opts *OsgIstreamOption
 	}
 	is.Decompress()
 	obj := is.ReadObject(nil)
-	switch nd := obj.(type) {
-	case *model.Node:
+	nd, ok := obj.(model.NodeInterface)
+	if ok {
 		return &ReadResult{Object: nd}
 	}
 	return &ReadResult{Status: FILENOTHANDLED}

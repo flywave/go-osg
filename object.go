@@ -68,10 +68,12 @@ func init() {
 	wrap.AddSerializer(&ser2, RWENUM)
 	wrap.AddSerializer(&ser3, RWUSER)
 
-	AddUpdateWrapperVersionProxy(&wrap, 77)
-	wrap.MarkSerializerAsRemoved("UserData")
-	ser4 := NewObjectSerializer("UserDataContainer", getUserDataContainer, setUserDataContainer)
-	wrap.AddSerializer(&ser4, RWOBJECT)
-
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 77)
+		wrap.MarkSerializerAsRemoved("UserData")
+		ser4 := NewObjectSerializer("UserDataContainer", getUserDataContainer, setUserDataContainer)
+		wrap.AddSerializer(&ser4, RWOBJECT)
+		uv.SetLastVersion()
+	}
 	GetObjectWrapperManager().AddWrap(&wrap)
 }

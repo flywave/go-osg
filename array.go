@@ -34,8 +34,11 @@ func init() {
 		return &ay
 	}
 	wrap := NewObjectWrapper("Array", fn, "osg::Object osg::BufferData osg::Array")
-	AddUpdateWrapperVersionProxy(&wrap, 147)
-	wrap.MarkSerializerAsAdded("osg::BufferData")
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 147)
+		wrap.MarkSerializerAsAdded("osg::BufferData")
+		uv.SetLastVersion()
+	}
 
 	ser := NewEnumSerializer("Binding", getBinding, setBinding)
 	ser.Add("BINDUNDEFINED", model.BINDUNDEFINED)

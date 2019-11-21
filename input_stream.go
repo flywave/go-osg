@@ -84,8 +84,8 @@ func NewOsgIstream(opt *OsgIstreamOptions) OsgIstream {
 	bb.Name = "{"
 	bb.IndentDelta = INDENT_VALUE
 	eb := model.NewObjectMark()
-	bb.Name = "}"
-	bb.IndentDelta = -INDENT_VALUE
+	eb.Name = "}"
+	eb.IndentDelta = -INDENT_VALUE
 	is := OsgIstream{ArrayMap: make(map[int32]*model.Array), Options: opt, IdentifierMap: make(map[int32]interface{}), DomainVersionMap: make(map[string]int32), PROPERTY: &p, BEGINBRACKET: &bb, ENDBRACKET: &eb}
 	if opt.ForceReadingImage {
 		is.ForceReadingImage = true
@@ -299,16 +299,10 @@ func (is *OsgIstream) Read(inter interface{}) {
 		is.In.ReadShort(&val[3])
 		break
 	case *[4][4]float32:
-		is.Read(&val[0])
-		is.Read(&val[1])
-		is.Read(&val[2])
-		is.Read(&val[3])
+		is.ReadMatrix4f(val)
 		break
 	case *[4][4]float64:
-		is.Read(&val[0])
-		is.Read(&val[1])
-		is.Read(&val[2])
-		is.Read(&val[3])
+		is.ReadMatrix4d(val)
 		break
 	case *[4][4]int32:
 		is.Read(&val[0])
@@ -334,6 +328,9 @@ func (is *OsgIstream) Read(inter interface{}) {
 		break
 	case *model.ObjectMark:
 		is.In.ReadMark(val)
+		break
+	case *model.PrimitiveSet:
+		inter = is.ReadPrimitiveSet()
 		break
 	}
 }
@@ -366,6 +363,24 @@ type imagedata struct {
 	Data        []byte
 }
 
+func (is *OsgIstream) ReadMatrix4f(mat *[4][4]float32) {
+	is.Read(is.BEGINBRACKET)
+	is.Read(&mat[0])
+	is.Read(&mat[1])
+	is.Read(&mat[2])
+	is.Read(&mat[3])
+	is.Read(is.ENDBRACKET)
+}
+
+func (is *OsgIstream) ReadMatrix4d(mat *[4][4]float64) {
+	is.Read(is.BEGINBRACKET)
+	is.Read(&mat[0])
+	is.Read(&mat[1])
+	is.Read(&mat[2])
+	is.Read(&mat[3])
+	is.Read(is.ENDBRACKET)
+}
+
 func (is *OsgIstream) ReadArray() *model.Array {
 	is.PROPERTY.Name = "ArrayID"
 	is.Read(is.PROPERTY)
@@ -375,7 +390,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	if ok {
 		return ay
 	}
-	ty := model.NewObjectProperty()
+	ty := model.ObjectProperty{Name: "ArrayType", MapProperty: true}
 	is.Read(&ty)
 	var size int32
 	is.Read(&size)
@@ -724,75 +739,80 @@ func (is *OsgIstream) ReadArray() *model.Array {
 }
 
 func (is *OsgIstream) ReadPrimitiveSet() interface{} {
-	ty := model.ObjectProperty{Name: "PrimitiveType", Value: 0, MapProperty: true}
-	md := model.ObjectProperty{Name: "PrimitiveType", Value: 0, MapProperty: true}
-	var numInstances, first, count, size int32
-	is.Read(&ty)
-	is.Read(&md)
-	if is.FileVersion > 96 {
-		is.Read(&numInstances)
-	}
-	switch ty.Value {
-	case model.IDDRAWARRAYS:
-		is.Read(&first)
-		is.Read(&count)
-		da := model.NewDrawArrays()
-		da.Mode = md.Value
-		da.First = first
-		da.Count = count
-		da.NumInstances = numInstances
-		return &da
-	case model.IDDRAWARRAYLENGTH:
-		is.Read(&first)
-		is.Read(&size)
-		is.Read(is.BEGINBRACKET)
-		dl := model.NewDrawArrayLengths()
-		dl.Mode = md.Value
-		dl.First = first
-		var value int32
-		for i := 0; i < int(size); i++ {
-			is.Read(&value)
-			dl.Data = append(dl.Data, value)
+	if is.FileVersion >= 112 {
+		obj := is.ReadObject(nil)
+		return obj
+	} else {
+		ty := model.ObjectProperty{Name: "PrimitiveType", Value: 0, MapProperty: true}
+		md := model.ObjectProperty{Name: "PrimitiveType", Value: 0, MapProperty: true}
+		var numInstances, first, count, size int32
+		is.Read(&ty)
+		is.Read(&md)
+		if is.FileVersion > 96 {
+			is.Read(&numInstances)
 		}
-		is.Read(is.ENDBRACKET)
-		dl.NumInstances = numInstances
-		return &dl
-	case model.IDDRAWELEMENTSUBYTE:
-		is.Read(&size)
-		is.Read(is.BEGINBRACKET)
-		de := model.NewDrawElementsUByte()
-		var value uint8
-		for i := 0; i < int(size); i++ {
-			is.Read(&value)
-			de.Data = append(de.Data, value)
+		switch ty.Value {
+		case model.IDDRAWARRAYS:
+			is.Read(&first)
+			is.Read(&count)
+			da := model.NewDrawArrays()
+			da.Mode = md.Value
+			da.First = first
+			da.Count = count
+			da.NumInstances = numInstances
+			return &da
+		case model.IDDRAWARRAYLENGTH:
+			is.Read(&first)
+			is.Read(&size)
+			is.Read(is.BEGINBRACKET)
+			dl := model.NewDrawArrayLengths()
+			dl.Mode = md.Value
+			dl.First = first
+			var value int32
+			for i := 0; i < int(size); i++ {
+				is.Read(&value)
+				dl.Data = append(dl.Data, value)
+			}
+			is.Read(is.ENDBRACKET)
+			dl.NumInstances = numInstances
+			return &dl
+		case model.IDDRAWELEMENTSUBYTE:
+			is.Read(&size)
+			is.Read(is.BEGINBRACKET)
+			de := model.NewDrawElementsUByte()
+			var value uint8
+			for i := 0; i < int(size); i++ {
+				is.Read(&value)
+				de.Data = append(de.Data, value)
+			}
+			is.Read(is.ENDBRACKET)
+			de.NumInstances = numInstances
+			return &de
+		case model.IDDRAWELEMENTSUSHORT:
+			is.Read(&size)
+			is.Read(is.BEGINBRACKET)
+			ds := model.NewDrawElementsUShort()
+			var value uint16
+			for i := 0; i < int(size); i++ {
+				is.Read(&value)
+				ds.Data = append(ds.Data, value)
+			}
+			is.Read(is.ENDBRACKET)
+			ds.NumInstances = numInstances
+			return &ds
+		case model.IDDRAWELEMENTSUINT:
+			is.Read(&size)
+			is.Read(is.BEGINBRACKET)
+			duint := model.NewDrawElementsUInt()
+			var value uint32
+			for i := 0; i < int(size); i++ {
+				is.Read(&value)
+				duint.Data = append(duint.Data, value)
+			}
+			is.Read(is.ENDBRACKET)
+			duint.NumInstances = numInstances
+			return &duint
 		}
-		is.Read(is.ENDBRACKET)
-		de.NumInstances = numInstances
-		return &de
-	case model.IDDRAWELEMENTSUSHORT:
-		is.Read(&size)
-		is.Read(is.BEGINBRACKET)
-		ds := model.NewDrawElementsUShort()
-		var value uint16
-		for i := 0; i < int(size); i++ {
-			is.Read(&value)
-			ds.Data = append(ds.Data, value)
-		}
-		is.Read(is.ENDBRACKET)
-		ds.NumInstances = numInstances
-		return &ds
-	case model.IDDRAWELEMENTSUINT:
-		is.Read(&size)
-		is.Read(is.BEGINBRACKET)
-		duint := model.NewDrawElementsUInt()
-		var value uint32
-		for i := 0; i < int(size); i++ {
-			is.Read(&value)
-			duint.Data = append(duint.Data, value)
-		}
-		is.Read(is.ENDBRACKET)
-		duint.NumInstances = numInstances
-		return &duint
 	}
 	return nil
 }
@@ -944,14 +964,14 @@ func (is *OsgIstream) ReadObject(obj interface{}) interface{} {
 	is.Read(is.BEGINBRACKET)
 	is.PROPERTY.Name = "UniqueID"
 	is.Read(is.PROPERTY)
-	var id int32
+	var id uint32
 	is.Read(&id)
-	v, ok := is.IdentifierMap[id]
+	v, ok := is.IdentifierMap[int32(id)]
 	if ok {
 		is.AdvanceToCurrentEndBracket()
 		return v
 	}
-	obj = is.ReadObjectFields(cls, id, obj)
+	obj = is.ReadObjectFields(cls, int32(id), obj)
 	is.AdvanceToCurrentEndBracket()
 	return obj
 }
@@ -1068,24 +1088,23 @@ func (is *OsgIstream) Start(iter OsgInputIterator) (uint32, error) {
 }
 
 func (is *OsgIstream) Decompress() {
-	if is.IsBinary() || !is.Options.Compressed {
+	if !is.IsBinary() {
 		return
 	}
 	is.Fields = []string{}
 	compressorName := is.ReadString()
 	if compressorName != "0" {
 		is.Fields = append(is.Fields, compressorName)
+		compressor := GetObjectWrapperManager().FindCompressor(compressorName)
+		if compressor == nil {
+			panic("inputstream: Failed to decompress stream, No such compressor.")
+		}
+		var src []byte
+		compressor.DeCompress(is.In.GetIterator(), src)
+		bufReader := bytes.NewBuffer(src)
+		is.In.SetIterator(bufio.NewReader(bufReader))
+		is.Fields = is.Fields[:len(is.Fields)-1]
 	}
-	compressor := GetObjectWrapperManager().FindCompressor(compressorName)
-	if compressor == nil {
-		// panic("inputstream: Failed to decompress stream, No such compressor.")
-		return
-	}
-	var src []byte
-	compressor.DeCompress(is.In.GetIterator(), src)
-	bufReader := bytes.NewBuffer(src)
-	is.In.SetIterator(bufio.NewReader(bufReader))
-	is.Fields = is.Fields[:len(is.Fields)-1]
 	if is.UseSchemaData {
 		is.Fields = append(is.Fields, "SchemaData")
 	}

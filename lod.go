@@ -44,8 +44,7 @@ func rangeListChecker(obj interface{}) bool {
 
 func rangeListReader(is *OsgIstream, obj interface{}) {
 	lod := obj.(*model.Lod)
-	var size int = 0
-	is.Read(&size)
+	size := is.ReadSize()
 	is.Read(is.BEGINBRACKET)
 	lod.RangeList = make([][2]float32, size, size)
 	for i := 0; i < size; i++ {

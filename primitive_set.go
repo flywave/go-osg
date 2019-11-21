@@ -108,8 +108,11 @@ func init() {
 	}
 
 	wrap1 := NewObjectWrapper("PrimitiveSet", fn1, "osg::Object osg::BufferData osg::PrimitiveSet")
-	AddUpdateWrapperVersionProxy(&wrap1, 147)
-	wrap1.MarkSerializerAsAdded("osg::BufferData")
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap1, 147)
+		wrap1.MarkSerializerAsAdded("osg::BufferData")
+		uv.SetLastVersion()
+	}
 	ser1 := NewPropByValSerializer("NumInstances", false, getNumInstances, setNumInstances)
 	ser2 := NewEnumSerializer("Mode", getPrimitMode, setPrimitMode)
 	ser2.Add("POINTS", model.GLPOINTS)
@@ -132,8 +135,11 @@ func init() {
 	GetObjectWrapperManager().AddWrap(&wrap1)
 
 	wrap2 := NewObjectWrapper("DrawArrays", fn2, "osg::Object osg::BufferData osg::PrimitiveSet osg::DrawArrays")
-	AddUpdateWrapperVersionProxy(&wrap2, 147)
-	wrap2.MarkSerializerAsAdded("osg::BufferData")
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap2, 147)
+		wrap2.MarkSerializerAsAdded("osg::BufferData")
+		uv.SetLastVersion()
+	}
 	ser3 := NewPropByValSerializer("First", false, getDAFirst, setDAFirst)
 	ser4 := NewPropByValSerializer("Count", false, getDACount, setDACount)
 	wrap2.AddSerializer(&ser3, RWINT)
@@ -141,8 +147,11 @@ func init() {
 	GetObjectWrapperManager().AddWrap(&wrap2)
 
 	wrap3 := NewObjectWrapper2("DrawArrayLengths", "flywave::osg::drawarraylengths", fn3, "osg::Object osg::BufferData osg::PrimitiveSet osg::DrawArrays")
-	AddUpdateWrapperVersionProxy(&wrap2, 147)
-	wrap3.MarkSerializerAsAdded("osg::BufferData")
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap2, 147)
+		wrap3.MarkSerializerAsAdded("osg::BufferData")
+		uv.SetLastVersion()
+	}
 	ser5 := NewPropByValSerializer("First", false, getDLFirst, setDLFirst)
 
 	var tydata int32
@@ -152,24 +161,33 @@ func init() {
 	GetObjectWrapperManager().AddWrap(&wrap3)
 
 	wrap4 := NewObjectWrapper2("DrawElementsUByte", "flywave::osg::drawelementsubyte", fn4, "osg::Object osg::BufferData osg::PrimitiveSet osg::DrawElementsUByte")
-	AddUpdateWrapperVersionProxy(&wrap4, 147)
-	wrap4.MarkSerializerAsAdded("osg::BufferData")
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap4, 147)
+		wrap4.MarkSerializerAsAdded("osg::BufferData")
+		uv.SetLastVersion()
+	}
 	var tydata2 uint8
 	ser7 := NewVectorSerializer("Data", RWOBJECT, &tydata2, getDADataUByte, setDADataUByte)
 	wrap4.AddSerializer(&ser7, RWUCHAR)
 	GetObjectWrapperManager().AddWrap(&wrap4)
 
 	wrap5 := NewObjectWrapper2("DrawElementsUShort", "flywave::osg::drawelementsushort", fn5, "osg::Object osg::BufferData osg::PrimitiveSet osg::DrawElementsUShort")
-	AddUpdateWrapperVersionProxy(&wrap5, 147)
-	wrap5.MarkSerializerAsAdded("osg::BufferData")
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap5, 147)
+		wrap5.MarkSerializerAsAdded("osg::BufferData")
+		uv.SetLastVersion()
+	}
 	var tydata3 uint16
 	ser8 := NewVectorSerializer("Data", RWOBJECT, &tydata3, getDADataUShort, setDADataUShort)
 	wrap5.AddSerializer(&ser8, RWUSHORT)
 	GetObjectWrapperManager().AddWrap(&wrap5)
 
 	wrap6 := NewObjectWrapper2("DrawElementsUInt", "flywave::osg::drawelementsuint", fn6, "osg::Object osg::BufferData osg::PrimitiveSet osg::DrawElementsUInt")
-	AddUpdateWrapperVersionProxy(&wrap6, 147)
-	wrap6.MarkSerializerAsAdded("osg::BufferData")
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap6, 147)
+		wrap6.MarkSerializerAsAdded("osg::BufferData")
+		uv.SetLastVersion()
+	}
 	var tydata4 uint32
 	ser9 := NewVectorSerializer("Data", RWOBJECT, &tydata4, getDADataUInt, setDADataUInt)
 	wrap5.AddSerializer(&ser9, RWUINT)

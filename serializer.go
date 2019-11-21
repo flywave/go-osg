@@ -1,9 +1,5 @@
 package osg
 
-import (
-	"github.com/flywave/go-osg/model"
-)
-
 type StringToValue map[string]int32
 type ValueToString map[int32]string
 
@@ -359,7 +355,6 @@ func (ser *ObjectSerializer) Read(is *OsgIstream, obj interface{}) {
 	if is.IsBinary() {
 		is.Read(&hasObj)
 		if hasObj {
-			is.Read(ser.Getter(obj))
 			ser.Setter(obj, is.ReadObject(nil))
 		}
 	} else {
@@ -447,17 +442,11 @@ type VectorSerializer struct {
 }
 
 func (ser *VectorSerializer) Read(is *OsgIstream, obj interface{}) {
-	var list []interface{}
 	if is.IsBinary() {
 		size := is.ReadSize()
 		for i := 0; i < size; i++ {
-			_, ok := ser.Element.(*model.Object)
-			if ok {
-				list = append(list, is.ReadObject(nil))
-			} else {
-				is.Read(ser.Element)
-				list = append(list, ser.Element)
-			}
+			is.Read(ser.Element)
+			ser.Setter(obj, ser.Element)
 		}
 	} else {
 		if is.MatchString(ser.Name) {
@@ -465,19 +454,13 @@ func (ser *VectorSerializer) Read(is *OsgIstream, obj interface{}) {
 			is.Read(is.BEGINBRACKET)
 			if size > 0 {
 				for i := 0; i < int(size); i++ {
-					_, ok := ser.Element.(*model.Object)
-					if ok {
-						list = append(list, is.ReadObject(nil))
-					} else {
-						is.Read(ser.Element)
-						list = append(list, ser.Element)
-					}
+					is.Read(ser.Element)
+					ser.Setter(obj, ser.Element)
 				}
 			}
 			is.Read(is.ENDBRACKET)
 		}
 	}
-	ser.Setter(obj, list)
 }
 
 func (ser *VectorSerializer) Writer(is *OsgOstream, obj interface{}) {}

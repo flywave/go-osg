@@ -82,7 +82,7 @@ const (
 type StateAttributeInterface interface {
 	IsStateAttributeInterface() bool
 	IsTextureAttribute() bool
-	GetType() int
+	GetType() int32
 	GetParents() []*StateSet
 	SetParents([]*StateSet)
 }
@@ -124,13 +124,13 @@ func (s *StateAttribute) GetTypeMember() TypeMemberPair {
 func (s *StateAttribute) IsTextureAttribute() bool {
 	return false
 }
-func (s *StateAttribute) GetType() int {
+func (s *StateAttribute) GetType() int32 {
 	return TEXTURE
 }
 
 type ShadeModel struct {
 	StateAttribute
-	Mode int
+	Mode int32
 }
 
 func NewShadeModel() ShadeModel {

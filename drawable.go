@@ -37,62 +37,65 @@ func writeInitialBound(os *OsgOstream, obj interface{}) {
 	os.Write(os.CRLF)
 }
 
-func getCallback(obj interface{}) interface{} {
-	return obj.(*model.Drawable).Callback
+func getBoxCallback(obj interface{}) interface{} {
+	return obj.(model.DrawableInterface).GetBoxCallback()
 }
 
-func setCallback(obj interface{}, pro interface{}) {
-	obj.(*model.Drawable).Callback = pro.(*model.ComputeBoundingBoxCallback)
+func setBoxCallback(obj interface{}, pro interface{}) {
+	obj.(model.DrawableInterface).SetBoxCallback(pro.(*model.ComputeBoundingBoxCallback))
 }
 
 func getShape(obj interface{}) interface{} {
-	return obj.(*model.Drawable).Shape
+	return obj.(model.DrawableInterface).GetShape()
 }
 
 func setShape(obj interface{}, pro interface{}) {
-	obj.(*model.Drawable).Shape = pro.(*model.Shape)
+	obj.(model.DrawableInterface).SetShape(pro.(*model.Shape))
 }
 
 func getSupportsDisplayList(obj interface{}) interface{} {
-	return &obj.(*model.Drawable).SupportsDisplayList
+	return obj.(model.DrawableInterface).GetSupportsDisplayList()
 }
 
 func setSupportsDisplayList(obj interface{}, pro interface{}) {
-	obj.(*model.Drawable).SupportsDisplayList = pro.(bool)
+	obj.(model.DrawableInterface).SetSupportsDisplayList(pro.(bool))
 }
 
 func getUseDisplayList(obj interface{}) interface{} {
-	return &obj.(*model.Drawable).UseDisplayList
+	return obj.(model.DrawableInterface).GetUseDisplayList()
 }
 
 func setUseDisplayList(obj interface{}, pro interface{}) {
-	obj.(*model.Drawable).UseDisplayList = pro.(bool)
+	obj.(model.DrawableInterface).SetUseDisplayList(pro.(bool))
 }
 
 func getUseVertexBufferObjects(obj interface{}) interface{} {
-	return &obj.(*model.Drawable).UseVertexBufferObjects
+	return obj.(model.DrawableInterface).GetUseVertexBufferObjects()
 }
 
 func setUseVertexBufferObjects(obj interface{}, pro interface{}) {
-	obj.(*model.Drawable).UseVertexBufferObjects = pro.(bool)
+	obj.(model.DrawableInterface).SetUseVertexBufferObjects(pro.(bool))
 }
 
 func getDrawCallback(obj interface{}) interface{} {
-	return obj.(*model.Drawable).DwCallback
+	return obj.(model.DrawableInterface).GetDwCallback()
 }
 
 func setDrawCallback(obj interface{}, pro interface{}) {
-	obj.(*model.Drawable).DwCallback = pro.(*model.DrawCallback)
+	obj.(model.DrawableInterface).SetDwCallback(pro.(*model.DrawCallback))
 }
 
 func init() {
 	wrap := NewObjectWrapper("Drawable", nil, "osg::Object osg::Node osg::Drawable")
-	AddUpdateWrapperVersionProxy(&wrap, 154)
-	wrap.MarkSerializerAsAdded("osg::Node")
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 154)
+		wrap.MarkSerializerAsAdded("osg::Node")
+		uv.SetLastVersion()
+	}
 
 	ser := NewObjectSerializer("StateSet", getStateSet, setStateSet)
 	seruser := NewUserSerializer("InitialBound", checkInitialBound, readInitialBound, writeInitialBound)
-	sercpm := NewObjectSerializer("ComputeBoundingBoxCallback", getCallback, setCallback)
+	sercpm := NewObjectSerializer("ComputeBoundingBoxCallback", getBoxCallback, setBoxCallback)
 	sershape := NewObjectSerializer("Shape", getShape, setShape)
 	serbool1 := NewEnumSerializer("SupportsDisplayList", getSupportsDisplayList, setSupportsDisplayList)
 	serbool2 := NewEnumSerializer("UseDisplayList", getUseDisplayList, setUseDisplayList)
@@ -113,20 +116,25 @@ func init() {
 	wrap.AddSerializer(&serec, RWOBJECT)
 	wrap.AddSerializer(&sercc, RWOBJECT)
 	wrap.AddSerializer(&serdc, RWOBJECT)
-
-	AddUpdateWrapperVersionProxy(&wrap, 156)
-	wrap.MarkSerializerAsRemoved("UpdateCallback")
-	wrap.MarkSerializerAsRemoved("EventCallback")
-	wrap.MarkSerializerAsRemoved("CullCallback")
-	wrap.MarkSerializerAsRemoved("DrawCallback")
-
-	AddUpdateWrapperVersionProxy(&wrap, 142)
-	serb1 := NewPropByValSerializer("NodeMask", false, getNodeMask, setNodeMask)
-	wrap.AddSerializer(&serb1, RWUINT)
-
-	AddUpdateWrapperVersionProxy(&wrap, 145)
-	serb2 := NewPropByValSerializer("CullingActive", false, getCullingActive, setCullingActive)
-	wrap.AddSerializer(&serb2, RWBOOL)
-
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 156)
+		wrap.MarkSerializerAsRemoved("UpdateCallback")
+		wrap.MarkSerializerAsRemoved("EventCallback")
+		wrap.MarkSerializerAsRemoved("CullCallback")
+		wrap.MarkSerializerAsRemoved("DrawCallback")
+		uv.SetLastVersion()
+	}
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 142)
+		serb1 := NewPropByValSerializer("NodeMask", false, getNodeMask, setNodeMask)
+		wrap.AddSerializer(&serb1, RWUINT)
+		uv.SetLastVersion()
+	}
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 145)
+		serb2 := NewPropByValSerializer("CullingActive", false, getCullingActive, setCullingActive)
+		wrap.AddSerializer(&serb2, RWBOOL)
+		uv.SetLastVersion()
+	}
 	GetObjectWrapperManager().AddWrap(&wrap)
 }

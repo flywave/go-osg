@@ -455,20 +455,38 @@ func init() {
 	ser19.Add("NONE", model.NONE)
 
 	ser20 := NewPropByValSerializer("ShadowAmbient", false, getShadowAmbient, setShadowAmbient)
-	AddUpdateWrapperVersionProxy(&wrap, 95)
-	ser21 := NewUserSerializer("ImageAttachment", checkImageAttachment, readImageAttachment, writeImageAttachment)
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 95)
+		ser21 := NewUserSerializer("ImageAttachment", checkImageAttachment, readImageAttachment, writeImageAttachment)
+		uv.SetLastVersion()
+		wrap.AddSerializer(&ser21, RWUSER)
 
-	AddUpdateWrapperVersionProxy(&wrap, 98)
-	wrap.MarkSerializerAsRemoved("ImageAttachment")
+	}
 
-	AddUpdateWrapperVersionProxy(&wrap, 98)
-	ser22 := NewUserSerializer("Swizzle", checkSwizzle, readSwizzle, writeSwizzle)
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 98)
+		wrap.MarkSerializerAsRemoved("ImageAttachment")
+		uv.SetLastVersion()
 
-	AddUpdateWrapperVersionProxy(&wrap, 155)
-	ser23 := NewPropByValSerializer("MinLOD", false, getMinLOD, setMinLOD)
-	ser24 := NewPropByValSerializer("MaxLOD", false, getMaxLOD, setMaxLOD)
-	ser25 := NewPropByValSerializer("LODBias", false, getLODBias, setLODBias)
+	}
 
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 98)
+		ser22 := NewUserSerializer("Swizzle", checkSwizzle, readSwizzle, writeSwizzle)
+		uv.SetLastVersion()
+		wrap.AddSerializer(&ser22, RWUSER)
+	}
+
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 155)
+		ser23 := NewPropByValSerializer("MinLOD", false, getMinLOD, setMinLOD)
+		ser24 := NewPropByValSerializer("MaxLOD", false, getMaxLOD, setMaxLOD)
+		ser25 := NewPropByValSerializer("LODBias", false, getLODBias, setLODBias)
+		uv.SetLastVersion()
+		wrap.AddSerializer(&ser23, RWFLOAT)
+		wrap.AddSerializer(&ser24, RWFLOAT)
+		wrap.AddSerializer(&ser25, RWFLOAT)
+	}
 	wrap.AddSerializer(&ser1, RWUSER)
 	wrap.AddSerializer(&ser2, RWUSER)
 	wrap.AddSerializer(&ser3, RWUSER)
@@ -489,10 +507,5 @@ func init() {
 	wrap.AddSerializer(&ser18, RWENUM)
 	wrap.AddSerializer(&ser19, RWENUM)
 	wrap.AddSerializer(&ser20, RWFLOAT)
-	wrap.AddSerializer(&ser21, RWUSER)
-	wrap.AddSerializer(&ser22, RWUSER)
-	wrap.AddSerializer(&ser23, RWFLOAT)
-	wrap.AddSerializer(&ser24, RWFLOAT)
-	wrap.AddSerializer(&ser25, RWFLOAT)
 	GetObjectWrapperManager().AddWrap(&wrap)
 }

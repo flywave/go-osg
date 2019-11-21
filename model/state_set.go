@@ -1,13 +1,13 @@
 package model
 
-type ModeListType map[int]int
+type ModeListType map[int32]int32
 
 type RefAttributePair struct {
 	First  interface{}
-	Second int
+	Second int32
 }
 
-type AttributeListType map[int]*RefAttributePair
+type AttributeListType map[int32]*RefAttributePair
 
 type TextureModeListType []ModeListType
 
@@ -15,14 +15,14 @@ type TextureAttributeListType []AttributeListType
 
 type RefUniformPair struct {
 	First  *UniformBase
-	Second int
+	Second int32
 }
 
-type UniformListType map[int]RefUniformPair
+type UniformListType map[int32]RefUniformPair
 
 type DefinePair struct {
 	First  string
-	Second int
+	Second int32
 }
 
 type DefineListType map[string]DefinePair
@@ -41,10 +41,10 @@ const (
 	STATESETT string = "osg::StateSet"
 )
 
-var textureGlmodeMap map[int]bool
+var textureGlmodeMap map[int32]bool
 
 func init() {
-	textureGlmodeMap = make(map[int]bool)
+	textureGlmodeMap = make(map[int32]bool)
 	textureGlmodeMap[GLTEXTURE1D] = true
 	textureGlmodeMap[GLTEXTURE2D] = true
 	textureGlmodeMap[GLTEXTURE3D] = true
@@ -70,10 +70,10 @@ type StateSet struct {
 	UniformList          UniformListType
 	DefineList           DefineListType
 
-	RenderingHint int
-	BinMode       int
+	RenderingHint int32
+	BinMode       int32
 
-	BinNum         int
+	BinNum         int32
 	BinName        string
 	NestRenderBins bool
 
@@ -87,7 +87,7 @@ func NewStateSet() StateSet {
 	return StateSet{Object: obj, ModeList: make(ModeListType), AttributeList: make(AttributeListType), RenderingHint: DEFAULTBIN, BinMode: INHERITRENDERBINDETAILS, NestRenderBins: true, BinNum: 0, BinName: ""}
 }
 
-func (ss *StateSet) setMode3(unit int, mode int, val int) {
+func (ss *StateSet) setMode3(unit int, mode int32, val int32) {
 	l := len(ss.TextureModeList)
 	if l <= unit {
 		s := l - 1 - unit
@@ -105,7 +105,7 @@ func (ss *StateSet) setMode3(unit int, mode int, val int) {
 	}
 }
 
-func (ss *StateSet) setMode2(mode int, val int) {
+func (ss *StateSet) setMode2(mode int32, val int32) {
 	_, ok := textureGlmodeMap[mode]
 	if ok {
 		ss.SetTextureMode(0, mode, val)
@@ -123,7 +123,7 @@ func (ss *StateSet) setMode2(mode int, val int) {
 	}
 
 }
-func (ss *StateSet) SetTextureMode(unit int, mode int, val int) {
+func (ss *StateSet) SetTextureMode(unit int, mode int32, val int32) {
 	_, ok := textureGlmodeMap[mode]
 	if ok {
 		ss.setMode3(unit, mode, val)
@@ -147,7 +147,7 @@ func (ss *StateSet) createOrGetAttributeList(unit int) AttributeListType {
 	return lst
 }
 
-func (ss *StateSet) setAttribute3(lst AttributeListType, attr interface{}, val int) {
+func (ss *StateSet) setAttribute3(lst AttributeListType, attr interface{}, val int32) {
 
 	if attr != nil {
 		key := attr.(StateAttributeInterface).GetType()
@@ -160,7 +160,7 @@ func (ss *StateSet) setAttribute3(lst AttributeListType, attr interface{}, val i
 	}
 }
 
-func (ss *StateSet) setAttribute2(attr interface{}, val int) {
+func (ss *StateSet) setAttribute2(attr interface{}, val int32) {
 	if attr != nil {
 		if attr.(StateAttributeInterface).IsTextureAttribute() {
 			ss.SetTextureAttribute(0, attr, val)
@@ -170,7 +170,7 @@ func (ss *StateSet) setAttribute2(attr interface{}, val int) {
 	}
 }
 
-func (ss *StateSet) SetTextureAttribute(unit int, attr interface{}, val int) {
+func (ss *StateSet) SetTextureAttribute(unit int, attr interface{}, val int32) {
 	if attr != nil {
 		if attr.(StateAttributeInterface).IsTextureAttribute() {
 			ss.setAttribute3(ss.createOrGetAttributeList(unit), attr, val)
@@ -180,7 +180,7 @@ func (ss *StateSet) SetTextureAttribute(unit int, attr interface{}, val int) {
 	}
 }
 
-func (ss *StateSet) SetDefine(k string, first string, value int) {
+func (ss *StateSet) SetDefine(k string, first string, value int32) {
 	dp := DefinePair{First: first, Second: value}
 	ss.DefineList[k] = dp
 }

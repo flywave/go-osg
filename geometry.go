@@ -54,7 +54,7 @@ func readArray(is *OsgIstream) *model.Array {
 	}
 
 	is.PROPERTY.Name = "Normalize"
-	normalizeValue := -1
+	var normalizeValue int32 = -1
 	is.Read(is.PROPERTY)
 	is.Read(&normalizeValue)
 	if ary != nil {
@@ -204,22 +204,16 @@ func checkTexCoordData(g interface{}) bool {
 
 func readTexCoordData(is *OsgIstream, g interface{}) {
 	geom := g.(*model.Geometry)
-	var size int = 0
-	is.Read(&size)
+	size := is.ReadSize()
 	is.Read(is.BEGINBRACKET)
-	index := 0
 	is.PROPERTY.Name = "Data"
 	geom.TexCoordArrayList = make([]*model.Array, size, size)
-	for {
-		if index == size {
-			break
-		}
-		size--
+	for i := 0; i < size; i++ {
 		is.Read(is.PROPERTY)
 		is.Read(is.BEGINBRACKET)
 
-		ay := is.ReadArray()
-		geom.TexCoordArrayList[index] = ay
+		ay := readArray(is)
+		geom.SetTexCoordArray(i, ay)
 		is.Read(is.ENDBRACKET)
 	}
 	is.Read(is.ENDBRACKET)
@@ -251,22 +245,16 @@ func checkVertexAttribData(g interface{}) bool {
 
 func readVertexAttribData(is *OsgIstream, g interface{}) {
 	geom := g.(*model.Geometry)
-	var size int = 0
-	is.Read(&size)
+	size := is.ReadSize()
 	is.Read(is.BEGINBRACKET)
-	index := 0
 	is.PROPERTY.Name = "Data"
 	geom.VertexAttribList = make([]*model.Array, size, size)
-	for {
-		if index == size {
-			break
-		}
-		size--
+	for i := 0; i < size; i++ {
 		is.Read(is.PROPERTY)
 		is.Read(is.BEGINBRACKET)
 
-		ay := is.ReadArray()
-		geom.SetVertexAttribArray(index, ay, model.BINDUNDEFINED)
+		ay := readArray(is)
+		geom.SetVertexAttribArray(i, ay, model.BINDUNDEFINED)
 		is.Read(is.ENDBRACKET)
 	}
 	is.Read(is.ENDBRACKET)
@@ -310,7 +298,9 @@ func getPrimitiveSetList(obj interface{}) interface{} {
 }
 
 func setPrimitiveSetList(obj interface{}, pro interface{}) {
-	obj.(*model.Geometry).AddPrimitiveSet(pro.(*model.PrimitiveSet))
+	p := pro.(*model.PrimitiveSet)
+	g := obj.(*model.Geometry)
+	g.AddPrimitiveSet(p)
 }
 
 func getTexCoordArrayList(obj interface{}) interface{} {
@@ -390,8 +380,11 @@ func init() {
 	}
 
 	wrap := NewObjectWrapper("Geometry", fn, "osg::Object osg::Node osg::Drawable osg::Geometry")
-	AddUpdateWrapperVersionProxy(&wrap, 154)
-	wrap.MarkSerializerAsAdded("osg::Node")
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 154)
+		wrap.MarkSerializerAsAdded("osg::Node")
+		uv.SetLastVersion()
+	}
 	ps := model.NewPrimitiveSet()
 	vser := NewVectorSerializer("PrimitiveSetList", RWOBJECT, &ps, getPrimitiveSetList, setPrimitiveSetList)
 	wrap.AddSerializer(&vser, RWVECTOR)
@@ -413,32 +406,35 @@ func init() {
 	wrap.AddSerializer(&ser6, RWUSER)
 	wrap.AddSerializer(&ser7, RWUSER)
 	wrap.AddSerializer(&ser8, RWUSER)
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 112)
+		wrap.MarkSerializerAsRemoved("VertexData")
+		wrap.MarkSerializerAsRemoved("NormalData")
+		wrap.MarkSerializerAsRemoved("ColorData")
+		wrap.MarkSerializerAsRemoved("SecondaryColorData")
+		wrap.MarkSerializerAsRemoved("FogCoordData")
+		wrap.MarkSerializerAsRemoved("TexCoordData")
+		wrap.MarkSerializerAsRemoved("VertexAttribData")
+		wrap.MarkSerializerAsRemoved("FastPathHint")
 
-	AddUpdateWrapperVersionProxy(&wrap, 112)
-	wrap.MarkSerializerAsRemoved("VertexData")
-	wrap.MarkSerializerAsRemoved("NormalData")
-	wrap.MarkSerializerAsRemoved("ColorData")
-	wrap.MarkSerializerAsRemoved("SecondaryColorData")
-	wrap.MarkSerializerAsRemoved("FogCoordData")
-	wrap.MarkSerializerAsRemoved("TexCoordData")
-	wrap.MarkSerializerAsRemoved("VertexAttribData")
-	wrap.MarkSerializerAsRemoved("FastPathHint")
+		ser11 := NewObjectSerializer("VertexData", getVertexData, setVertexData)
+		ser21 := NewObjectSerializer("NormalData", getNormalData, setNormalData)
+		ser31 := NewObjectSerializer("ColorData", getColorData, setColorData)
+		ser41 := NewObjectSerializer("SecondaryColorData", getSecondaryColorData, setSecondaryColorData)
+		ser51 := NewObjectSerializer("FogCoordData", getFogCoordData, setFogCoordData)
 
-	ser11 := NewObjectSerializer("VertexData", getVertexData, setVertexData)
-	ser21 := NewObjectSerializer("NormalData", getNormalData, setNormalData)
-	ser31 := NewObjectSerializer("ColorData", getColorData, setColorData)
-	ser41 := NewObjectSerializer("SecondaryColorData", getSecondaryColorData, setSecondaryColorData)
-	ser51 := NewObjectSerializer("FogCoordData", getFogCoordData, setFogCoordData)
+		wrap.AddSerializer(&ser11, RWOBJECT)
+		wrap.AddSerializer(&ser21, RWOBJECT)
+		wrap.AddSerializer(&ser31, RWOBJECT)
+		wrap.AddSerializer(&ser41, RWOBJECT)
+		wrap.AddSerializer(&ser51, RWOBJECT)
 
-	wrap.AddSerializer(&ser11, RWOBJECT)
-	wrap.AddSerializer(&ser21, RWOBJECT)
-	wrap.AddSerializer(&ser31, RWOBJECT)
-	wrap.AddSerializer(&ser41, RWOBJECT)
-	wrap.AddSerializer(&ser51, RWOBJECT)
-
-	vser2 := NewVectorSerializer("TexCoordArrayList", RWOBJECT, 0, getTexCoordArrayList, setTexCoordArrayList)
-	vser3 := NewVectorSerializer("VertexAttribArrayList", RWOBJECT, 0, getVertexAttribArrayList, setVertexAttribArrayList)
-	wrap.AddSerializer(&vser2, RWVECTOR)
-	wrap.AddSerializer(&vser3, RWVECTOR)
+		ay := model.NewArray2()
+		vser2 := NewVectorSerializer("TexCoordArrayList", RWOBJECT, &ay, getTexCoordArrayList, setTexCoordArrayList)
+		vser3 := NewVectorSerializer("VertexAttribArrayList", RWOBJECT, &ay, getVertexAttribArrayList, setVertexAttribArrayList)
+		wrap.AddSerializer(&vser2, RWVECTOR)
+		wrap.AddSerializer(&vser3, RWVECTOR)
+		uv.SetLastVersion()
+	}
 	GetObjectWrapperManager().AddWrap(&wrap)
 }

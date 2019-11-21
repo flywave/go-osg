@@ -26,8 +26,8 @@ type NodeInterface interface {
 	SetStates(*StateSet)
 	GetParents() []*Group
 	SetParents([]*Group)
-	GetCallback() *ComputeBoundingSphereCallback
-	SetCallback(*ComputeBoundingSphereCallback)
+	GetSphereCallback() *ComputeBoundingSphereCallback
+	SetSphereCallback(*ComputeBoundingSphereCallback)
 
 	GetUpdateCallback() *Callback
 	SetUpdateCallback(*Callback)
@@ -46,7 +46,7 @@ type Node struct {
 	States        *StateSet
 	Parents       []*Group
 
-	Callback       *ComputeBoundingSphereCallback
+	SphereCallback *ComputeBoundingSphereCallback
 	UpdateCallback *Callback
 	EventCallback  *Callback
 	CullCallback   *Callback
@@ -88,11 +88,11 @@ func (n *Node) GetParents() []*Group {
 func (n *Node) SetParents(g []*Group) {
 	n.Parents = g
 }
-func (n *Node) GetCallback() *ComputeBoundingSphereCallback {
-	return n.Callback
+func (n *Node) GetSphereCallback() *ComputeBoundingSphereCallback {
+	return n.SphereCallback
 }
-func (n *Node) SetCallback(cb *ComputeBoundingSphereCallback) {
-	n.Callback = cb
+func (n *Node) SetSphereCallback(cb *ComputeBoundingSphereCallback) {
+	n.SphereCallback = cb
 }
 func (n *Node) SetUpdateCallback(cb *Callback) {
 	n.UpdateCallback = cb

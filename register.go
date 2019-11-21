@@ -577,9 +577,16 @@ func (man *objectWrapperManager) FindCompressor(st string) *CompressorStream {
 
 type UpdateWrapperVersionProxy struct {
 	Wrap        *ObjectWrapper
-	LastVersion int
+	LastVersion int32
 }
 
-func AddUpdateWrapperVersionProxy(w *ObjectWrapper, v int32) {
+func (uv *UpdateWrapperVersionProxy) SetLastVersion() {
+	uv.Wrap.Version = uv.LastVersion
+
+}
+
+func AddUpdateWrapperVersionProxy(w *ObjectWrapper, v int32) *UpdateWrapperVersionProxy {
+	prox := UpdateWrapperVersionProxy{Wrap: w, LastVersion: w.Version}
 	w.Version = v
+	return &prox
 }

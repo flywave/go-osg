@@ -25,8 +25,8 @@ type DrawableInterface interface {
 	GetUseVertexBufferObjects() *bool
 	SetUseVertexBufferObjects(bool)
 
-	GetCallback() *ComputeBoundingBoxCallback
-	SetCallback(*ComputeBoundingBoxCallback)
+	GetBoxCallback() *ComputeBoundingBoxCallback
+	SetBoxCallback(*ComputeBoundingBoxCallback)
 
 	GetDwCallback() *DrawCallback
 	SetDwCallback(*DrawCallback)
@@ -40,8 +40,8 @@ type Drawable struct {
 	UseDisplayList         bool
 	UseVertexBufferObjects bool
 
-	Callback   *ComputeBoundingBoxCallback
-	DwCallback *DrawCallback
+	BoxCallback *ComputeBoundingBoxCallback
+	DwCallback  *DrawCallback
 }
 
 func (d *Drawable) IsDrawableInterface() bool {
@@ -79,11 +79,11 @@ func (d *Drawable) SetUseVertexBufferObjects(b bool) {
 	d.UseVertexBufferObjects = b
 }
 
-func (d *Drawable) GetCallback() *ComputeBoundingBoxCallback {
-	return d.Callback
+func (d *Drawable) GetBoxCallback() *ComputeBoundingBoxCallback {
+	return d.BoxCallback
 }
-func (d *Drawable) SetCallback(cb *ComputeBoundingBoxCallback) {
-	d.Callback = cb
+func (d *Drawable) SetBoxCallback(cb *ComputeBoundingBoxCallback) {
+	d.BoxCallback = cb
 }
 
 func (d *Drawable) GetDwCallback() *DrawCallback {

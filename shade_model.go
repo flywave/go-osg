@@ -9,7 +9,7 @@ func getShadeMode(obj interface{}) interface{} {
 }
 
 func setShadeMode(obj interface{}, val interface{}) {
-	obj.(*model.ShadeModel).Mode = val.(int)
+	obj.(*model.ShadeModel).Mode = val.(int32)
 }
 
 func init() {

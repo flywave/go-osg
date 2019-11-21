@@ -44,8 +44,7 @@ func checkDescriptions(obj interface{}) bool {
 
 func readDescriptions(is *OsgIstream, obj interface{}) {
 	node := obj.(*model.Node)
-	var size int = 0
-	is.Read(&size)
+	size := is.ReadSize()
 	is.Read(is.BEGINBRACKET)
 	for i := 0; i < size; i++ {
 		var str string
@@ -67,12 +66,12 @@ func writeDescriptions(os *OsgOstream, obj interface{}) {
 	os.Write(os.ENDBRACKET)
 	os.Write(os.CRLF)
 }
-func getCallback1(obj interface{}) interface{} {
-	return obj.(model.NodeInterface).GetCallback()
+func getSphereCallback(obj interface{}) interface{} {
+	return obj.(model.NodeInterface).GetSphereCallback()
 }
 
-func setCallback1(obj interface{}, pro interface{}) {
-	obj.(model.NodeInterface).SetCallback(pro.(*model.ComputeBoundingSphereCallback))
+func setSphereCallback(obj interface{}, pro interface{}) {
+	obj.(model.NodeInterface).SetSphereCallback(pro.(*model.ComputeBoundingSphereCallback))
 }
 
 func getUpdateCallback(obj interface{}) interface{} {
@@ -131,7 +130,7 @@ func init() {
 	seruser := NewUserSerializer("InitialBound", checkInitialBound1, readInitialBound1, writeInitialBound1)
 	wrap.AddSerializer(&seruser, RWUSER)
 
-	sercpm := NewObjectSerializer("ComputeBoundingSphereCallback", getCallback1, setCallback1)
+	sercpm := NewObjectSerializer("ComputeBoundingSphereCallback", getSphereCallback, setSphereCallback)
 	seruc := NewObjectSerializer("UpdateCallback", getUpdateCallback, setUpdateCallback)
 	serec := NewObjectSerializer("EventCallback", getEventCallback, setEventCallback)
 	sercc := NewObjectSerializer("CullCallback", getCullCallback, setCullCallback)
@@ -147,8 +146,11 @@ func init() {
 
 	seruser2 := NewUserSerializer("Descriptions", checkDescriptions, readDescriptions, writeDescriptions)
 	wrap.AddSerializer(&seruser2, RWUSER)
-	AddUpdateWrapperVersionProxy(&wrap, 77)
-	wrap.MarkSerializerAsRemoved("Descriptions")
+	{
+		uv := AddUpdateWrapperVersionProxy(&wrap, 77)
+		wrap.MarkSerializerAsRemoved("Descriptions")
+		uv.SetLastVersion()
+	}
 
 	ser := NewObjectSerializer("StateSet", getStateSet, setStateSet)
 	wrap.AddSerializer(&ser, RWOBJECT)

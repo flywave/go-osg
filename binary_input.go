@@ -73,6 +73,8 @@ type BinaryInputIterator struct {
 
 func NewBinaryInputIterator(in *bufio.Reader, bysp int) BinaryInputIterator {
 	it := NewInputIterator(in, bysp)
+	bf := make([]byte, 8)
+	in.Read(bf)
 	return BinaryInputIterator{InputIterator: it}
 }
 
@@ -89,22 +91,6 @@ func (iter *BinaryInputIterator) ReadCharArray(s int) []byte {
 	arry := make([]byte, s)
 	iter.readData(arry, s)
 	return arry
-}
-
-func (it *BinaryInputIterator) ReadComponentArray(s []byte, numElements int, numComponentsPerElements int, componentSizeInBytes int) {
-	// size := numElements * numComponentsPerElements * componentSizeInBytes
-	// if size > 0 {
-	// 	it.ReadCharArray(&s, size)
-	// 	build := strings.Builder{}
-	// 	if it.ByteSwap > 0 && componentSizeInBytes > 1 {
-	// 		for i := numElements - 1; i >= 0; i-- {
-	// 			for j := numComponentsPerElements - 1; j >= 0; j-- {
-	// 				build.WriteByte(s[i*j])
-	// 			}
-	// 		}
-	// 	}
-	// 	*s = build.String()
-	// }
 }
 
 func (iter *BinaryInputIterator) ReadBool(b *bool) {
@@ -186,7 +172,7 @@ func (iter *BinaryInputIterator) ReadMark(mark *model.ObjectMark) {
 				iter.ReadInt(&size)
 				iter.BlockSizes = append(iter.BlockSizes, int64(size))
 			}
-		} else if mark.Name == "}" && len(iter.BlockSizes) > 0 {
+		} else if mark.Name == "}" && len(iter.BeginPositions) > 0 {
 			iter.BeginPositions = iter.BeginPositions[:len(iter.BeginPositions)-1]
 			iter.BlockSizes = iter.BlockSizes[:len(iter.BlockSizes)-1]
 		}

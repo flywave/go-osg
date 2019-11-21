@@ -62,8 +62,7 @@ func checkRangeDataList(obj interface{}) bool {
 
 func readRangeDataList(is *OsgIstream, obj interface{}) {
 	lod := obj.(*model.PagedLod)
-	size := 0
-	is.Read(&size)
+	size := is.ReadSize()
 	is.Read(is.BEGINBRACKET)
 	lod.PerRangeDataList = make([]model.PerRangeData, size, size)
 	for i := 0; i < size; i++ {
@@ -74,7 +73,7 @@ func readRangeDataList(is *OsgIstream, obj interface{}) {
 	is.Read(is.ENDBRACKET)
 	is.PROPERTY.Name = "PriorityList"
 	is.Read(is.PROPERTY)
-	is.Read(&size)
+	size = is.ReadSize()
 	is.Read(is.BEGINBRACKET)
 
 	for i := 0; i < size; i++ {
@@ -121,8 +120,7 @@ func checkChildren(obj interface{}) bool {
 
 func readChildren(is *OsgIstream, obj interface{}) {
 	lod := obj.(*model.PagedLod)
-	var size int
-	is.Read(&size)
+	size := is.ReadSize()
 	if size > 0 {
 		is.Read(is.BEGINBRACKET)
 		for i := 0; i < size; i++ {

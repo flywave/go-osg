@@ -10,8 +10,7 @@ func DrawablesChecker(obj interface{}) bool {
 }
 func DrawableReader(is *OsgIstream, obj interface{}) {
 	g := obj.(*model.Geode)
-	var size int32 = 0
-	is.Read(&size)
+	size := is.ReadSize()
 	is.Read(is.BEGINBRACKET)
 	for i := 0; i < int(size); i++ {
 		ob := is.ReadObject(nil)
