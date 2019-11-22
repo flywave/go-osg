@@ -27,6 +27,7 @@ type OsgOutputIterator interface {
 	WriteCharArray([]byte)
 	GetIterator() *bufio.Writer
 	SetIterator(*bufio.Writer)
+	SetOutputSteam(os *OsgOstream)
 	SetSupportBinaryBrackets(sbb bool)
 }
 

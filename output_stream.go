@@ -909,10 +909,109 @@ func (os *OsgOstream) WriteObjectFileds(obj interface{}, name string) {
 		return
 	}
 	ver := os.DomainVersionMap[wrap.Domain]
+	for _, as := range wrap.Associates {
+		if as == nil {
+			continue
+		}
+		if as.FirstVersion <= ver && as.LastVersion >= ver {
+			assocWrapper := GetObjectWrapperManager().FindWrap(as.Name)
+			if assocWrapper == nil {
+				continue
+			} else if os.UseSchemaData {
+				_, ok := os.InbuiltSchemaMap[as.Name]
+				if ok {
+					prop := []string{}
+					tys := []SerType{}
+					assocWrapper.WriteSchema(prop, tys)
+					size := len(prop)
+					if size > len(tys) {
+						size = len(tys)
+					}
+					if size > 0 {
+						var propertiesStream string
+						for i := 0; i < size; i++ {
+							propertiesStream += prop[i] + ":"
+							propertiesStream += strconv.Itoa(int(tys[i]))
+							propertiesStream += " "
+						}
+						os.InbuiltSchemaMap[as.Name] = propertiesStream
+					}
+				}
+			}
+			os.Fields = append(os.Fields, assocWrapper.Name)
+			assocWrapper.Write(os, obj)
+			os.Fields = os.Fields[:len(os.Fields)-1]
+		}
+	}
 }
 
 func (os *OsgOstream) Start(out OsgOutputIterator, ty int32) {
-
+	os.Fields = []string{}
+	os.Fields = append(os.Fields, "Start")
+	os.Out = out
+	if out == nil {
+		panic("outiterator is nil")
+	}
+	os.Out.SetOutputSteam(os)
+	if os.IsBinary() {
+		os.Write(ty)
+		os.Write(os.TargetFileVersion)
+		var attributes int32 = 0
+		if len(os.DomainVersionMap) > 0 {
+			attributes |= 0x1
+		}
+		if os.UseSchemaData {
+			attributes |= 0x2
+		}
+		if os.UseRobustBinaryFormat {
+			os.Out.SetSupportBinaryBrackets(true)
+			attributes |= 0x4
+		}
+		os.Write(attributes)
+		size := len(os.DomainVersionMap)
+		if size > 0 {
+			for k, v := range os.DomainVersionMap {
+				os.Write(k)
+				os.Write(v)
+			}
+		}
+	} else {
+		typeString := "Unknown"
+		switch ty {
+		case WRITESCENE:
+			typeString = "Scene"
+			break
+		case WRITEIMAGE:
+			typeString = "Image"
+			break
+		case WRITEOBJECT:
+			typeString = "Object"
+			break
+		}
+		os.Write(&typeString)
+		os.Write(os.CRLF)
+		os.PROPERTY.Name = "#Version"
+		os.Write(os.PROPERTY)
+		os.Write(OPENSCENEGRAPHSOVERSION)
+		os.Write(os.CRLF)
+		os.PROPERTY.Name = "#Generator"
+		os.Write(os.PROPERTY)
+		str := "FLYWAVE"
+		os.Write(&str)
+		p := "0.1"
+		os.Write(&p)
+		os.Write(os.CRLF)
+		if len(os.DomainVersionMap) > 0 {
+			for k, v := range os.DomainVersionMap {
+				os.PROPERTY.Name = "#CustomDomain"
+				os.Write(os.PROPERTY)
+				os.Write(&k)
+				os.Write(&v)
+			}
+		}
+		os.Write(os.CRLF)
+		os.Fields = os.Fields[:len(os.Fields)-1]
+	}
 }
 
 func (os *OsgOstream) Compress() []byte {
