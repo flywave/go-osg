@@ -289,8 +289,8 @@ func writeDefineList(os *OsgOstream, obj interface{}) {
 	os.Write(os.BEGINBRACKET)
 	os.Write(os.CRLF)
 	for k, v := range ss.DefineList {
-		os.WriteWrappedString(k)
-		os.WriteWrappedString(v.First)
+		os.Write(&k)
+		os.Write(&v.First)
 		os.PROPERTY.Name = "Value"
 		os.Write(os.PROPERTY)
 		writeValue(os, v.Second)

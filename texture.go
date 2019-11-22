@@ -250,7 +250,8 @@ func readSwizzle(is *OsgIstream, obj interface{}) {
 
 func writeSwizzle(os *OsgOstream, obj interface{}) {
 	tex := obj.(*model.Texture)
-	os.Write(swizzleToString(tex.Swizzle))
+	str := swizzleToString(tex.Swizzle)
+	os.Write(&str)
 	os.Write(os.CRLF)
 }
 

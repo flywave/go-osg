@@ -76,18 +76,18 @@ func (mt *Material) SetAmbient(face int, ambient [4]float32) {
 	}
 }
 
-func (mt *Material) GetAmbient(face int) [4]float32 {
+func (mt *Material) GetAmbient(face int) *[4]float32 {
 	switch face {
 	case GLFRONT:
-		return mt.AmbientFront
+		return &mt.AmbientFront
 	case GLBACK:
-		return mt.AmbientBack
+		return &mt.AmbientBack
 	case GLFRONTANDBACK:
 		if !mt.AmbientFrontAndBack {
-			return mt.AmbientFront
+			return &mt.AmbientFront
 		}
 	}
-	return mt.AmbientFront
+	return &mt.AmbientFront
 }
 func (mt *Material) SetDiffuse(face int, diffuse [4]float32) {
 	switch face {
@@ -107,18 +107,18 @@ func (mt *Material) SetDiffuse(face int, diffuse [4]float32) {
 	}
 }
 
-func (mt *Material) GetDiffuse(face int) [4]float32 {
+func (mt *Material) GetDiffuse(face int) *[4]float32 {
 	switch face {
 	case GLFRONT:
-		return mt.DiffuseFront
+		return &mt.DiffuseFront
 	case GLBACK:
-		return mt.DiffuseBack
+		return &mt.DiffuseBack
 	case GLFRONTANDBACK:
 		if !mt.DiffuseFrontAndBack {
-			return mt.DiffuseFront
+			return &mt.DiffuseFront
 		}
 	}
-	return mt.DiffuseFront
+	return &mt.DiffuseFront
 }
 
 func (mt *Material) SetSpecular(face int, specular [4]float32) {
@@ -141,18 +141,18 @@ func (mt *Material) SetSpecular(face int, specular [4]float32) {
 	}
 }
 
-func (mt *Material) GetSpecular(face int) [4]float32 {
+func (mt *Material) GetSpecular(face int) *[4]float32 {
 	switch face {
 	case GLFRONT:
-		return mt.SpecularFront
+		return &mt.SpecularFront
 	case GLBACK:
-		return mt.SpecularBack
+		return &mt.SpecularBack
 	case GLFRONTANDBACK:
 		if !mt.SpecularFrontAndBack {
-			return mt.SpecularFront
+			return &mt.SpecularFront
 		}
 	}
-	return mt.SpecularFront
+	return &mt.SpecularFront
 }
 
 func (mt *Material) SetEmission(face int, emission [4]float32) {
@@ -175,18 +175,18 @@ func (mt *Material) SetEmission(face int, emission [4]float32) {
 	}
 }
 
-func (mt *Material) GetEmission(face int) [4]float32 {
+func (mt *Material) GetEmission(face int) *[4]float32 {
 	switch face {
 	case GLFRONT:
-		return mt.EmissionFront
+		return &mt.EmissionFront
 	case GLBACK:
-		return mt.EmissionBack
+		return &mt.EmissionBack
 	case GLFRONTANDBACK:
 		if !mt.EmissionFrontAndBack {
 		}
-		return mt.EmissionFront
+		return &mt.EmissionFront
 	}
-	return mt.EmissionFront
+	return &mt.EmissionFront
 }
 
 func (mt *Material) SetShininess(face int, shininess float32) {

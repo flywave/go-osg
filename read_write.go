@@ -2,8 +2,10 @@ package osg
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"image"
+	"io"
 	"os"
 	"strings"
 
@@ -39,6 +41,8 @@ const (
 	FILELOADEDFROMCACHE      = 5
 	FILEREQUESTED            = 6
 	INSUFFICIENTMEMORYTOLOAD = 7
+	ERROR_IN_WRITING_FILE    = 8
+	FILE_SAVED               = 9
 
 	ERRORINWRITINGFILE = 2
 	FILESAVED          = 3
@@ -49,6 +53,12 @@ const (
 )
 
 type ReadResult struct {
+	Status  int
+	Message string
+	Object  interface{}
+}
+
+type WriteResult struct {
 	Status  int
 	Message string
 	Object  interface{}
@@ -164,6 +174,19 @@ func (rw *ReadWrite) ReadInputIterator(reader *bufio.Reader, op *OsgIstreamOptio
 	}
 }
 
+func (rw *ReadWrite) WriteOutputIterator(wt *bufio.Writer, op *OsgOstreamOptions) OsgOutputIterator {
+	var optionString string
+	if op != nil {
+		optionString = op.FileType
+	}
+	if optionString == "Ascii" {
+		it := NewAsciiOutputIterator(wt)
+		return &it
+	}
+	it := NewBinaryOutputIterator(wt)
+	return &it
+}
+
 func (rw *ReadWrite) AcceptsExtension(ext string) bool {
 	e := strings.ToLower(ext)
 	_, ok := rw.SupportedExtensions[e]
@@ -189,7 +212,7 @@ func (rw *ReadWrite) SupportOption(fmt string, desc string) {
 	rw.SupportedOptions[fmt] = desc
 }
 
-func (rw *ReadWrite) PrepareReading(fname string, op *OsgIstreamOptions) (*OsgIstreamOptions, error) {
+func (rw *ReadWrite) prepareReading(fname string, op *OsgIstreamOptions) (*OsgIstreamOptions, error) {
 	subs := strings.Split(fname, ".")
 	ext := subs[len(subs)-1]
 	if !rw.AcceptsExtension(ext) {
@@ -197,6 +220,33 @@ func (rw *ReadWrite) PrepareReading(fname string, op *OsgIstreamOptions) (*OsgIs
 	}
 	if op == nil {
 		o := NewOsgIstreamOptions()
+		op = &o
+	}
+
+	if ext == "osgt" {
+		op.FileType = "Ascii"
+	} else if ext == "osgb" {
+		op.FileType = "Binary"
+	} else if ext == "jpg" || ext == "jpeg" {
+		op.FileType = "JPEG"
+	} else if ext == "png" {
+		op.FileType = "PNG"
+	} else if ext == "bmp" {
+		op.FileType = "BMP"
+	} else {
+		op.FileType = ""
+	}
+	return op, nil
+}
+
+func (rw *ReadWrite) prepareWriting(fname string, op *OsgOstreamOptions) (*OsgOstreamOptions, error) {
+	subs := strings.Split(fname, ".")
+	ext := subs[len(subs)-1]
+	if !rw.AcceptsExtension(ext) {
+		return nil, errors.New("not support")
+	}
+	if op == nil {
+		o := OsgOstreamOptions{}
 		op = &o
 	}
 
@@ -225,17 +275,16 @@ func (rw *ReadWrite) OpenReader(fname string) *bufio.Reader {
 	return rd
 }
 
-func (rw *ReadWrite) OpenWriter(fname string) *bufio.Writer {
+func (rw *ReadWrite) OpenWriter(fname string) *os.File {
 	f, e := os.Create(fname)
 	if e != nil {
 		return nil
 	}
-	wd := bufio.NewWriter(f)
-	return wd
+	return f
 }
 
 func (rw *ReadWrite) ReadObject(fname string, opt *OsgIstreamOptions) *ReadResult {
-	lopt, e := rw.PrepareReading(fname, opt)
+	lopt, e := rw.prepareReading(fname, opt)
 	if e != nil {
 		return nil
 	}
@@ -267,7 +316,7 @@ func (rw *ReadWrite) ReadObjectWithReader(rd *bufio.Reader, opt *OsgIstreamOptio
 }
 
 func (rw *ReadWrite) ReadImage(path string, opts *OsgIstreamOptions) *ReadResult {
-	lopt, _ := rw.PrepareReading(path, opts)
+	lopt, _ := rw.prepareReading(path, opts)
 	in := rw.OpenReader(path)
 	return rw.ReadImageWithReader(in, lopt)
 }
@@ -287,7 +336,7 @@ func (rw *ReadWrite) ReadImageWithReader(rd *bufio.Reader, opts *OsgIstreamOptio
 }
 
 func (rw *ReadWrite) ReadNode(path string, opts *OsgIstreamOptions) *ReadResult {
-	lopt, _ := rw.PrepareReading(path, opts)
+	lopt, _ := rw.prepareReading(path, opts)
 	in := rw.OpenReader(path)
 	return rw.ReadNodeWithReader(bufio.NewReader(in), lopt)
 }
@@ -309,4 +358,58 @@ func (rw *ReadWrite) ReadNodeWithReader(rd *bufio.Reader, opts *OsgIstreamOption
 		return &ReadResult{Object: nd}
 	}
 	return &ReadResult{Status: FILENOTHANDLED}
+}
+
+func (rw *ReadWrite) WriteObject(inte interface{}, path string, opts *OsgOstreamOptions) *WriteResult {
+	opt, _ := rw.prepareWriting(path, opts)
+	f := rw.OpenWriter(path)
+	defer f.Close()
+	return rw.WriteObjectWithWriter(inte, f, opt)
+}
+
+func (rw *ReadWrite) WriteObjectWithWriter(inte interface{}, wt io.Writer, opts *OsgOstreamOptions) *WriteResult {
+	os := NewOsgOstream(opts)
+	buf := bytes.NewBuffer(os.Data)
+	iter := rw.WriteOutputIterator(bufio.NewWriter(buf), opts)
+	os.Start(iter, WRITEOBJECT)
+	os.WriteObject(inte)
+	data := os.Compress()
+	wt.Write(data)
+	return &WriteResult{Status: FILESAVED}
+}
+
+func (rw *ReadWrite) WriteImage(image *model.Image, path string, opts *OsgOstreamOptions) *WriteResult {
+	opt, _ := rw.prepareWriting(path, opts)
+	f := rw.OpenWriter(path)
+	defer f.Close()
+	return rw.WriteImageWithWrite(image, f, opt)
+}
+
+func (rw *ReadWrite) WriteImageWithWrite(image *model.Image, wt io.Writer, opts *OsgOstreamOptions) *WriteResult {
+	os := NewOsgOstream(opts)
+	buf := bytes.NewBuffer(os.Data)
+	iter := rw.WriteOutputIterator(bufio.NewWriter(buf), opts)
+	os.Start(iter, WRITEIMAGE)
+	os.WriteImage(image)
+	data := os.Compress()
+	wt.Write(data)
+	return &WriteResult{Status: FILESAVED}
+}
+
+func (rw *ReadWrite) WriteNode(inte interface{}, path string, opts *OsgOstreamOptions) *WriteResult {
+	opt, _ := rw.prepareWriting(path, opts)
+	f := rw.OpenWriter(path)
+	defer f.Close()
+	return rw.WriteNodeWithWrite(inte, f, opt)
+}
+
+func (rw *ReadWrite) WriteNodeWithWrite(inte interface{}, wt io.Writer, opts *OsgOstreamOptions) *WriteResult {
+	os := NewOsgOstream(opts)
+	buf := bytes.NewBuffer(os.Data)
+	iter := rw.WriteOutputIterator(bufio.NewWriter(buf), opts)
+	os.Start(iter, WRITEOBJECT)
+	os.WriteObject(inte)
+	data := os.Compress()
+	wt.Write(data)
+	return &WriteResult{Status: FILESAVED}
 }

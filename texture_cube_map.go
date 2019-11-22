@@ -24,7 +24,7 @@ func writePosX(os *OsgOstream, tex interface{}) {
 	os.Write(image != nil)
 	if image != nil {
 		os.Write(os.BEGINBRACKET)
-		os.Write(image)
+		os.WriteImage(image)
 		os.Write(os.ENDBRACKET)
 		os.Write(os.CRLF)
 	}

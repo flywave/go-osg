@@ -61,7 +61,7 @@ func writeDescriptions(os *OsgOstream, obj interface{}) {
 	os.Write(os.BEGINBRACKET)
 	os.Write(os.CRLF)
 	for i := 0; i < l; i++ {
-		os.WriteWrappedString(node.Dscriptions[i])
+		os.Write(&node.Dscriptions[i])
 	}
 	os.Write(os.ENDBRACKET)
 	os.Write(os.CRLF)

@@ -77,6 +77,7 @@ func (d *DrawArrays) Accept(functor interface{}) {
 func NewDrawArrays() DrawArrays {
 	p := NewPrimitiveSet()
 	p.Type = DRAWARRAYT
+	p.PrimitiveType = IDDRAWARRAYS
 	return DrawArrays{PrimitiveSet: p, First: 0, Count: 0}
 }
 
@@ -89,6 +90,7 @@ type DrawArrayLengths struct {
 func NewDrawArrayLengths() DrawArrayLengths {
 	p := NewPrimitiveSet()
 	p.Type = DRAWARRAYLENGHTT
+	p.PrimitiveType = IDDRAWARRAYLENGTH
 	return DrawArrayLengths{PrimitiveSet: p, First: 0}
 }
 
@@ -157,6 +159,7 @@ func (dw *DrawElementsUByte) Accept(functor interface{}) {
 func NewDrawElementsUByte() DrawElementsUByte {
 	p := NewPrimitiveSet()
 	p.Type = DRWAELEMENTSUBYTET
+	p.PrimitiveType = IDDRAWELEMENTSUBYTE
 	return DrawElementsUByte{PrimitiveSet: p}
 }
 
@@ -192,6 +195,7 @@ func (dw *DrawElementsUShort) Accept(functor interface{}) {
 func NewDrawElementsUShort() DrawElementsUShort {
 	p := NewPrimitiveSet()
 	p.Type = DRWAELEMENTSUSHORTT
+	p.PrimitiveType = IDDRAWELEMENTSUSHORT
 	return DrawElementsUShort{PrimitiveSet: p}
 }
 
@@ -227,5 +231,6 @@ func (dw *DrawElementsUInt) Accept(functor interface{}) {
 func NewDrawElementsUInt() DrawElementsUInt {
 	p := NewPrimitiveSet()
 	p.Type = DRWAELEMENTSUINTT
+	p.PrimitiveType = IDDRAWELEMENTSUINT
 	return DrawElementsUInt{PrimitiveSet: p}
 }

@@ -26,7 +26,7 @@ func writeDatabasePath(os *OsgOstream, obj interface{}) {
 	b := len(lod.DataBasePath) > 0
 	os.Write(b)
 	if b {
-		os.WriteWrappedString(lod.DataBasePath)
+		os.Write(&lod.DataBasePath)
 	}
 	os.Write(os.CRLF)
 }

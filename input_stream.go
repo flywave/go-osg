@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"errors"
-	"io"
 	"strconv"
 	"strings"
 
@@ -69,8 +68,6 @@ type OsgIstream struct {
 	In                OsgInputIterator
 	Options           *OsgIstreamOptions
 	DummyReadObject   *model.Object
-	DataDecompress    io.Reader
-	Data              []byte
 	CRLF              CrlfType
 
 	PROPERTY     *model.ObjectProperty
@@ -130,11 +127,13 @@ func (is *OsgIstream) Read(inter interface{}) {
 	case *uint16:
 		is.In.ReadUShort(val)
 		break
+	case *int:
 	case *int32:
-		is.In.ReadInt(val)
+		is.In.ReadInt((*int32)(val))
 		break
+	case *uint:
 	case *uint32:
-		is.In.ReadUInt(val)
+		is.In.ReadUInt((*uint32)(val))
 		break
 	case *int64:
 		is.In.ReadLong(val)
