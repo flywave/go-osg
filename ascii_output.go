@@ -3,6 +3,7 @@ package osg
 import (
 	"bufio"
 	"strconv"
+	"strings"
 
 	"github.com/flywave/go-osg/model"
 )
@@ -115,4 +116,18 @@ func (it *AsciiOutputIterator) WriteMark(mark *model.ObjectMark) {
 	it.indentIfRequired()
 	it.WriteString(&mark.Name)
 	it.writeBlank()
+}
+func (it *AsciiOutputIterator) WriteWrappedString(str *string) {
+	b := strings.Builder{}
+	for _, c := range *str {
+		if byte(c) == '"' {
+			b.WriteByte('\\')
+		} else if byte(c) == '\\' {
+			b.WriteByte('\\')
+		}
+		b.WriteByte(byte(c))
+	}
+	s := "\"" + b.String()
+	s += "\""
+	it.WriteString(&s)
 }

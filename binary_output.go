@@ -25,6 +25,7 @@ type OsgOutputIterator interface {
 	WriteProperty(prop *model.ObjectProperty)
 	WriteMark(mark *model.ObjectMark)
 	WriteCharArray([]byte)
+	WriteWrappedString(*string)
 	GetIterator() *bufio.Writer
 	SetIterator(*bufio.Writer)
 	SetOutputSteam(os *OsgOstream)
@@ -147,4 +148,8 @@ func (it *BinaryOutputIterator) WriteMark(mark *model.ObjectMark) {
 
 func (it *BinaryOutputIterator) WriteCharArray(s []byte) {
 	it.writerData(s)
+}
+
+func (it *BinaryOutputIterator) WriteWrappedString(str *string) {
+	it.WriteString(str)
 }
