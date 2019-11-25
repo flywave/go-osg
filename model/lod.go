@@ -15,7 +15,7 @@ const (
 
 type LodInterface interface {
 	GetCmode() *uint32
-	SetCmode(*uint32)
+	SetCmode(uint32)
 	GetCenter() *[3]float32
 	SetCenter([3]float32)
 	GetRadius() *float32
@@ -26,6 +26,8 @@ type LodInterface interface {
 	AddChild3(interface{}, float32, float32)
 	RemoveChild2(int, int) error
 	SetRange(int, float32, float32)
+	GetRmode() *uint32
+	SetRmode(uint32)
 }
 
 type RangeListType [][2]float32
@@ -45,12 +47,20 @@ func NewLod() Lod {
 	return Lod{Group: g, Cmode: USEBOUNDINGSPHERECENTER, Rmode: DISTANCEFROMEYEPOINT}
 }
 
+func (lod *Lod) GetRmode() *uint32 {
+	return &lod.Rmode
+}
+func (lod *Lod) SetRmode(c uint32) {
+	lod.Rmode = c
+}
+
 func (lod *Lod) GetCmode() *uint32 {
 	return &lod.Cmode
 }
 func (lod *Lod) SetCmode(c uint32) {
 	lod.Cmode = c
 }
+
 func (lod *Lod) GetCenter() *[3]float32 {
 	return &lod.Center
 }

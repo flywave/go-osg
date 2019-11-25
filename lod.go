@@ -5,48 +5,51 @@ import (
 )
 
 func setCenterMode(obj interface{}, pro interface{}) {
-	obj.(*model.Lod).Cmode = pro.(uint32)
+	obj.(model.LodInterface).SetCmode(pro.(uint32))
 }
 
 func getCenterMode(obj interface{}) interface{} {
-	return &obj.(*model.Lod).Cmode
+	return obj.(model.LodInterface).GetCmode()
 }
 
 func setRangeMode(obj interface{}, pro interface{}) {
-	obj.(*model.Lod).Rmode = pro.(uint32)
+	obj.(model.LodInterface).SetRmode(pro.(uint32))
 }
 
 func getRangeMode(obj interface{}) interface{} {
-	return &obj.(*model.Lod).Rmode
+	return obj.(model.LodInterface).GetRmode()
 }
 
 func checkUserCenter(obj interface{}) bool {
-	lod := obj.(*model.Lod)
-	return lod.Cmode == model.USERDEFINEDCENTER || lod.Cmode == model.UNIONOFBOUNDINGSPHEREANDUSERDEFINED
+	lod := obj.(model.LodInterface)
+	md := *lod.GetCmode()
+	return md == model.USERDEFINEDCENTER || md == model.UNIONOFBOUNDINGSPHEREANDUSERDEFINED
 }
 func readUserCenter(is *OsgIstream, obj interface{}) {
-	lod := obj.(*model.Lod)
-	is.Read(&lod.Center)
-	is.Read(&lod.Radius)
+	lod := obj.(model.LodInterface)
+	ct := lod.GetCenter()
+	r := lod.GetRadius()
+	is.Read(ct)
+	is.Read(r)
 }
 
 func writeUserCenter(os *OsgOstream, obj interface{}) {
-	lod := obj.(*model.Lod)
-	os.Write(&lod.Center)
-	os.Write(&lod.Radius)
+	lod := obj.(model.LodInterface)
+	os.Write(*lod.GetCenter())
+	os.Write(*lod.GetRadius())
 	os.Write(os.CRLF)
 }
 
 func rangeListChecker(obj interface{}) bool {
-	lod := obj.(*model.Lod)
-	return len(lod.RangeList) > 0
+	lod := obj.(model.LodInterface)
+	return len(lod.GetRangeList()) > 0
 }
 
 func rangeListReader(is *OsgIstream, obj interface{}) {
-	lod := obj.(*model.Lod)
+	lod := obj.(model.LodInterface)
 	size := is.ReadSize()
 	is.Read(is.BEGINBRACKET)
-	lod.RangeList = make([][2]float32, size, size)
+	lod.SetRangeList(make([][2]float32, size, size))
 	for i := 0; i < size; i++ {
 		var min, max float32
 		is.Read(&min)
@@ -57,13 +60,13 @@ func rangeListReader(is *OsgIstream, obj interface{}) {
 }
 
 func rangeListWriter(os *OsgOstream, obj interface{}) {
-	lod := obj.(*model.Lod)
-	size := len(lod.RangeList)
+	lod := obj.(model.LodInterface)
+	size := len(lod.GetRangeList())
 	os.Write(size)
 	os.Write(os.BEGINBRACKET)
 	for i := 0; i < size; i++ {
-		os.Write(lod.RangeList[i][0])
-		os.Write(lod.RangeList[i][1])
+		os.Write(lod.GetRangeList()[i][0])
+		os.Write(lod.GetRangeList()[i][1])
 	}
 	os.Write(os.ENDBRACKET)
 	os.Write(os.CRLF)

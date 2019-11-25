@@ -6,5 +6,5 @@ import (
 
 func TestReadNode(t *testing.T) {
 	rw := NewReadWrite()
-	rw.ReadNode("test_data/cessna.osgb", nil)
+	rw.ReadNode("/Volumes/Projection/flywave/src/tests/flywave/osg/skydome.osgt", nil)
 }

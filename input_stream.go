@@ -912,7 +912,7 @@ func (is *OsgIstream) ReadImage(readFromExternal bool) *model.Image {
 		img.PixelFormat = imgdata.PixelFormat
 		img.DataType = imgdata.DataType
 		img.Packing = imgdata.Packing
-		img.Data = imgdata.Data
+		img.Data = ([]uint8)(imgdata.Data)
 		img.AllocationMode = model.USENEWDELETE
 		readFromExternal = false
 		break

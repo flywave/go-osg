@@ -422,7 +422,7 @@ func (ser *EnumSerializer) Read(is *OsgIstream, obj interface{}) {
 	} else {
 		if is.MatchString(ser.Name) {
 			var str string
-			is.Read(str)
+			is.Read(&str)
 			ser.Setter(obj, ser.LookUp.GetValue(str))
 		}
 	}

@@ -12,9 +12,9 @@ func checkWRAPS(obj interface{}) bool {
 
 func readWRAPS(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
-	var mode int
+	mode := model.NewObjectGlenum()
 	is.Read(&mode)
-	tex.SetWrap(model.WRAPS, mode)
+	tex.SetWrap(model.WRAPS, int(mode.Value))
 }
 
 func writeWRAPS(os *OsgOstream, obj interface{}) {
@@ -29,9 +29,9 @@ func checkWRAPT(obj interface{}) bool {
 
 func readWRAPT(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
-	var mode int
+	mode := model.NewObjectGlenum()
 	is.Read(&mode)
-	tex.SetWrap(model.WRAPT, mode)
+	tex.SetWrap(model.WRAPT, int(mode.Value))
 }
 
 func writeWRAPT(os *OsgOstream, obj interface{}) {
@@ -46,9 +46,9 @@ func checkWRAPR(obj interface{}) bool {
 
 func readWRAPR(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
-	var mode int
+	mode := model.NewObjectGlenum()
 	is.Read(&mode)
-	tex.SetWrap(model.WRAPR, mode)
+	tex.SetWrap(model.WRAPR, int(mode.Value))
 }
 
 func writeWRAPR(os *OsgOstream, obj interface{}) {
@@ -79,8 +79,8 @@ func checkMAGFILTER(obj interface{}) bool {
 
 func readMAGFILTER(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
-	var mode int
-	tex.SetFilter(model.MAGFILTER, mode)
+	mode := model.NewObjectGlenum()
+	tex.SetFilter(model.MAGFILTER, int(mode.Value))
 }
 
 func writeMAGFILTER(os *OsgOstream, obj interface{}) {
@@ -96,9 +96,9 @@ func checkSourceFormat(obj interface{}) bool {
 
 func readSourceFormat(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
-	var mode int
+	mode := model.NewObjectGlenum()
 	is.Read(mode)
-	tex.SourceFormat = mode
+	tex.SourceFormat = int(mode.Value)
 }
 func writeSourceFormat(os *OsgOstream, obj interface{}) {
 	tex := obj.(*model.Texture)
@@ -113,9 +113,9 @@ func checkSourceType(obj interface{}) bool {
 
 func readSourceType(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
-	var mode int
+	mode := model.NewObjectGlenum()
 	is.Read(mode)
-	tex.SourceType = mode
+	tex.SourceType = int(mode.Value)
 }
 func writeSourceType(os *OsgOstream, obj interface{}) {
 	tex := obj.(*model.Texture)
@@ -130,10 +130,10 @@ func checkInternalFormat(obj interface{}) bool {
 
 func readInternalFormat(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
-	var mode int
+	mode := model.NewObjectGlenum()
 	is.Read(&mode)
 	if tex.InternalFormat == model.USEUSERDEFINEDFORMAT {
-		tex.InternalFormat = mode
+		tex.InternalFormat = int(mode.Value)
 	}
 }
 
@@ -406,9 +406,9 @@ func setLODBias(obj interface{}, val interface{}) {
 
 func init() {
 	wrap := NewObjectWrapper("Texture", nil, "osg::Object osg::StateAttribute osg::Texture")
-	ser1 := NewUserSerializer("WRAPS", checkWRAPS, readWRAPS, writeWRAPS)
-	ser2 := NewUserSerializer("WRAPT", checkWRAPT, readWRAPT, writeWRAPT)
-	ser3 := NewUserSerializer("WRAPR", checkWRAPR, readWRAPR, writeWRAPR)
+	ser1 := NewUserSerializer("WRAP_S", checkWRAPS, readWRAPS, writeWRAPS)
+	ser2 := NewUserSerializer("WRAP_T", checkWRAPT, readWRAPT, writeWRAPT)
+	ser3 := NewUserSerializer("WRAP_R", checkWRAPR, readWRAPR, writeWRAPR)
 	ser4 := NewUserSerializer("MINFILTER", checkMINFILTER, readMINFILTER, writeMINFILTER)
 	ser5 := NewUserSerializer("MAGFILTER", checkMAGFILTER, readMAGFILTER, writeMAGFILTER)
 	ser6 := NewPropByValSerializer("MaxAnisotropy", false, getMaxAnisotropy, setMaxAnisotropy)

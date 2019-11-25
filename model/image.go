@@ -11,7 +11,7 @@ const (
 	STOREINLINE  int32 = 1
 	EXTERNALFILE int32 = 2
 
-	NODELETE       int32 = 0
+	NODELETE      int32 = 0
 	USENEWDELETE  int32 = 1
 	USEMALLOCFREE int32 = 2
 
@@ -36,7 +36,7 @@ type Image struct {
 	PixelAspectRatio      float32
 
 	AllocationMode int32
-	Data           []byte
+	Data           []uint8
 }
 
 func NewImage() Image {

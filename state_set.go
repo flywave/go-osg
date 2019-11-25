@@ -37,10 +37,10 @@ func readModes(is *OsgIstream, mdlist model.ModeListType) {
 	if size > 0 {
 		is.Read(is.BEGINBRACKET)
 		for i := 0; i < size; i++ {
-			var md int32
+			md := model.ObjectGlenum{}
 			is.Read(&md)
 			val := readValue(is)
-			mdlist[md] = val
+			mdlist[md.Value] = val
 		}
 		is.Read(is.ENDBRACKET)
 	}
@@ -166,6 +166,7 @@ func readTextureModeList(is *OsgIstream, obj interface{}) {
 	if size > 0 {
 		is.PROPERTY.Name = "Data"
 		for i := 0; i < size; i++ {
+			is.Read(is.PROPERTY)
 			tmp := make(model.ModeListType)
 			readModes(is, tmp)
 			for k, v := range tmp {
@@ -201,6 +202,7 @@ func readTextureAttributeList(is *OsgIstream, obj interface{}) {
 	if size > 0 {
 		is.PROPERTY.Name = "Data"
 		for i := 0; i < size; i++ {
+			is.Read(is.PROPERTY)
 			tmp := make(model.AttributeListType)
 			readAttributes(is, tmp)
 			for _, v := range tmp {
@@ -237,6 +239,7 @@ func readUniformList(is *OsgIstream, obj interface{}) {
 	if size > 0 {
 		is.PROPERTY.Name = "Value"
 		for i := 0; i < size; i++ {
+			is.Read(is.PROPERTY)
 			ob := is.ReadObject(nil)
 			is.Read(is.PROPERTY)
 			if model.IsBaseOfUniform(ob) {

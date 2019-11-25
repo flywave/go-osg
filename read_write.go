@@ -330,6 +330,15 @@ func (rw *ReadWrite) ReadImageWithReader(rd *bufio.Reader, opts *OsgIstreamOptio
 		img.T = int32(mg.Bounds().Max.Y - mg.Bounds().Min.Y)
 		img.R = 1
 		img.PixelFormat = 0
+		for y := 0; y < int(img.T); y++ {
+			for x := 0; x < int(img.S); x++ {
+				r, g, b, a := mg.At(x, y).RGBA()
+				img.Data = append(img.Data, uint8(r))
+				img.Data = append(img.Data, uint8(g))
+				img.Data = append(img.Data, uint8(b))
+				img.Data = append(img.Data, uint8(a))
+			}
+		}
 		return &ReadResult{Object: &img}
 	}
 	return &ReadResult{Status: FILENOTHANDLED}
