@@ -2,6 +2,7 @@ package osg
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/binary"
 
 	"github.com/flywave/go-osg/model"
@@ -63,8 +64,21 @@ func (iter *OutputIterator) SetIterator(bw *bufio.Writer) {
 	iter.Out = bw
 }
 
+type MarkHelper struct {
+	Stream *bufio.Writer
+	Buff   []byte
+}
+
+func MakeMarkHelper() *MarkHelper {
+	mh := MarkHelper{}
+	buf := bytes.NewBuffer(mh.Buff)
+	mh.Stream = bufio.NewWriter(buf)
+	return &mh
+}
+
 type BinaryOutputIterator struct {
 	OutputIterator
+	helps []*MarkHelper
 }
 
 func NewBinaryOutputIterator(wt *bufio.Writer) BinaryOutputIterator {
@@ -141,7 +155,43 @@ func (it *BinaryOutputIterator) WriteProperty(value *model.ObjectProperty) {
 func (it *BinaryOutputIterator) WriteMark(mark *model.ObjectMark) {
 	if it.SupportBinaryBrackets {
 		if it.OutputStream != nil && it.OutputStream.FileVersion > 148 {
-
+			if mark.Name == "{" {
+				mh := MakeMarkHelper()
+				it.Out = mh.Stream
+				it.helps = append(it.helps, mh)
+				return
+			} else if mark.Name == "{" && len(it.helps) > 0 {
+				size := len(it.helps)
+				if size > 1 {
+					it.Out = it.helps[size-2].Stream
+				} else {
+					it.Out = it.RootStream
+				}
+				mh := it.helps[size-1]
+				sz := uint64(len(mh.Buff))
+				it.WriteULong(sz)
+				it.WriteCharArray(mh.Buff)
+				it.helps = it.helps[:size-1]
+			}
+		} else {
+			if mark.Name == "{" {
+				mh := MakeMarkHelper()
+				it.Out = mh.Stream
+				it.helps = append(it.helps, mh)
+				return
+			} else if mark.Name == "{" && len(it.helps) > 0 {
+				size := len(it.helps)
+				if size > 1 {
+					it.Out = it.helps[size-2].Stream
+				} else {
+					it.Out = it.RootStream
+				}
+				mh := it.helps[size-1]
+				sz := int32(len(mh.Buff))
+				it.WriteInt(sz)
+				it.WriteCharArray(mh.Buff)
+				it.helps = it.helps[:size-1]
+			}
 		}
 	}
 }
