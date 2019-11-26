@@ -279,7 +279,7 @@ func (ser *PropByRefSerializer) Read(is *OsgIstream, obj interface{}) {
 func (ser *PropByRefSerializer) Writer(is *OsgOstream, obj interface{}) {}
 
 func NewPropByRefSerializer(name string, gt Getter, st Setter) PropByRefSerializer {
-	ser := NewPropByValSerializer(name, false, gt, st)
+	ser := NewPropByValSerializer(name, true, gt, st)
 	return PropByRefSerializer{PropByValSerializer: ser}
 }
 

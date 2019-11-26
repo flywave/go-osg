@@ -127,6 +127,7 @@ const (
 	// Texture environment states
 	GLREPLACE     = 0x1E01
 	GLMODULATE    = 0x2100
+	GLDECAL       = 0x2101
 	GLADD         = 0x0104
 	GLADDSIGNED   = 0x8574
 	GLINTERPOLATE = 0x8575

@@ -148,7 +148,6 @@ func (ss *StateSet) createOrGetAttributeList(unit int) AttributeListType {
 }
 
 func (ss *StateSet) setAttribute3(lst AttributeListType, attr interface{}, val int32) {
-
 	if attr != nil {
 		key := attr.(StateAttributeInterface).GetType()
 		par, ok := lst[key]
