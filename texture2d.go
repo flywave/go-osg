@@ -9,7 +9,7 @@ func init() {
 		td := model.NewTexture2d()
 		return &td
 	}
-	wrap := NewObjectWrapper("Texture2D", fn, "osg::Object osg::StateAttribute osg::Texture osg::Texture1D")
+	wrap := NewObjectWrapper("Texture2D", fn, "osg::Object osg::StateAttribute osg::Texture osg::Texture2D")
 	ser1 := NewImageSerializer("Image", getImage, setRectImage)
 	ser2 := NewPropByValSerializer("TextureWidth", false, getTexWidth, setTexWidth)
 	ser3 := NewPropByValSerializer("TextureHeight", false, getTexHeight, setTexHeight)
