@@ -63,8 +63,9 @@ func checkMINFILTER(obj interface{}) bool {
 
 func readMINFILTER(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
-	var mode int
-	tex.SetFilter(model.MINFILTER, mode)
+	mode := model.NewObjectGlenum()
+	is.Read(&mode)
+	tex.SetFilter(model.MINFILTER, int(mode.Value))
 }
 
 func writeMINFILTER(os *OsgOstream, obj interface{}) {
@@ -80,6 +81,7 @@ func checkMAGFILTER(obj interface{}) bool {
 func readMAGFILTER(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
 	mode := model.NewObjectGlenum()
+	is.Read(&mode)
 	tex.SetFilter(model.MAGFILTER, int(mode.Value))
 }
 
@@ -409,8 +411,8 @@ func init() {
 	ser1 := NewUserSerializer("WRAP_S", checkWRAPS, readWRAPS, writeWRAPS)
 	ser2 := NewUserSerializer("WRAP_T", checkWRAPT, readWRAPT, writeWRAPT)
 	ser3 := NewUserSerializer("WRAP_R", checkWRAPR, readWRAPR, writeWRAPR)
-	ser4 := NewUserSerializer("MINFILTER", checkMINFILTER, readMINFILTER, writeMINFILTER)
-	ser5 := NewUserSerializer("MAGFILTER", checkMAGFILTER, readMAGFILTER, writeMAGFILTER)
+	ser4 := NewUserSerializer("MIN_FILTER", checkMINFILTER, readMINFILTER, writeMINFILTER)
+	ser5 := NewUserSerializer("MAG_FILTER", checkMAGFILTER, readMAGFILTER, writeMAGFILTER)
 	ser6 := NewPropByValSerializer("MaxAnisotropy", false, getMaxAnisotropy, setMaxAnisotropy)
 	ser7 := NewPropByValSerializer("UseHardwareMipmapGeneration", false, getUseHardwareMipMapGeneration, setUseHardwareMipMapGeneration)
 	ser8 := NewPropByValSerializer("UnRefImageDataAfterApply", false, getUnRefImageDataAfterApply, setUnRefImageDataAfterApply)
@@ -456,6 +458,26 @@ func init() {
 	ser19.Add("NONE", model.NONE)
 
 	ser20 := NewPropByValSerializer("ShadowAmbient", false, getShadowAmbient, setShadowAmbient)
+	wrap.AddSerializer(&ser1, RWUSER)
+	wrap.AddSerializer(&ser2, RWUSER)
+	wrap.AddSerializer(&ser3, RWUSER)
+	wrap.AddSerializer(&ser4, RWUSER)
+	wrap.AddSerializer(&ser5, RWUSER)
+	wrap.AddSerializer(&ser6, RWFLOAT)
+	wrap.AddSerializer(&ser7, RWBOOL)
+	wrap.AddSerializer(&ser8, RWBOOL)
+	wrap.AddSerializer(&ser9, RWBOOL)
+	wrap.AddSerializer(&ser10, RWBOOL)
+	wrap.AddSerializer(&ser11, RWVEC4D)
+	wrap.AddSerializer(&ser12, RWINT)
+	wrap.AddSerializer(&ser13, RWENUM)
+	wrap.AddSerializer(&ser14, RWUSER)
+	wrap.AddSerializer(&ser15, RWUSER)
+	wrap.AddSerializer(&ser16, RWUSER)
+	wrap.AddSerializer(&ser17, RWBOOL)
+	wrap.AddSerializer(&ser18, RWENUM)
+	wrap.AddSerializer(&ser19, RWENUM)
+	wrap.AddSerializer(&ser20, RWFLOAT)
 	{
 		uv := AddUpdateWrapperVersionProxy(&wrap, 95)
 		ser21 := NewUserSerializer("ImageAttachment", checkImageAttachment, readImageAttachment, writeImageAttachment)
@@ -488,25 +510,6 @@ func init() {
 		wrap.AddSerializer(&ser24, RWFLOAT)
 		wrap.AddSerializer(&ser25, RWFLOAT)
 	}
-	wrap.AddSerializer(&ser1, RWUSER)
-	wrap.AddSerializer(&ser2, RWUSER)
-	wrap.AddSerializer(&ser3, RWUSER)
-	wrap.AddSerializer(&ser4, RWUSER)
-	wrap.AddSerializer(&ser5, RWUSER)
-	wrap.AddSerializer(&ser6, RWFLOAT)
-	wrap.AddSerializer(&ser7, RWBOOL)
-	wrap.AddSerializer(&ser8, RWBOOL)
-	wrap.AddSerializer(&ser9, RWBOOL)
-	wrap.AddSerializer(&ser10, RWBOOL)
-	wrap.AddSerializer(&ser11, RWVEC4D)
-	wrap.AddSerializer(&ser12, RWINT)
-	wrap.AddSerializer(&ser13, RWENUM)
-	wrap.AddSerializer(&ser14, RWUSER)
-	wrap.AddSerializer(&ser15, RWUSER)
-	wrap.AddSerializer(&ser16, RWUSER)
-	wrap.AddSerializer(&ser17, RWBOOL)
-	wrap.AddSerializer(&ser18, RWENUM)
-	wrap.AddSerializer(&ser19, RWENUM)
-	wrap.AddSerializer(&ser20, RWFLOAT)
+
 	GetObjectWrapperManager().AddWrap(&wrap)
 }

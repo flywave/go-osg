@@ -230,19 +230,21 @@ func (iter *AsciiInputIterator) ReadWrappedString(str *string) {
 	for {
 		if ch == ' ' || (ch == '\n') || (ch == '\r') {
 			iter.getCharacter(&ch)
+		} else {
 			break
 		}
 	}
 	if ch == '"' {
-		iter.getCharacter(&ch)
 		for {
+			iter.getCharacter(&ch)
 			if ch != '"' {
 				if ch == '\\' {
 					iter.getCharacter(&ch)
 				}
 				bd.WriteByte(ch)
+			} else {
+				break
 			}
-			break
 		}
 	} else {
 		for {

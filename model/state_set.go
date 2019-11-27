@@ -90,9 +90,10 @@ func NewStateSet() StateSet {
 func (ss *StateSet) setMode3(unit int, mode int32, val int32) {
 	l := len(ss.TextureModeList)
 	if l <= unit {
-		s := l - 1 - unit
-		tmp := make(TextureModeListType, s, s)
-		ss.TextureModeList = append(ss.TextureModeList, tmp...)
+		s := 1 + unit - l
+		for i := 0; i < s; i++ {
+			ss.TextureModeList = append(ss.TextureModeList, make(ModeListType))
+		}
 	}
 	list := ss.TextureModeList[unit]
 	if (val & INHERIT) > 0 {
@@ -139,9 +140,10 @@ func (ss *StateSet) IsTextureAttribute() bool {
 func (ss *StateSet) createOrGetAttributeList(unit int) AttributeListType {
 	l := len(ss.TextureAttributeList)
 	if unit >= l {
-		sz := l - 1 - unit
-		tmp := make([]AttributeListType, sz, sz)
-		ss.TextureAttributeList = append(ss.TextureAttributeList, tmp...)
+		sz := 1 + unit - l
+		for i := 0; i < sz; i++ {
+			ss.TextureAttributeList = append(ss.TextureAttributeList, make(AttributeListType))
+		}
 	}
 	lst := ss.TextureAttributeList[unit]
 	return lst

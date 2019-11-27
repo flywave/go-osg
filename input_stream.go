@@ -939,19 +939,22 @@ func (is *OsgIstream) ReadImage(readFromExternal bool) *model.Image {
 	default:
 		break
 	}
-	if loadedFromCache && name != "" {
+	if readFromExternal && name != "" {
 		rw := getReaderWriter()
 		img = rw.ReadImage(name, &opts).GetImage()
-
-		img2 := is.ReadObjectFields("osg::Image", id, nil)
-		is.IdentifierMap[id] = img2
-		return img2.(*model.Image)
-	} else {
-		img2 := is.ReadObjectFields("osg::Image", id, nil)
-		img = img2.(*model.Image)
-		img.Name = name
-		img.WriteHint = writeHint
 		return img
+	} else {
+		if loadedFromCache {
+			img2 := is.ReadObjectFields("osg::Image", id, nil)
+			return img2.(*model.Image)
+		} else {
+			img2 := is.ReadObjectFields("osg::Image", id, nil)
+			img = img2.(*model.Image)
+			img.Name = name
+			img.WriteHint = writeHint
+			is.IdentifierMap[id] = img
+			return img
+		}
 	}
 }
 

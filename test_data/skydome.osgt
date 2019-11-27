@@ -37,7 +37,7 @@ osg::Geode {
                 ResizeNonPowerOfTwoHint TRUE
                 Image TRUE {
                   UniqueID 5
-                  FileName "images/skymap.jpg" 
+                  FileName "test_data/images/skymap.jpg" 
                   WriteHint 0 2
                   DataVariance STATIC
                 }
