@@ -1,7 +1,7 @@
 package osg
 
 import (
-	"bufio"
+	"io"
 	"strconv"
 	"strings"
 
@@ -14,7 +14,7 @@ type AsciiOutputIterator struct {
 	Indent         int
 }
 
-func NewAsciiOutputIterator(wt *bufio.Writer) AsciiOutputIterator {
+func NewAsciiOutputIterator(wt io.Writer) AsciiOutputIterator {
 	ot := NewOutputIterator(wt)
 	return AsciiOutputIterator{OutputIterator: ot, ReadyForIndent: false, Indent: 0}
 }

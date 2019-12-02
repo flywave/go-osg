@@ -1,9 +1,9 @@
 package osg
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/binary"
+	"io"
 
 	"github.com/flywave/go-osg/model"
 )
@@ -27,20 +27,20 @@ type OsgOutputIterator interface {
 	WriteMark(mark *model.ObjectMark)
 	WriteCharArray([]byte)
 	WriteWrappedString(*string)
-	GetIterator() *bufio.Writer
-	SetIterator(*bufio.Writer)
+	GetIterator() io.Writer
+	SetIterator(io.Writer)
 	SetOutputSteam(os *OsgOstream)
 	SetSupportBinaryBrackets(sbb bool)
 }
 
 type OutputIterator struct {
-	RootStream            *bufio.Writer
-	Out                   *bufio.Writer
+	RootStream            io.Writer
+	Out                   io.Writer
 	OutputStream          *OsgOstream
 	SupportBinaryBrackets bool
 }
 
-func NewOutputIterator(wt *bufio.Writer) OutputIterator {
+func NewOutputIterator(wt io.Writer) OutputIterator {
 	return OutputIterator{SupportBinaryBrackets: false, Out: wt, RootStream: wt}
 }
 
@@ -56,23 +56,22 @@ func (it *OutputIterator) SetOutputSteam(os *OsgOstream) {
 	it.OutputStream = os
 }
 
-func (iter *OutputIterator) GetIterator() *bufio.Writer {
+func (iter *OutputIterator) GetIterator() io.Writer {
 	return iter.Out
 }
 
-func (iter *OutputIterator) SetIterator(bw *bufio.Writer) {
+func (iter *OutputIterator) SetIterator(bw io.Writer) {
 	iter.Out = bw
 }
 
 type MarkHelper struct {
-	Stream *bufio.Writer
+	Stream io.Writer
 	Buff   []byte
 }
 
 func MakeMarkHelper() *MarkHelper {
 	mh := MarkHelper{}
-	buf := bytes.NewBuffer(mh.Buff)
-	mh.Stream = bufio.NewWriter(buf)
+	mh.Stream = bytes.NewBuffer(mh.Buff)
 	return &mh
 }
 
@@ -81,7 +80,7 @@ type BinaryOutputIterator struct {
 	helps []*MarkHelper
 }
 
-func NewBinaryOutputIterator(wt *bufio.Writer) BinaryOutputIterator {
+func NewBinaryOutputIterator(wt io.Writer) BinaryOutputIterator {
 	ot := NewOutputIterator(wt)
 	return BinaryOutputIterator{OutputIterator: ot}
 }
