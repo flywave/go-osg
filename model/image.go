@@ -3,7 +3,7 @@ package model
 import (
 	"math"
 
-	"github.com/ungerik/go3d/vec3"
+	"github.com/flywave/go3d/vec3"
 )
 
 const (

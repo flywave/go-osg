@@ -1089,9 +1089,9 @@ func (is *OsgIstream) Start(iter OsgInputIterator) (uint32, error) {
 	return header.Type, nil
 }
 
-func (is *OsgIstream) Decompress() {
+func (is *OsgIstream) Decompress() error {
 	if !is.IsBinary() {
-		return
+		return nil
 	}
 	is.Fields = []string{}
 	compressorName := is.ReadString()
@@ -1099,7 +1099,7 @@ func (is *OsgIstream) Decompress() {
 		is.Fields = append(is.Fields, compressorName)
 		compressor := GetObjectWrapperManager().FindCompressor(compressorName)
 		if compressor == nil {
-			panic("inputstream: Failed to decompress stream, No such compressor.")
+			return errors.New("inputstream: Failed to decompress stream, No such compressor.")
 		}
 		var src []byte
 		compressor.DeCompress(is.In.GetIterator(), src)
@@ -1110,6 +1110,7 @@ func (is *OsgIstream) Decompress() {
 	if is.UseSchemaData {
 		is.Fields = append(is.Fields, "SchemaData")
 	}
+	return nil
 }
 
 func trimEnclosingSpaces(str string) string {

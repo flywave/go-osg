@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"io"
 	"os"
 	"strconv"
@@ -1108,12 +1109,12 @@ func (ostream *OsgOstream) WriteObjectFileds(obj interface{}, name string) {
 	}
 }
 
-func (ostream *OsgOstream) Start(out OsgOutputIterator, ty int32) {
+func (ostream *OsgOstream) Start(out OsgOutputIterator, ty int32) error {
 	ostream.Fields = []string{}
 	ostream.Fields = append(ostream.Fields, "Start")
 	ostream.Out = out
 	if out == nil {
-		panic("outiterator is nil")
+		return errors.New("outiterator is nil")
 	}
 	ostream.Out.SetOutputSteam(ostream)
 	if ostream.IsBinary() {
@@ -1175,11 +1176,12 @@ func (ostream *OsgOstream) Start(out OsgOutputIterator, ty int32) {
 		ostream.Write(ostream.CRLF)
 		ostream.Fields = ostream.Fields[:len(ostream.Fields)-1]
 	}
+	return nil
 }
 
 func (ostream *OsgOstream) Compress() []byte {
 	if !ostream.IsBinary() || ostream.CompressorName == "" {
-		return ostream.Data
+		return ostream.Out.GetIterator().(*bytes.Buffer).Bytes()
 	}
 	ostream.Fields = []string{}
 	if ostream.UseSchemaData {
@@ -1198,7 +1200,7 @@ func (ostream *OsgOstream) Compress() []byte {
 	ostream.Fields = append(ostream.Fields, "Compression")
 	compress_wrap := GetObjectWrapperManager().FindCompressor(ostream.CompressorName)
 	if compress_wrap == nil {
-		return ostream.Data
+		return ostream.Out.GetIterator().(*bytes.Buffer).Bytes()
 	}
 	ostream.Write(&schemaSource)
 	var compresseData []byte

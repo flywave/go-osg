@@ -3,9 +3,9 @@ package model
 import (
 	"reflect"
 
-	"github.com/ungerik/go3d/vec2"
-	"github.com/ungerik/go3d/vec3"
-	"github.com/ungerik/go3d/vec4"
+	"github.com/flywave/go3d/vec2"
+	"github.com/flywave/go3d/vec3"
+	"github.com/flywave/go3d/vec4"
 )
 
 type UniformInterface interface {

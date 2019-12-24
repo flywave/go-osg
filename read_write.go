@@ -41,11 +41,8 @@ const (
 	FILELOADEDFROMCACHE      = 5
 	FILEREQUESTED            = 6
 	INSUFFICIENTMEMORYTOLOAD = 7
-	ERROR_IN_WRITING_FILE    = 8
+	ERRORINWRITINGFILE       = 8
 	FILE_SAVED               = 9
-
-	ERRORINWRITINGFILE = 2
-	FILESAVED          = 3
 
 	READ   = 0
 	WRITE  = 1
@@ -305,7 +302,10 @@ func (rw *ReadWrite) ReadObjectWithReader(rd *bufio.Reader, opt *OsgIstreamOptio
 		if ty == READUNKNOWN {
 			return &ReadResult{Status: FILENOTHANDLED}
 		}
-		is.Decompress()
+		e := is.Decompress()
+		if e != nil {
+			return &ReadResult{Status: ERRORINREADINGFILE}
+		}
 		obj := is.ReadObject(nil)
 		if obj == nil {
 			return &ReadResult{Status: FILENOTHANDLED}
@@ -360,7 +360,10 @@ func (rw *ReadWrite) ReadNodeWithReader(rd *bufio.Reader, opts *OsgIstreamOption
 	if ty != READSCENE && ty != READOBJECT {
 		return &ReadResult{Status: FILENOTHANDLED}
 	}
-	is.Decompress()
+	e := is.Decompress()
+	if e != nil {
+		return &ReadResult{Status: ERRORINREADINGFILE}
+	}
 	obj := is.ReadObject(nil)
 	nd, ok := obj.(model.NodeInterface)
 	if ok {
@@ -380,7 +383,10 @@ func (rw *ReadWrite) WriteObjectWithWriter(inte interface{}, wt io.Writer, opts 
 	os := NewOsgOstream(opts)
 	buf := bytes.NewBuffer(os.Data)
 	iter := rw.WriteOutputIterator(buf, opts)
-	os.Start(iter, WRITEOBJECT)
+	e := os.Start(iter, WRITEOBJECT)
+	if e != nil {
+		return &WriteResult{Status: ERRORINWRITINGFILE}
+	}
 	os.WriteObject(inte)
 	data := os.Compress()
 	wt.Write(data)
@@ -398,7 +404,10 @@ func (rw *ReadWrite) WriteImageWithWrite(image *model.Image, wt io.Writer, opts 
 	os := NewOsgOstream(opts)
 	buf := bytes.NewBuffer(os.Data)
 	iter := rw.WriteOutputIterator(buf, opts)
-	os.Start(iter, WRITEIMAGE)
+	e := os.Start(iter, WRITEIMAGE)
+	if e != nil {
+		return &WriteResult{Status: ERRORINWRITINGFILE}
+	}
 	os.WriteImage(image)
 	data := os.Compress()
 	wt.Write(data)
@@ -416,7 +425,10 @@ func (rw *ReadWrite) WriteNodeWithWrite(inte interface{}, wt io.Writer, opts *Os
 	os := NewOsgOstream(opts)
 	buf := bytes.NewBuffer(os.Data)
 	iter := rw.WriteOutputIterator(buf, opts)
-	os.Start(iter, WRITEOBJECT)
+	e := os.Start(iter, WRITEOBJECT)
+	if e != nil {
+		return &WriteResult{Status: ERRORINWRITINGFILE}
+	}
 	os.WriteObject(inte)
 	data := os.Compress()
 	wt.Write(data)
