@@ -42,7 +42,7 @@ const (
 	FILEREQUESTED            = 6
 	INSUFFICIENTMEMORYTOLOAD = 7
 	ERRORINWRITINGFILE       = 8
-	FILE_SAVED               = 9
+	FILESAVED                = 9
 
 	READ   = 0
 	WRITE  = 1
