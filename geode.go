@@ -16,7 +16,8 @@ func DrawableReader(is *OsgIstream, obj interface{}) {
 		ob := is.ReadObject(nil)
 		_, ok := ob.(model.DrawableInterface)
 		if ok {
-			g.AddChild(ob)
+			child := ob.(model.NodeInterface)
+			g.AddChild(child)
 		}
 	}
 	is.Read(is.ENDBRACKET)

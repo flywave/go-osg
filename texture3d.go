@@ -20,7 +20,7 @@ func init() {
 		return &td
 	}
 	wrap := NewObjectWrapper("Texture3D", fn, "osg::Object osg::StateAttribute osg::Texture osg::Texture3D")
-	ser1 := NewImageSerializer("Image", getImage, setRectImage)
+	ser1 := NewImageSerializer("Image", getImage, setImage)
 	ser2 := NewPropByValSerializer("TextureWidth", false, getTexWidth, setTexWidth)
 	ser3 := NewPropByValSerializer("TextureHeight", false, getTexHeight, setTexHeight)
 	ser4 := NewPropByValSerializer("TextureDepth", false, getTextureDepth, setTextureDepth)

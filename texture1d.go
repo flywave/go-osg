@@ -40,7 +40,7 @@ func init() {
 		return &td
 	}
 	wrap := NewObjectWrapper("Texture1D", fn, "osg::Object osg::StateAttribute osg::Texture osg::Texture1D")
-	ser1 := NewImageSerializer("Image", getImage, setRectImage)
+	ser1 := NewImageSerializer("Image", getImage, setImage)
 	ser2 := NewPropByValSerializer("TextureWidth", false, getTexWidth, setTexWidth)
 	wrap.AddSerializer(&ser1, RWIMAGE)
 	wrap.AddSerializer(&ser2, RWUINT)

@@ -1,9 +1,9 @@
 package osg
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/binary"
-	"io"
 
 	"github.com/flywave/go-osg/model"
 )
@@ -27,20 +27,19 @@ type OsgOutputIterator interface {
 	WriteMark(mark *model.ObjectMark)
 	WriteCharArray([]byte)
 	WriteWrappedString(*string)
-	GetIterator() io.Writer
-	SetIterator(io.Writer)
+
 	SetOutputSteam(os *OsgOstream)
 	SetSupportBinaryBrackets(sbb bool)
 }
 
 type OutputIterator struct {
-	RootStream            io.Writer
-	Out                   io.Writer
+	RootStream            *bufio.Writer
+	Out                   *bufio.Writer
 	OutputStream          *OsgOstream
 	SupportBinaryBrackets bool
 }
 
-func NewOutputIterator(wt io.Writer) OutputIterator {
+func NewOutputIterator(wt *bufio.Writer) OutputIterator {
 	return OutputIterator{SupportBinaryBrackets: false, Out: wt, RootStream: wt}
 }
 
@@ -56,22 +55,19 @@ func (it *OutputIterator) SetOutputSteam(os *OsgOstream) {
 	it.OutputStream = os
 }
 
-func (iter *OutputIterator) GetIterator() io.Writer {
-	return iter.Out
-}
-
-func (iter *OutputIterator) SetIterator(bw io.Writer) {
-	iter.Out = bw
-}
-
 type MarkHelper struct {
-	Stream io.Writer
-	Buff   []byte
+	Stream *bufio.Writer
+	buff   *bytes.Buffer
+}
+
+func (mh *MarkHelper) GetBuff() []byte {
+	return mh.buff.Bytes()
 }
 
 func MakeMarkHelper() *MarkHelper {
 	mh := MarkHelper{}
-	mh.Stream = bytes.NewBuffer(mh.Buff)
+	mh.buff = bytes.NewBuffer([]byte{})
+	mh.Stream = bufio.NewWriter(mh.buff)
 	return &mh
 }
 
@@ -80,7 +76,7 @@ type BinaryOutputIterator struct {
 	helps []*MarkHelper
 }
 
-func NewBinaryOutputIterator(wt io.Writer) BinaryOutputIterator {
+func NewBinaryOutputIterator(wt *bufio.Writer) BinaryOutputIterator {
 	ot := NewOutputIterator(wt)
 	return BinaryOutputIterator{OutputIterator: ot}
 }
@@ -167,9 +163,10 @@ func (it *BinaryOutputIterator) WriteMark(mark *model.ObjectMark) {
 					it.Out = it.RootStream
 				}
 				mh := it.helps[size-1]
-				sz := uint64(len(mh.Buff))
+				bf := mh.GetBuff()
+				sz := uint64(len(bf))
 				it.WriteULong(sz)
-				it.WriteCharArray(mh.Buff)
+				it.WriteCharArray(bf)
 				it.helps = it.helps[:size-1]
 			}
 		} else {
@@ -186,9 +183,10 @@ func (it *BinaryOutputIterator) WriteMark(mark *model.ObjectMark) {
 					it.Out = it.RootStream
 				}
 				mh := it.helps[size-1]
-				sz := int32(len(mh.Buff))
+				bf := mh.GetBuff()
+				sz := int32(len(bf))
 				it.WriteInt(sz)
-				it.WriteCharArray(mh.Buff)
+				it.WriteCharArray(bf)
 				it.helps = it.helps[:size-1]
 			}
 		}
