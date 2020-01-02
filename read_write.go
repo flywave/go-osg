@@ -123,8 +123,8 @@ func getReaderWriter() *ReadWrite {
 	return rw
 }
 
-func NewReadWrite() ReadWrite {
-	rw := ReadWrite{SupportedProtocal: make(map[string]string), SupportedExtensions: make(map[string]string), SupportedOptions: make(map[string]string)}
+func NewReadWrite() *ReadWrite {
+	rw := &ReadWrite{SupportedProtocal: make(map[string]string), SupportedExtensions: make(map[string]string), SupportedOptions: make(map[string]string)}
 	rw.SupportedExtensions["osg2"] = "OpenSceneGraph extendable format"
 	rw.SupportedExtensions["osgt"] = "OpenSceneGraph extendable ascii format"
 	rw.SupportedExtensions["osgb"] = "OpenSceneGraph extendable binary format"
