@@ -7,28 +7,28 @@ const (
 )
 
 type GroupInterface interface {
-	SetChildren(c []interface{})
-	GetChildren() []interface{}
-	AddChild(n interface{})
-	InsertChild(index int, n interface{})
-	GetIndex(n interface{}) int
-	RemoveChild(n interface{}) error
+	SetChildren(c []NodeInterface)
+	GetChildren() []NodeInterface
+	AddChild(n NodeInterface)
+	InsertChild(index int, n NodeInterface)
+	GetIndex(n NodeInterface) int
+	RemoveChild(n NodeInterface) error
 	RemoveChild2(pos int, count int) error
-	ReplaceChild(origChild interface{}, newChild interface{}) error
-	SetChild(index int, newChild interface{}) error
-	Containsnode(n interface{}) bool
+	ReplaceChild(origChild NodeInterface, newChild NodeInterface) error
+	SetChild(index int, newChild NodeInterface) error
+	Containsnode(n NodeInterface) bool
 }
 
 type Group struct {
 	Node
-	Children []interface{}
+	Children []NodeInterface
 }
 
-func (g *Group) GetChildren() []interface{} {
+func (g *Group) GetChildren() []NodeInterface {
 	return g.Children
 }
 
-func (g *Group) SetChildren(c []interface{}) {
+func (g *Group) SetChildren(c []NodeInterface) {
 	g.Children = c
 }
 
@@ -38,18 +38,18 @@ func NewGroup() Group {
 	return Group{Node: n}
 }
 
-func (g *Group) AddChild(n interface{}) {
+func (g *Group) AddChild(n NodeInterface) {
 	g.Children = append(g.Children, n)
 }
 
-func (g *Group) InsertChild(index int, n interface{}) {
+func (g *Group) InsertChild(index int, n NodeInterface) {
 	a := g.Children[:index]
 	a = append(a, n)
 	b := g.Children[index:]
 	g.Children = append(a, b...)
 }
 
-func (g *Group) GetIndex(n interface{}) int {
+func (g *Group) GetIndex(n NodeInterface) int {
 	index := -1
 	for i, val := range g.Children {
 		if val == n {
@@ -60,7 +60,7 @@ func (g *Group) GetIndex(n interface{}) int {
 	return index
 }
 
-func (g *Group) RemoveChild(n interface{}) error {
+func (g *Group) RemoveChild(n NodeInterface) error {
 	index := g.GetIndex(n)
 	if index < 0 {
 		return errors.New("have no this child")
@@ -89,7 +89,7 @@ func (g *Group) RemoveChild2(pos int, count int) error {
 	return nil
 }
 
-func (g *Group) ReplaceChild(origChild interface{}, newChild interface{}) error {
+func (g *Group) ReplaceChild(origChild NodeInterface, newChild NodeInterface) error {
 	index := g.GetIndex(origChild)
 	if index < 0 {
 		return errors.New("out of range")
@@ -102,7 +102,7 @@ func (g *Group) ReplaceChild(origChild interface{}, newChild interface{}) error 
 	return nil
 }
 
-func (g *Group) SetChild(index int, newChild interface{}) error {
+func (g *Group) SetChild(index int, newChild NodeInterface) error {
 	if index < 0 {
 		return errors.New("out of range")
 	}
@@ -115,7 +115,7 @@ func (g *Group) SetChild(index int, newChild interface{}) error {
 	return nil
 }
 
-func (g *Group) Containsnode(n interface{}) bool {
+func (g *Group) Containsnode(n NodeInterface) bool {
 	index := g.GetIndex(n)
 	if index < 0 {
 		return false

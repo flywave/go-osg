@@ -1179,9 +1179,9 @@ func (ostream *OsgOstream) Start(out OsgOutputIterator, ty int32) error {
 	return nil
 }
 
-func (ostream *OsgOstream) Compress() []byte {
+func (ostream *OsgOstream) Compress(buff *bytes.Buffer) []byte {
 	if !ostream.IsBinary() || ostream.CompressorName == "" {
-		return ostream.Out.GetIterator().(*bytes.Buffer).Bytes()
+		return buff.Bytes()
 	}
 	ostream.Fields = []string{}
 	if ostream.UseSchemaData {
@@ -1200,10 +1200,10 @@ func (ostream *OsgOstream) Compress() []byte {
 	ostream.Fields = append(ostream.Fields, "Compression")
 	compress_wrap := GetObjectWrapperManager().FindCompressor(ostream.CompressorName)
 	if compress_wrap == nil {
-		return ostream.Out.GetIterator().(*bytes.Buffer).Bytes()
+		return buff.Bytes()
 	}
 	ostream.Write(&schemaSource)
 	var compresseData []byte
-	compress_wrap.Compress(ostream.Out.GetIterator(), compresseData)
+	compress_wrap.Compress(buff, compresseData)
 	return compresseData
 }

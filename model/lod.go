@@ -22,8 +22,8 @@ type LodInterface interface {
 	SetRadius(float32)
 	GetRangeList() RangeListType
 	SetRangeList(RangeListType)
-	AddChild(interface{})
-	AddChild3(interface{}, float32, float32)
+	AddChild(NodeInterface)
+	AddChild3(NodeInterface, float32, float32)
 	RemoveChild2(int, int) error
 	SetRange(int, float32, float32)
 	GetRmode() *uint32
@@ -80,7 +80,7 @@ func (lod *Lod) SetRangeList(rl RangeListType) {
 	lod.RangeList = rl
 }
 
-func (lod *Lod) AddChild(n interface{}) {
+func (lod *Lod) AddChild(n NodeInterface) {
 	lod.Group.AddChild(n)
 	rl := len(lod.RangeList)
 	if len(lod.Group.Children) > rl {
@@ -94,7 +94,7 @@ func (lod *Lod) AddChild(n interface{}) {
 	}
 }
 
-func (lod *Lod) AddChild3(n interface{}, min float32, max float32) {
+func (lod *Lod) AddChild3(n NodeInterface, min float32, max float32) {
 	lod.Group.AddChild(n)
 	rl := len(lod.RangeList)
 	if len(lod.Group.Children) > rl {

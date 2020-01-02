@@ -1,5 +1,7 @@
 package model
 
+import "fmt"
+
 type ModeListType map[int32]int32
 
 type RefAttributePair struct {
@@ -145,8 +147,7 @@ func (ss *StateSet) createOrGetAttributeList(unit int) AttributeListType {
 			ss.TextureAttributeList = append(ss.TextureAttributeList, make(AttributeListType))
 		}
 	}
-	lst := ss.TextureAttributeList[unit]
-	return lst
+	return ss.TextureAttributeList[unit]
 }
 
 func (ss *StateSet) setAttribute3(lst AttributeListType, attr interface{}, val int32) {
@@ -156,7 +157,9 @@ func (ss *StateSet) setAttribute3(lst AttributeListType, attr interface{}, val i
 		if ok {
 			par.Second = val & (OVERRIDE | PROTECTED)
 		} else {
-			lst[key] = &RefAttributePair{First: attr, Second: val & (OVERRIDE | PROTECTED)}
+			ref := &RefAttributePair{First: attr, Second: val & (OVERRIDE | PROTECTED)}
+			lst[key] = ref
+			fmt.Println(len(lst))
 		}
 	}
 }

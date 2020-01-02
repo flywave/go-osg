@@ -29,6 +29,9 @@ type NodeInterface interface {
 	GetSphereCallback() *ComputeBoundingSphereCallback
 	SetSphereCallback(*ComputeBoundingSphereCallback)
 
+	Ascend(nv *NodeVisitor)
+	Traverse(nv *NodeVisitor)
+
 	GetUpdateCallback() *Callback
 	SetUpdateCallback(*Callback)
 	GetEventCallback() *Callback
@@ -124,12 +127,14 @@ func (n *Node) Accept(nv *NodeVisitor) {
 	if nv.ValidNodeMask(n) {
 		nv.PushOntoNodePath(n)
 		nv.Apply(n)
-		nv.PopFromNodePath(n)
+		nv.PopFromNodePath()
 	}
 }
 
 func (n *Node) Ascend(nv *NodeVisitor) {
-
+	for _, g := range n.Parents {
+		g.Accept(nv)
+	}
 }
 
 func (n *Node) Traverse(nv *NodeVisitor) {

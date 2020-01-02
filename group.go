@@ -15,7 +15,7 @@ func ChildrenReader(is *OsgIstream, obj interface{}) {
 	for i := 0; i < int(size); i++ {
 		ob := is.ReadObject(nil)
 		if ob != nil {
-			g.AddChild(ob)
+			g.AddChild(ob.(model.NodeInterface))
 		}
 	}
 	is.Read(is.ENDBRACKET)

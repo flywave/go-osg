@@ -126,7 +126,7 @@ func readChildren(is *OsgIstream, obj interface{}) {
 		for i := 0; i < size; i++ {
 			ob := is.ReadObject(nil)
 			if model.IsBaseOfNode(lod) {
-				lod.AddChild(ob)
+				lod.AddChild(ob.(model.NodeInterface))
 			}
 		}
 	}

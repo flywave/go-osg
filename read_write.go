@@ -171,7 +171,7 @@ func (rw *ReadWrite) ReadInputIterator(reader *bufio.Reader, op *OsgIstreamOptio
 	}
 }
 
-func (rw *ReadWrite) WriteOutputIterator(wt io.Writer, op *OsgOstreamOptions) OsgOutputIterator {
+func (rw *ReadWrite) WriteOutputIterator(wt *bufio.Writer, op *OsgOstreamOptions) OsgOutputIterator {
 	var optionString string
 	if op != nil {
 		optionString = op.FileType
@@ -382,13 +382,13 @@ func (rw *ReadWrite) WriteObject(inte interface{}, path string, opts *OsgOstream
 func (rw *ReadWrite) WriteObjectWithWriter(inte interface{}, wt io.Writer, opts *OsgOstreamOptions) *WriteResult {
 	os := NewOsgOstream(opts)
 	buf := bytes.NewBuffer(os.Data)
-	iter := rw.WriteOutputIterator(buf, opts)
+	iter := rw.WriteOutputIterator(bufio.NewWriter(buf), opts)
 	e := os.Start(iter, WRITEOBJECT)
 	if e != nil {
 		return &WriteResult{Status: ERRORINWRITINGFILE}
 	}
 	os.WriteObject(inte)
-	data := os.Compress()
+	data := os.Compress(buf)
 	wt.Write(data)
 	return &WriteResult{Status: FILESAVED}
 }
@@ -403,13 +403,13 @@ func (rw *ReadWrite) WriteImage(image *model.Image, path string, opts *OsgOstrea
 func (rw *ReadWrite) WriteImageWithWrite(image *model.Image, wt io.Writer, opts *OsgOstreamOptions) *WriteResult {
 	os := NewOsgOstream(opts)
 	buf := bytes.NewBuffer(os.Data)
-	iter := rw.WriteOutputIterator(buf, opts)
+	iter := rw.WriteOutputIterator(bufio.NewWriter(buf), opts)
 	e := os.Start(iter, WRITEIMAGE)
 	if e != nil {
 		return &WriteResult{Status: ERRORINWRITINGFILE}
 	}
 	os.WriteImage(image)
-	data := os.Compress()
+	data := os.Compress(buf)
 	wt.Write(data)
 	return &WriteResult{Status: FILESAVED}
 }
@@ -424,13 +424,13 @@ func (rw *ReadWrite) WriteNode(inte interface{}, path string, opts *OsgOstreamOp
 func (rw *ReadWrite) WriteNodeWithWrite(inte interface{}, wt io.Writer, opts *OsgOstreamOptions) *WriteResult {
 	os := NewOsgOstream(opts)
 	buf := bytes.NewBuffer(os.Data)
-	iter := rw.WriteOutputIterator(buf, opts)
+	iter := rw.WriteOutputIterator(bufio.NewWriter(buf), opts)
 	e := os.Start(iter, WRITEOBJECT)
 	if e != nil {
 		return &WriteResult{Status: ERRORINWRITINGFILE}
 	}
 	os.WriteObject(inte)
-	data := os.Compress()
+	data := os.Compress(buf)
 	wt.Write(data)
 	return &WriteResult{Status: FILESAVED}
 }

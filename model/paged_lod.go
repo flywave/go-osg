@@ -42,17 +42,17 @@ func (p *PagedLod) expandPerRangeDataTo(pos int) {
 	}
 }
 
-func (p *PagedLod) AddChild(n interface{}) {
+func (p *PagedLod) AddChild(n NodeInterface) {
 	p.Lod.AddChild(n)
 	p.PerRangeDataList = append(p.PerRangeDataList, PerRangeData{})
 }
 
-func (p *PagedLod) AddChild3(n interface{}, min float32, max float32) {
+func (p *PagedLod) AddChild3(n NodeInterface, min float32, max float32) {
 	p.Lod.AddChild3(n, min, max)
 	p.PerRangeDataList = append(p.PerRangeDataList, PerRangeData{})
 }
 
-func (p *PagedLod) AddChild5(n interface{}, min float32, max float32, filename string, priorityOffset float32, priorityScale float32) {
+func (p *PagedLod) AddChild5(n NodeInterface, min float32, max float32, filename string, priorityOffset float32, priorityScale float32) {
 	p.Lod.AddChild3(n, min, max)
 	p.PerRangeDataList = append(p.PerRangeDataList, PerRangeData{FileName: filename, PriorityOffset: priorityOffset, PriorityScale: priorityScale})
 }
