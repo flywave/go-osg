@@ -298,9 +298,8 @@ func getPrimitiveSetList(obj interface{}) interface{} {
 }
 
 func setPrimitiveSetList(obj interface{}, pro interface{}) {
-	p := pro.(*model.PrimitiveSet)
 	g := obj.(*model.Geometry)
-	g.AddPrimitiveSet(p)
+	g.AddPrimitiveSet(pro)
 }
 
 func getTexCoordArrayList(obj interface{}) interface{} {

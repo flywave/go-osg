@@ -1,7 +1,5 @@
 package model
 
-import "fmt"
-
 type ModeListType map[int32]int32
 
 type RefAttributePair struct {
@@ -159,7 +157,6 @@ func (ss *StateSet) setAttribute3(lst AttributeListType, attr interface{}, val i
 		} else {
 			ref := &RefAttributePair{First: attr, Second: val & (OVERRIDE | PROTECTED)}
 			lst[key] = ref
-			fmt.Println(len(lst))
 		}
 	}
 }

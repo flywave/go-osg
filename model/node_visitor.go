@@ -1,10 +1,5 @@
 package model
 
-import (
-	"reflect"
-	"unsafe"
-)
-
 type TraversalMode uint32
 type VisitorType uint32
 
@@ -63,17 +58,19 @@ func (v *NodeVisitor) Traverse(node NodeInterface) {
 }
 
 func (v *NodeVisitor) Apply(val NodeInterface) {
-	// switch node := val.(type) {
-	// case interface{}:
-	// case *Lod:
-	// case *PagedLod:
-	// case *Group:
-	// }
+	switch node := val.(type) {
+	case *Node:
+		v.Traverse(node)
+		// case *Lod:
+		// 	node.Accept(v)
+		// case *PagedLod:
+		// 	node.Accept(v)
+	case *Group:
+		v.Traverse(node)
+	}
 }
 
 func (v *NodeVisitor) ValidNodeMask(node NodeInterface) bool {
-	n := reflect.ValueOf(node).Pointer()
-	nd := (*Node)(unsafe.Pointer(n))
-	return (v.TraversalMask &
-		(v.NodeMaskOverride | nd.NodeMask)) != 0
+	msk := node.GetNodeMask()
+	return (v.TraversalMask & (v.NodeMaskOverride | *msk)) != 0
 }

@@ -328,9 +328,6 @@ func (is *OsgIstream) Read(inter interface{}) {
 	case *model.ObjectMark:
 		is.In.ReadMark(val)
 		break
-	case *model.PrimitiveSet:
-		inter = is.ReadPrimitiveSet()
-		break
 	}
 }
 
@@ -1006,7 +1003,7 @@ func (is *OsgIstream) ReadObjectFields(className string, id int32, obj interface
 }
 
 func (is *OsgIstream) ReadSize() int {
-	var size int32
+	var size uint32
 	is.Read(&size)
 	return int(size)
 }

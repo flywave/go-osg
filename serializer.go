@@ -1,5 +1,7 @@
 package osg
 
+import "github.com/flywave/go-osg/model"
+
 type StringToValue map[string]int32
 type ValueToString map[int32]string
 
@@ -446,18 +448,32 @@ type VectorSerializer struct {
 func (ser *VectorSerializer) Read(is *OsgIstream, obj interface{}) {
 	if is.IsBinary() {
 		size := is.ReadSize()
-		for i := 0; i < size; i++ {
-			is.Read(ser.Element)
-			ser.Setter(obj, ser.Element)
+		switch ser.Element.(type) {
+		case *model.PrimitiveSet:
+			for i := 0; i < size; i++ {
+				ser.Setter(obj, is.ReadPrimitiveSet())
+			}
+		default:
+			for i := 0; i < size; i++ {
+				is.Read(ser.Element)
+				ser.Setter(obj, ser.Element)
+			}
 		}
 	} else {
 		if is.MatchString(ser.Name) {
 			size := is.ReadSize()
 			is.Read(is.BEGINBRACKET)
 			if size > 0 {
-				for i := 0; i < int(size); i++ {
-					is.Read(ser.Element)
-					ser.Setter(obj, ser.Element)
+				switch ser.Element.(type) {
+				case *model.PrimitiveSet:
+					for i := 0; i < size; i++ {
+						ser.Setter(obj, is.ReadPrimitiveSet())
+					}
+				default:
+					for i := 0; i < size; i++ {
+						is.Read(ser.Element)
+						ser.Setter(obj, ser.Element)
+					}
 				}
 			}
 			is.Read(is.ENDBRACKET)

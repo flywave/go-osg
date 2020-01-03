@@ -61,9 +61,9 @@ type WriteResult struct {
 	Object  interface{}
 }
 
-func (res *ReadResult) GetObject() *model.Object {
-	switch o := res.Object.(type) {
-	case *model.Object:
+func (res *ReadResult) GetObject() model.ObjectInterface {
+	o, ok := res.Object.(model.ObjectInterface)
+	if ok {
 		return o
 	}
 	return nil
@@ -77,9 +77,9 @@ func (res *ReadResult) GetImage() *model.Image {
 	return nil
 }
 
-func (res *ReadResult) GetNode() *model.Node {
-	switch o := res.Object.(type) {
-	case *model.Node:
+func (res *ReadResult) GetNode() model.NodeInterface {
+	o, ok := res.Object.(model.NodeInterface)
+	if ok {
 		return o
 	}
 	return nil
@@ -118,7 +118,7 @@ var rw *ReadWrite
 
 func getReaderWriter() *ReadWrite {
 	if rw == nil {
-		rw = &ReadWrite{}
+		rw = NewReadWrite()
 	}
 	return rw
 }

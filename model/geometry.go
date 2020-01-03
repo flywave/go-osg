@@ -25,11 +25,11 @@ func NewGeometry() Geometry {
 	return Geometry{Drawable: dw}
 }
 
-func (g *Geometry) AddPrimitiveSet(p *PrimitiveSet) {
+func (g *Geometry) AddPrimitiveSet(p interface{}) {
 	g.Primitives = append(g.Primitives, p)
 }
 
-func (g *Geometry) SetPrimitiveSet(i int, p *PrimitiveSet) error {
+func (g *Geometry) SetPrimitiveSet(i int, p interface{}) error {
 	l := len(g.Primitives)
 	if i > l-1 {
 		return errors.New("out of range")
@@ -38,7 +38,7 @@ func (g *Geometry) SetPrimitiveSet(i int, p *PrimitiveSet) error {
 	return nil
 }
 
-func (g *Geometry) InsertPrimitiveSet(i int, p *PrimitiveSet) error {
+func (g *Geometry) InsertPrimitiveSet(i int, p interface{}) error {
 	l := len(g.Primitives)
 	if i > l-1 {
 		return errors.New("out of range")

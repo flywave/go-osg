@@ -39,6 +39,10 @@ const (
 	PRIMITIVESETT          string = "osg::PrimitiveSet"
 )
 
+type PrimitiveSetInterface interface {
+	Accept(interface{})
+}
+
 type PrimitiveSet struct {
 	BufferData
 	PrimitiveType int32

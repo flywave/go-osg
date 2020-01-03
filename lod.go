@@ -27,10 +27,12 @@ func checkUserCenter(obj interface{}) bool {
 }
 func readUserCenter(is *OsgIstream, obj interface{}) {
 	lod := obj.(model.LodInterface)
-	ct := lod.GetCenter()
-	r := lod.GetRadius()
-	is.Read(ct)
-	is.Read(r)
+	ct := [3]float64{}
+	var r float64
+	is.Read(&ct)
+	is.Read(&r)
+	lod.SetCenter([3]float32{float32(ct[0]), float32(ct[1]), float32(ct[2])})
+	lod.SetRadius(float32(r))
 }
 
 func writeUserCenter(os *OsgOstream, obj interface{}) {
