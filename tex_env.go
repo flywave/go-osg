@@ -36,9 +36,9 @@ func init() {
 	ser1.Add("BLEND", model.GLBLEND)
 	ser1.Add("REPLACE", model.GLREPLACE)
 	ser1.Add("ADD", model.GLADD)
-	wrap.AddSerializer(&ser1, RWENUM)
+	wrap.AddSerializer(ser1, RWENUM)
 
 	ser2 := NewPropByRefSerializer("Color", getEnvColor, setEnvColor)
-	wrap.AddSerializer(&ser2, RWVEC4F)
+	wrap.AddSerializer(ser2, RWVEC4F)
 
 }

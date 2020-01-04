@@ -8,5 +8,5 @@ type TexEnv struct {
 
 func NewTexEnv() *TexEnv {
 	sa := NewStateAttribute()
-	return &TexEnv{StateAttribute: sa, Mode: GLMODULATE}
+	return &TexEnv{StateAttribute: *sa, Mode: GLMODULATE}
 }

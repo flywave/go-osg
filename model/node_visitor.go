@@ -28,8 +28,8 @@ type NodeVisitor struct {
 	Npath            NodePath
 }
 
-func NewNodeVisitor() NodeVisitor {
-	return NodeVisitor{VisitorType: NODEVISITOR, TraversalMode: TRAVERSENONE, NodeMaskOverride: 0x0, TraversalMask: 0xffffffff, TraversalNumber: UNINITIALIZEDFRAMENUMBER}
+func NewNodeVisitor() *NodeVisitor {
+	return &NodeVisitor{VisitorType: NODEVISITOR, TraversalMode: TRAVERSENONE, NodeMaskOverride: 0x0, TraversalMask: 0xffffffff, TraversalNumber: UNINITIALIZEDFRAMENUMBER}
 }
 
 func (v *NodeVisitor) PushOntoNodePath(n NodeInterface) {
@@ -61,10 +61,6 @@ func (v *NodeVisitor) Apply(val NodeInterface) {
 	switch node := val.(type) {
 	case *Node:
 		v.Traverse(node)
-		// case *Lod:
-		// 	node.Accept(v)
-		// case *PagedLod:
-		// 	node.Accept(v)
 	case *Group:
 		v.Traverse(node)
 	}

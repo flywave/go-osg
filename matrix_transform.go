@@ -13,10 +13,10 @@ func setMatrixf(obj interface{}, mat interface{}) {
 func init() {
 	fn := func() interface{} {
 		mt := model.NewMatrixTransform()
-		return &mt
+		return mt
 	}
 	wrap := NewObjectWrapper2("MatrixTransform", "flywave::osg::matrixtransform", fn, "osg::Object osg::Node osg::Group osg::Transform osg::MatrixTransform")
 	ser := NewMatrixSerializer("Matrix", getMatrixf, setMatrixf)
-	wrap.AddSerializer(&ser, RWMATRIXF)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(ser, RWMATRIXF)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

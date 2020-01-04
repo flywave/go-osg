@@ -9,8 +9,8 @@ type Shape struct {
 	Object
 }
 
-func NewShape() Shape {
+func NewShape() *Shape {
 	obj := NewObject()
 	obj.Type = SHAPET
-	return Shape{Object: obj}
+	return &Shape{Object: *obj}
 }

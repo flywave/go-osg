@@ -13,8 +13,8 @@ type Transform struct {
 	ReferenceFrame int
 }
 
-func NewTransform() Transform {
+func NewTransform() *Transform {
 	g := NewGroup()
 	g.Type = TRANSFORMT
-	return Transform{Group: g, ReferenceFrame: RELATIVERF}
+	return &Transform{Group: *g, ReferenceFrame: RELATIVERF}
 }

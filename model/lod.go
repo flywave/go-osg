@@ -41,10 +41,10 @@ type Lod struct {
 	RangeList RangeListType
 }
 
-func NewLod() Lod {
+func NewLod() *Lod {
 	g := NewGroup()
 	g.Type = LODT
-	return Lod{Group: g, Cmode: USEBOUNDINGSPHERECENTER, Rmode: DISTANCEFROMEYEPOINT}
+	return &Lod{Group: *g, Cmode: USEBOUNDINGSPHERECENTER, Rmode: DISTANCEFROMEYEPOINT}
 }
 
 func (lod *Lod) GetRmode() *uint32 {

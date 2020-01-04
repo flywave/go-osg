@@ -27,10 +27,10 @@ type PagedLod struct {
 	PerRangeDataList               []PerRangeData
 }
 
-func NewPagedLod() PagedLod {
+func NewPagedLod() *PagedLod {
 	lod := NewLod()
 	lod.Type = PAGEDLODT
-	return PagedLod{Lod: lod}
+	return &PagedLod{Lod: *lod}
 }
 
 func (p *PagedLod) expandPerRangeDataTo(pos int) {

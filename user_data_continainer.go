@@ -88,7 +88,7 @@ func writeUDCUserObjects(os *OsgOstream, obj interface{}) {
 func init() {
 	fn := func() interface{} {
 		udc := model.NewUserDataContainer()
-		return &udc
+		return udc
 	}
 	wrap := NewObjectWrapper("UserDataContainer", fn, "osg::UserDataContainer")
 	ser1 := NewStringSerializer("Name", getObjeName, setObjName)
@@ -101,10 +101,10 @@ func init() {
 	ser4 := NewUserSerializer("UDCDescriptions", checkUDCDescriptions, readUDCDescriptions, writeUDCDescriptions)
 	ser5 := NewUserSerializer("UDCUserObjects", checkUDCUserObjects, readUDCUserObjects, writeUDCUserObjects)
 
-	wrap.AddSerializer(&ser1, RWSTRING)
-	wrap.AddSerializer(&ser2, RWENUM)
-	wrap.AddSerializer(&ser3, RWUSER)
-	wrap.AddSerializer(&ser4, RWUSER)
-	wrap.AddSerializer(&ser5, RWUSER)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(ser1, RWSTRING)
+	wrap.AddSerializer(ser2, RWENUM)
+	wrap.AddSerializer(ser3, RWUSER)
+	wrap.AddSerializer(ser4, RWUSER)
+	wrap.AddSerializer(ser5, RWUSER)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

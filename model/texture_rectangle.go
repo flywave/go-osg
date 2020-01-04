@@ -7,7 +7,7 @@ type TextureRectangle struct {
 	Image  *Image
 }
 
-func NewTextureRectangle() TextureRectangle {
+func NewTextureRectangle() *TextureRectangle {
 	t := NewTexture()
-	return TextureRectangle{Texture: t}
+	return &TextureRectangle{Texture: *t}
 }

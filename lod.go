@@ -83,18 +83,18 @@ func init() {
 	ser1.Add("USEBOUNDINGSPHERECENTER", model.USEBOUNDINGSPHERECENTER)
 	ser1.Add("USERDEFINEDCENTER", model.USERDEFINEDCENTER)
 	ser1.Add("UNIONOFBOUNDINGSPHEREANDUSERDEFINED", model.UNIONOFBOUNDINGSPHEREANDUSERDEFINED)
-	wrap.AddSerializer(&ser1, RWENUM)
+	wrap.AddSerializer(ser1, RWENUM)
 
 	ser2 := NewUserSerializer("UserCenter", checkUserCenter, readUserCenter, writeUserCenter)
-	wrap.AddSerializer(&ser2, RWENUM)
+	wrap.AddSerializer(ser2, RWENUM)
 
 	ser3 := NewEnumSerializer("RangeMode", getRangeMode, setRangeMode)
 	ser3.Add("DISTANCEFROMEYEPOINT", model.DISTANCEFROMEYEPOINT)
 	ser3.Add("PIXELSIZEONSCREEN", model.PIXELSIZEONSCREEN)
-	wrap.AddSerializer(&ser3, RWENUM)
+	wrap.AddSerializer(ser3, RWENUM)
 
 	seruser := NewUserSerializer("RangeList", rangeListChecker, rangeListReader, rangeListWriter)
-	wrap.AddSerializer(&seruser, RWUSER)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(seruser, RWUSER)
+	GetObjectWrapperManager().AddWrap(wrap)
 
 }

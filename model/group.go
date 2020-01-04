@@ -32,10 +32,10 @@ func (g *Group) SetChildren(c []NodeInterface) {
 	g.Children = c
 }
 
-func NewGroup() Group {
+func NewGroup() *Group {
 	n := NewNode()
 	n.Type = GROUPT
-	return Group{Node: n}
+	return &Group{Node: *n}
 }
 
 func (g *Group) AddChild(n NodeInterface) {

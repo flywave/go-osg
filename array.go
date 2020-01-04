@@ -31,11 +31,11 @@ func setPreserveDataType(obj interface{}, fc interface{}) {
 func init() {
 	fn := func() interface{} {
 		ay := model.NewArray2()
-		return &ay
+		return ay
 	}
 	wrap := NewObjectWrapper("Array", fn, "osg::Object osg::BufferData osg::Array")
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 147)
+		uv := AddUpdateWrapperVersionProxy(wrap, 147)
 		wrap.MarkSerializerAsAdded("osg::BufferData")
 		uv.SetLastVersion()
 	}
@@ -50,8 +50,8 @@ func init() {
 	serb1 := NewPropByValSerializer("Normalize", false, getNormalize, setNormalize)
 	serb2 := NewPropByValSerializer("PreserveDataType", false, getPreserveDataType, setPreserveDataType)
 
-	wrap.AddSerializer(&ser, RWENUM)
-	wrap.AddSerializer(&serb1, RWBOOL)
-	wrap.AddSerializer(&serb2, RWBOOL)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(ser, RWENUM)
+	wrap.AddSerializer(serb1, RWBOOL)
+	wrap.AddSerializer(serb2, RWBOOL)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

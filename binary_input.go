@@ -42,8 +42,8 @@ type InputIterator struct {
 	Failed                bool
 }
 
-func NewInputIterator(in *bufio.Reader, bysp int) InputIterator {
-	return InputIterator{In: in, ByteSwap: bysp, SupportBinaryBrackets: false, Failed: false}
+func NewInputIterator(in *bufio.Reader, bysp int) *InputIterator {
+	return &InputIterator{In: in, ByteSwap: bysp, SupportBinaryBrackets: false, Failed: false}
 }
 
 func (it *InputIterator) SetSupportBinaryBrackets(sbb bool) {
@@ -71,11 +71,11 @@ type BinaryInputIterator struct {
 	BlockSizes     []int64
 }
 
-func NewBinaryInputIterator(in *bufio.Reader, bysp int) BinaryInputIterator {
+func NewBinaryInputIterator(in *bufio.Reader, bysp int) *BinaryInputIterator {
 	it := NewInputIterator(in, bysp)
 	bf := make([]byte, 8)
 	in.Read(bf)
-	return BinaryInputIterator{InputIterator: it}
+	return &BinaryInputIterator{InputIterator: *it}
 }
 
 func (iter *BinaryInputIterator) IsBinary() bool {

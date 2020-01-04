@@ -376,7 +376,7 @@ func setEventCallbackSS(obj interface{}, val interface{}) {
 func init() {
 	fn := func() interface{} {
 		ss := model.NewStateSet()
-		return &ss
+		return ss
 	}
 	wrap := NewObjectWrapper2("StateSet", "flywave::osg::stateset", fn, "osg::Object osg::StateSet")
 	ser1 := NewUserSerializer("ModeList", checkModeList, readModeList, writeModeList)
@@ -392,18 +392,18 @@ func init() {
 	ser11 := NewObjectSerializer("UpdateCallback", getUpdateCallbackSS, setUpdateCallbackSS)
 	ser12 := NewObjectSerializer("EventCallback", getEventCallbackSS, setEventCallbackSS)
 
-	wrap.AddSerializer(&ser1, RWUSER)
-	wrap.AddSerializer(&ser2, RWUSER)
-	wrap.AddSerializer(&ser3, RWUSER)
-	wrap.AddSerializer(&ser4, RWUSER)
-	wrap.AddSerializer(&ser5, RWUSER)
+	wrap.AddSerializer(ser1, RWUSER)
+	wrap.AddSerializer(ser2, RWUSER)
+	wrap.AddSerializer(ser3, RWUSER)
+	wrap.AddSerializer(ser4, RWUSER)
+	wrap.AddSerializer(ser5, RWUSER)
 
-	wrap.AddSerializer(&ser6, RWINT)
-	wrap.AddSerializer(&ser7, RWINT)
-	wrap.AddSerializer(&ser8, RWINT)
-	wrap.AddSerializer(&ser9, RWSTRING)
-	wrap.AddSerializer(&ser10, RWBOOL)
-	wrap.AddSerializer(&ser11, RWOBJECT)
-	wrap.AddSerializer(&ser12, RWOBJECT)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(ser6, RWINT)
+	wrap.AddSerializer(ser7, RWINT)
+	wrap.AddSerializer(ser8, RWINT)
+	wrap.AddSerializer(ser9, RWSTRING)
+	wrap.AddSerializer(ser10, RWBOOL)
+	wrap.AddSerializer(ser11, RWOBJECT)
+	wrap.AddSerializer(ser12, RWOBJECT)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

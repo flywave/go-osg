@@ -1,10 +1,10 @@
 package model
 
 const (
-	FRONT                 = GLFRONT
-	BACK                  = GLBACK
+	FRONT               = GLFRONT
+	BACK                = GLBACK
 	FRONTANDBACK        = GLFRONTANDBACK
-	CULLFACET     string = "osg::CullFace"
+	CULLFACET    string = "osg::CullFace"
 )
 
 type CullFace struct {
@@ -12,8 +12,8 @@ type CullFace struct {
 	Mode int
 }
 
-func NewCullFace() CullFace {
+func NewCullFace() *CullFace {
 	att := NewStateAttribute()
 	att.Type = CULLFACET
-	return CullFace{StateAttribute: att, Mode: BACK}
+	return &CullFace{StateAttribute: *att, Mode: BACK}
 }

@@ -19,10 +19,10 @@ type Geometry struct {
 	VertexAttribList    []*Array
 }
 
-func NewGeometry() Geometry {
+func NewGeometry() *Geometry {
 	dw := NewDrawable()
 	dw.Type = GEOMETRYT
-	return Geometry{Drawable: dw}
+	return &Geometry{Drawable: *dw}
 }
 
 func (g *Geometry) AddPrimitiveSet(p interface{}) {

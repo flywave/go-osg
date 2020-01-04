@@ -38,6 +38,7 @@ type NodeInterface interface {
 	SetEventCallback(*Callback)
 	GetCullCallback() *Callback
 	SetCullCallback(*Callback)
+	Accept(*NodeVisitor)
 }
 
 type Node struct {
@@ -117,10 +118,10 @@ func (n *Node) SetCullCallback(cb *Callback) {
 	n.CullCallback = cb
 }
 
-func NewNode() Node {
+func NewNode() *Node {
 	obj := NewObject()
 	obj.Type = NODET
-	return Node{Object: obj, NodeMask: 0xffffffff}
+	return &Node{Object: *obj, NodeMask: 0xffffffff}
 }
 
 func (n *Node) Accept(nv *NodeVisitor) {

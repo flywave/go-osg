@@ -16,9 +16,9 @@ type TextureCubeMap struct {
 	Images []*Image
 }
 
-func NewTextureCubeMap() TextureCubeMap {
+func NewTextureCubeMap() *TextureCubeMap {
 	t := NewTexture()
-	return TextureCubeMap{Texture: t, Images: make([]*Image, 6, 6)}
+	return &TextureCubeMap{Texture: *t, Images: make([]*Image, 6, 6)}
 }
 
 func (t *TextureCubeMap) GetImage(f int) *Image {

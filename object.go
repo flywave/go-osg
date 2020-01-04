@@ -55,7 +55,7 @@ func setUserDataContainer(obj interface{}, val interface{}) {
 func init() {
 	fn := func() interface{} {
 		obj := model.NewObject()
-		return &obj
+		return obj
 	}
 	wrap := NewObjectWrapper("Object", fn, "osg::Object")
 	ser1 := NewStringSerializer("Name", getObjeName, setObjName)
@@ -64,16 +64,16 @@ func init() {
 	ser2.Add("DYNAMIC", model.DYNAMIC)
 	ser2.Add("UNSPECIFIED", model.UNSPECIFIED)
 	ser3 := NewUserSerializer("UserData", checkUserData, readUserData, writeUserData)
-	wrap.AddSerializer(&ser1, RWSTRING)
-	wrap.AddSerializer(&ser2, RWENUM)
-	wrap.AddSerializer(&ser3, RWUSER)
+	wrap.AddSerializer(ser1, RWSTRING)
+	wrap.AddSerializer(ser2, RWENUM)
+	wrap.AddSerializer(ser3, RWUSER)
 
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 77)
+		uv := AddUpdateWrapperVersionProxy(wrap, 77)
 		wrap.MarkSerializerAsRemoved("UserData")
 		ser4 := NewObjectSerializer("UserDataContainer", getUserDataContainer, setUserDataContainer)
-		wrap.AddSerializer(&ser4, RWOBJECT)
+		wrap.AddSerializer(ser4, RWOBJECT)
 		uv.SetLastVersion()
 	}
-	GetObjectWrapperManager().AddWrap(&wrap)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

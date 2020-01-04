@@ -22,8 +22,8 @@ type OsgOptions struct {
 	Compressed bool
 }
 
-func NewOsgOptions() OsgOptions {
-	return OsgOptions{FileType: FileType}
+func NewOsgOptions() *OsgOptions {
+	return &OsgOptions{FileType: FileType}
 }
 
 const (
@@ -40,9 +40,9 @@ type OsgIstreamOptions struct {
 	ForceReadingImage bool
 }
 
-func NewOsgIstreamOptions() OsgIstreamOptions {
+func NewOsgIstreamOptions() *OsgIstreamOptions {
 	op := NewOsgOptions()
-	return OsgIstreamOptions{OsgOptions: op}
+	return &OsgIstreamOptions{OsgOptions: *op}
 }
 
 type StreamHeader struct {
@@ -75,7 +75,7 @@ type OsgIstream struct {
 	ENDBRACKET   *model.ObjectMark
 }
 
-func NewOsgIstream(opt *OsgIstreamOptions) OsgIstream {
+func NewOsgIstream(opt *OsgIstreamOptions) *OsgIstream {
 	p := model.NewObjectProperty()
 	bb := model.NewObjectMark()
 	bb.Name = "{"
@@ -83,12 +83,12 @@ func NewOsgIstream(opt *OsgIstreamOptions) OsgIstream {
 	eb := model.NewObjectMark()
 	eb.Name = "}"
 	eb.IndentDelta = -INDENT_VALUE
-	is := OsgIstream{ArrayMap: make(map[int32]*model.Array), Options: opt, IdentifierMap: make(map[int32]interface{}), DomainVersionMap: make(map[string]int32), PROPERTY: &p, BEGINBRACKET: &bb, ENDBRACKET: &eb}
+	is := &OsgIstream{ArrayMap: make(map[int32]*model.Array), Options: opt, IdentifierMap: make(map[int32]interface{}), DomainVersionMap: make(map[string]int32), PROPERTY: p, BEGINBRACKET: bb, ENDBRACKET: eb}
 	if opt.ForceReadingImage {
 		is.ForceReadingImage = true
 	}
 	obj := model.NewObject()
-	is.DummyReadObject = &obj
+	is.DummyReadObject = obj
 	if len(opt.Domain) > 0 {
 		domains := strings.Split(opt.Domain, ";")
 		for _, str := range domains {
@@ -391,7 +391,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	var size int32
 	is.Read(&size)
 	is.Read(is.BEGINBRACKET)
-	var arry model.Array
+	var arry *model.Array
 	switch ty.Value {
 	case model.IDBYTEARRAY:
 		{
@@ -731,7 +731,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 		}
 	}
 	is.Read(is.ENDBRACKET)
-	return &arry
+	return arry
 }
 
 func (is *OsgIstream) ReadPrimitiveSet() interface{} {
@@ -899,8 +899,7 @@ func (is *OsgIstream) ReadImage(readFromExternal bool) *model.Image {
 			}
 			is.Read(is.ENDBRACKET)
 		}
-		nm := model.NewImage()
-		img = &nm
+		img = model.NewImage()
 		img.Origin = imgdata.Origin
 		img.S = imgdata.S
 		img.T = imgdata.T

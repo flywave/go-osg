@@ -38,10 +38,10 @@ func DrawableWriter(os *OsgOstream, obj interface{}) {
 func init() {
 	fn := func() interface{} {
 		gd := model.NewGeode()
-		return &gd
+		return gd
 	}
 	wrap := NewObjectWrapper("Geode", fn, "osg::Object osg::Node osg::Geode")
 	ser := NewUserSerializer("Drawables", DrawablesChecker, DrawableReader, DrawableWriter)
-	wrap.AddSerializer(&ser, RWOBJECT)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(ser, RWOBJECT)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

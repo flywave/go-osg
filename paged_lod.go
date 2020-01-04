@@ -161,7 +161,7 @@ func writeChildren(os *OsgOstream, obj interface{}) {
 func init() {
 	fn := func() interface{} {
 		pl := model.NewPagedLod()
-		return &pl
+		return pl
 	}
 
 	wrap := NewObjectWrapper("PagedLOD", fn, "osg::Object osg::Node osg::LOD osg::PagedLOD")
@@ -172,11 +172,11 @@ func init() {
 	ser5 := NewUserSerializer("RangeDataList", checkRangeDataList, readRangeDataList, writeRangeDataList)
 	ser6 := NewUserSerializer("Children", checkChildren, readChildren, writeChildren)
 
-	wrap.AddSerializer(&ser1, RWUSER)
-	wrap.AddSerializer(&ser2, RWUINT)
-	wrap.AddSerializer(&ser3, RWUINT)
-	wrap.AddSerializer(&ser4, RWBOOL)
-	wrap.AddSerializer(&ser5, RWUSER)
-	wrap.AddSerializer(&ser6, RWUSER)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(ser1, RWUSER)
+	wrap.AddSerializer(ser2, RWUINT)
+	wrap.AddSerializer(ser3, RWUINT)
+	wrap.AddSerializer(ser4, RWBOOL)
+	wrap.AddSerializer(ser5, RWUSER)
+	wrap.AddSerializer(ser6, RWUSER)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

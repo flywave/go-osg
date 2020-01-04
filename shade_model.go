@@ -15,12 +15,12 @@ func setShadeMode(obj interface{}, val interface{}) {
 func init() {
 	fn := func() interface{} {
 		sm := model.NewShadeModel()
-		return &sm
+		return sm
 	}
 	wrap := NewObjectWrapper2("ShadeModel", "flywave::osg::shademodel", fn, "osg::Object osg::StateAttribute osg::ShadeModel")
 	ser := NewEnumSerializer("Mode", getShadeMode, setShadeMode)
 	ser.Add("FLAT", model.FLAT)
 	ser.Add("SMOOTH", model.SMOOTH)
-	wrap.AddSerializer(&ser, RWENUM)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(ser, RWENUM)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

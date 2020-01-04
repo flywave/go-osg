@@ -5,9 +5,9 @@ type BufferData struct {
 	BufferIndex uint32
 }
 
-func NewBufferData() BufferData {
+func NewBufferData() *BufferData {
 	obj := NewObject()
-	return BufferData{Object: obj}
+	return &BufferData{Object: *obj}
 }
 
 type Binding int32
@@ -31,12 +31,12 @@ type Array struct {
 	Data             interface{}
 }
 
-func NewArray2() Array {
+func NewArray2() *Array {
 	buf := NewBufferData()
-	return Array{BufferData: buf, Normalize: false, PreserveDataType: false, Binding: BINDUNDEFINED}
+	return &Array{BufferData: *buf, Normalize: false, PreserveDataType: false, Binding: BINDUNDEFINED}
 }
 
-func NewArray(ty ArrayTable, dt int32, dsize int32) Array {
+func NewArray(ty ArrayTable, dt int32, dsize int32) *Array {
 	buf := NewBufferData()
-	return Array{BufferData: buf, Type: ty, DataType: dt, DataSize: dsize, Normalize: false, PreserveDataType: false, Binding: BINDUNDEFINED}
+	return &Array{BufferData: *buf, Type: ty, DataType: dt, DataSize: dsize, Normalize: false, PreserveDataType: false, Binding: BINDUNDEFINED}
 }

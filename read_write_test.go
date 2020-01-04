@@ -3,6 +3,8 @@ package osg
 import (
 	"fmt"
 	"testing"
+
+	"github.com/flywave/go-osg/model"
 )
 
 func TestReadNode(t *testing.T) {
@@ -13,4 +15,6 @@ func TestReadNode(t *testing.T) {
 		fmt.Println("....")
 	}
 
+	vst := model.NewNodeVisitor()
+	obj.Accept(vst)
 }

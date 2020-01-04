@@ -88,8 +88,8 @@ func (d *Drawable) SetDwCallback(cb *DrawCallback) {
 	d.DwCallback = cb
 }
 
-func NewDrawable() Drawable {
+func NewDrawable() *Drawable {
 	n := NewNode()
 	n.Type = DRAWABLET
-	return Drawable{Node: n}
+	return &Drawable{Node: *n}
 }

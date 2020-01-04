@@ -366,7 +366,7 @@ func setFogCoordData(obj interface{}, pro interface{}) {
 
 func init() {
 	lk := NewIntLookup()
-	lookup = &lk
+	lookup = lk
 	lookup.Add("BINDOFF", 0)
 	lookup.Add("BINDOVERALL", 1)
 	lookup.Add("BINDPERPRIMITIVESET", 2)
@@ -375,18 +375,18 @@ func init() {
 
 	fn := func() interface{} {
 		g := model.NewGeometry()
-		return &g
+		return g
 	}
 
 	wrap := NewObjectWrapper("Geometry", fn, "osg::Object osg::Node osg::Drawable osg::Geometry")
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 154)
+		uv := AddUpdateWrapperVersionProxy(wrap, 154)
 		wrap.MarkSerializerAsAdded("osg::Node")
 		uv.SetLastVersion()
 	}
 	ps := model.NewPrimitiveSet()
 	vser := NewVectorSerializer("PrimitiveSetList", RWOBJECT, &ps, getPrimitiveSetList, setPrimitiveSetList)
-	wrap.AddSerializer(&vser, RWVECTOR)
+	wrap.AddSerializer(vser, RWVECTOR)
 
 	ser1 := NewUserSerializer("VertexData", checkVertexData, readVertexData, writeVertexData)
 	ser2 := NewUserSerializer("NormalData", checkNormalData, readNormalData, writeNormalData)
@@ -397,16 +397,16 @@ func init() {
 	ser7 := NewUserSerializer("VertexAttribData", checkVertexAttribData, readVertexAttribData, writeVertexAttribData)
 	ser8 := NewUserSerializer("FastPathHint", checkFastPathHint, readFastPathHint, writeFastPathHint)
 
-	wrap.AddSerializer(&ser1, RWUSER)
-	wrap.AddSerializer(&ser2, RWUSER)
-	wrap.AddSerializer(&ser3, RWUSER)
-	wrap.AddSerializer(&ser4, RWUSER)
-	wrap.AddSerializer(&ser5, RWUSER)
-	wrap.AddSerializer(&ser6, RWUSER)
-	wrap.AddSerializer(&ser7, RWUSER)
-	wrap.AddSerializer(&ser8, RWUSER)
+	wrap.AddSerializer(ser1, RWUSER)
+	wrap.AddSerializer(ser2, RWUSER)
+	wrap.AddSerializer(ser3, RWUSER)
+	wrap.AddSerializer(ser4, RWUSER)
+	wrap.AddSerializer(ser5, RWUSER)
+	wrap.AddSerializer(ser6, RWUSER)
+	wrap.AddSerializer(ser7, RWUSER)
+	wrap.AddSerializer(ser8, RWUSER)
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 112)
+		uv := AddUpdateWrapperVersionProxy(wrap, 112)
 		wrap.MarkSerializerAsRemoved("VertexData")
 		wrap.MarkSerializerAsRemoved("NormalData")
 		wrap.MarkSerializerAsRemoved("ColorData")
@@ -422,18 +422,18 @@ func init() {
 		ser41 := NewObjectSerializer("SecondaryColorData", getSecondaryColorData, setSecondaryColorData)
 		ser51 := NewObjectSerializer("FogCoordData", getFogCoordData, setFogCoordData)
 
-		wrap.AddSerializer(&ser11, RWOBJECT)
-		wrap.AddSerializer(&ser21, RWOBJECT)
-		wrap.AddSerializer(&ser31, RWOBJECT)
-		wrap.AddSerializer(&ser41, RWOBJECT)
-		wrap.AddSerializer(&ser51, RWOBJECT)
+		wrap.AddSerializer(ser11, RWOBJECT)
+		wrap.AddSerializer(ser21, RWOBJECT)
+		wrap.AddSerializer(ser31, RWOBJECT)
+		wrap.AddSerializer(ser41, RWOBJECT)
+		wrap.AddSerializer(ser51, RWOBJECT)
 
 		ay := model.NewArray2()
 		vser2 := NewVectorSerializer("TexCoordArrayList", RWOBJECT, &ay, getTexCoordArrayList, setTexCoordArrayList)
 		vser3 := NewVectorSerializer("VertexAttribArrayList", RWOBJECT, &ay, getVertexAttribArrayList, setVertexAttribArrayList)
-		wrap.AddSerializer(&vser2, RWVECTOR)
-		wrap.AddSerializer(&vser3, RWVECTOR)
+		wrap.AddSerializer(vser2, RWVECTOR)
+		wrap.AddSerializer(vser3, RWVECTOR)
 		uv.SetLastVersion()
 	}
-	GetObjectWrapperManager().AddWrap(&wrap)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

@@ -124,11 +124,11 @@ func setStateSet(obj interface{}, pro interface{}) {
 func init() {
 	fn := func() interface{} {
 		nd := model.NewNode()
-		return &nd
+		return nd
 	}
 	wrap := NewObjectWrapper("Node", fn, "osg::Object osg::Node")
 	seruser := NewUserSerializer("InitialBound", checkInitialBound1, readInitialBound1, writeInitialBound1)
-	wrap.AddSerializer(&seruser, RWUSER)
+	wrap.AddSerializer(seruser, RWUSER)
 
 	sercpm := NewObjectSerializer("ComputeBoundingSphereCallback", getSphereCallback, setSphereCallback)
 	seruc := NewObjectSerializer("UpdateCallback", getUpdateCallback, setUpdateCallback)
@@ -137,23 +137,23 @@ func init() {
 	serb2 := NewPropByValSerializer("CullingActive", false, getCullingActive, setCullingActive)
 	serb1 := NewPropByValSerializer("NodeMask", false, getNodeMask, setNodeMask)
 
-	wrap.AddSerializer(&sercpm, RWOBJECT)
-	wrap.AddSerializer(&seruc, RWOBJECT)
-	wrap.AddSerializer(&serec, RWOBJECT)
-	wrap.AddSerializer(&sercc, RWOBJECT)
-	wrap.AddSerializer(&serb2, RWBOOL)
-	wrap.AddSerializer(&serb1, RWBOOL)
+	wrap.AddSerializer(sercpm, RWOBJECT)
+	wrap.AddSerializer(seruc, RWOBJECT)
+	wrap.AddSerializer(serec, RWOBJECT)
+	wrap.AddSerializer(sercc, RWOBJECT)
+	wrap.AddSerializer(serb2, RWBOOL)
+	wrap.AddSerializer(serb1, RWBOOL)
 
 	seruser2 := NewUserSerializer("Descriptions", checkDescriptions, readDescriptions, writeDescriptions)
-	wrap.AddSerializer(&seruser2, RWUSER)
+	wrap.AddSerializer(seruser2, RWUSER)
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 77)
+		uv := AddUpdateWrapperVersionProxy(wrap, 77)
 		wrap.MarkSerializerAsRemoved("Descriptions")
 		uv.SetLastVersion()
 	}
 
 	ser := NewObjectSerializer("StateSet", getStateSet, setStateSet)
-	wrap.AddSerializer(&ser, RWOBJECT)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(ser, RWOBJECT)
+	GetObjectWrapperManager().AddWrap(wrap)
 
 }

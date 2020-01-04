@@ -14,9 +14,9 @@ type AsciiInputIterator struct {
 	MarkString    string
 }
 
-func NewAsciiInputIterator(rd *bufio.Reader) AsciiInputIterator {
+func NewAsciiInputIterator(rd *bufio.Reader) *AsciiInputIterator {
 	it := InputIterator{In: rd, ByteSwap: 0, SupportBinaryBrackets: false, Failed: false}
-	return AsciiInputIterator{InputIterator: it}
+	return &AsciiInputIterator{InputIterator: it}
 }
 
 func (iter *AsciiInputIterator) skip() byte {

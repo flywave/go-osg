@@ -30,9 +30,9 @@ type Object struct {
 	Udc          *UserDataContainer
 }
 
-func NewObject() Object {
+func NewObject() *Object {
 	udc := NewUserDataContainer()
-	return Object{Type: OBJECTT, DataVariance: UNSPECIFIED, Propertys: make(map[string]string), Udc: &udc}
+	return &Object{Type: OBJECTT, DataVariance: UNSPECIFIED, Propertys: make(map[string]string), Udc: udc}
 }
 
 func (obj *Object) GetUserDataContainer() *UserDataContainer {
@@ -76,8 +76,8 @@ type ValueObject struct {
 	Value interface{}
 }
 
-func NewValueObject() ValueObject {
+func NewValueObject() *ValueObject {
 	ob := NewObject()
 	ob.Type = "osg:ValueObject"
-	return ValueObject{Object: ob}
+	return &ValueObject{Object: *ob}
 }

@@ -106,10 +106,10 @@ func (s *StateAttribute) IsStateAttributeInterface() bool {
 	return true
 }
 
-func NewStateAttribute() StateAttribute {
+func NewStateAttribute() *StateAttribute {
 	obj := NewObject()
 	obj.Type = STATEATRRIBUTET
-	return StateAttribute{Object: obj}
+	return &StateAttribute{Object: *obj}
 }
 
 type TypeMemberPair struct {
@@ -133,8 +133,8 @@ type ShadeModel struct {
 	Mode int32
 }
 
-func NewShadeModel() ShadeModel {
+func NewShadeModel() *ShadeModel {
 	a := NewStateAttribute()
 	a.Type = SHADEMODELT
-	return ShadeModel{StateAttribute: a}
+	return &ShadeModel{StateAttribute: *a}
 }

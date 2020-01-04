@@ -18,6 +18,6 @@ func init() {
 	ser.Add("FRONT", model.GLFRONT)
 	ser.Add("FRONT", model.GLBACK)
 	ser.Add("FRONTANDBACK", model.GLFRONTANDBACK)
-	wrap.AddSerializer(&ser, RWENUM)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(ser, RWENUM)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

@@ -30,14 +30,14 @@ type ObjectWrapper struct {
 	IsAssociatesRevisionsInheritanceDone bool
 }
 
-func NewObjectWrapper(name string, fn CreateInstanceFuncType, associates string) ObjectWrapper {
-	ow := ObjectWrapper{Name: name, CreateInstanceFunc: fn, Version: 0, IsAssociatesRevisionsInheritanceDone: false}
+func NewObjectWrapper(name string, fn CreateInstanceFuncType, associates string) *ObjectWrapper {
+	ow := &ObjectWrapper{Name: name, CreateInstanceFunc: fn, Version: 0, IsAssociatesRevisionsInheritanceDone: false}
 	ow.SplitAssociates(associates, " ")
 	return ow
 }
 
-func NewObjectWrapper2(name string, domain string, fn CreateInstanceFuncType, associates string) ObjectWrapper {
-	ow := ObjectWrapper{Name: name, Domain: domain, CreateInstanceFunc: fn, Version: 0, IsAssociatesRevisionsInheritanceDone: false}
+func NewObjectWrapper2(name string, domain string, fn CreateInstanceFuncType, associates string) *ObjectWrapper {
+	ow := &ObjectWrapper{Name: name, Domain: domain, CreateInstanceFunc: fn, Version: 0, IsAssociatesRevisionsInheritanceDone: false}
 	ow.SplitAssociates(associates, " ")
 	return ow
 }
@@ -225,8 +225,7 @@ func NewRegisterCustomWrapperProxy(instfunc CreateInstanceFuncType, domain strin
 	wrap.Name = name
 	wrap.Domain = domain
 	wrap.SplitAssociates(associates, " ")
-	ptr := &wrap
-	GetObjectWrapperManager().AddWrap(ptr)
+	GetObjectWrapperManager().AddWrap(wrap)
 }
 
 type objectWrapperManager struct {
@@ -241,7 +240,7 @@ func newObjectWrapperManager() *objectWrapperManager {
 	}
 	obj := objectWrapperManager{Wraps: make(map[string]*ObjectWrapper), Compressors: make(map[string]*CompressorStream), GlobalMap: make(map[string]*IntLookup)}
 	lk := NewIntLookup()
-	obj.GlobalMap["GL"] = &lk
+	obj.GlobalMap["GL"] = lk
 	lk.Add("GLALPHATEST", model.GLALPHATEST)
 	lk.Add("GLBLEND", model.GLBLEND)
 	lk.Add("GLCOLORLOGICOP", model.GLCOLORLOGICOP)
@@ -446,7 +445,7 @@ func newObjectWrapperManager() *objectWrapperManager {
 	lk.Add("DONTCARE", model.GLDONTCARE)
 
 	arrayTable := NewIntLookup()
-	obj.GlobalMap["ArrayType"] = &arrayTable
+	obj.GlobalMap["ArrayType"] = arrayTable
 
 	arrayTable.Add("ByteArray", model.IDBYTEARRAY)
 	arrayTable.Add("UByteArray", model.IDUBYTEARRAY)
@@ -484,7 +483,7 @@ func newObjectWrapperManager() *objectWrapperManager {
 	arrayTable.Add("Vec4uiArray", model.IDVEC4UIARRAY)
 
 	primitiveTable := NewIntLookup()
-	obj.GlobalMap["PrimitiveType"] = &primitiveTable
+	obj.GlobalMap["PrimitiveType"] = primitiveTable
 
 	primitiveTable.Add("DrawArrays", model.IDDRAWARRAYS)
 	primitiveTable.Add("DrawArraysLength", model.IDDRAWARRAYLENGTH)

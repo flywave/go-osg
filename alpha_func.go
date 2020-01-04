@@ -35,10 +35,10 @@ func init() {
 
 	fn := func() interface{} {
 		al := model.NewAlphaFunc()
-		return &al
+		return al
 	}
 	wrap := NewObjectWrapper("AlphaFunc", fn, "osg::Object osg::StateAttribute osg::AlphaFunc")
-	wrap.AddSerializer(&ser, RWENUM)
-	wrap.AddSerializer(&serf, RWFLOAT)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(ser, RWENUM)
+	wrap.AddSerializer(serf, RWFLOAT)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

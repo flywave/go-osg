@@ -39,8 +39,8 @@ type OutputIterator struct {
 	SupportBinaryBrackets bool
 }
 
-func NewOutputIterator(wt *bufio.Writer) OutputIterator {
-	return OutputIterator{SupportBinaryBrackets: false, Out: wt, RootStream: wt}
+func NewOutputIterator(wt *bufio.Writer) *OutputIterator {
+	return &OutputIterator{SupportBinaryBrackets: false, Out: wt, RootStream: wt}
 }
 
 func (it *OutputIterator) IsBinary() bool {
@@ -76,9 +76,9 @@ type BinaryOutputIterator struct {
 	helps []*MarkHelper
 }
 
-func NewBinaryOutputIterator(wt *bufio.Writer) BinaryOutputIterator {
+func NewBinaryOutputIterator(wt *bufio.Writer) *BinaryOutputIterator {
 	ot := NewOutputIterator(wt)
-	return BinaryOutputIterator{OutputIterator: ot}
+	return &BinaryOutputIterator{OutputIterator: *ot}
 }
 
 func (it *BinaryOutputIterator) writerData(iter interface{}) {

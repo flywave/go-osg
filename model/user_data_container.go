@@ -15,16 +15,16 @@ type UserDataContainer struct {
 	Propertys       map[string]string
 }
 
-func NewUserDataContainer() UserDataContainer {
-	return UserDataContainer{Type: USERDATACONTAINERT}
+func NewUserDataContainer() *UserDataContainer {
+	return &UserDataContainer{Type: USERDATACONTAINERT}
 }
 
 type DefaultUserDataContainer struct {
 	UserDataContainer
 }
 
-func NewDefaultUserDataContainer() DefaultUserDataContainer {
+func NewDefaultUserDataContainer() *DefaultUserDataContainer {
 	obj := NewUserDataContainer()
 	obj.Type = DEFAULTUSERDATACONTAINERT
-	return DefaultUserDataContainer{UserDataContainer: obj}
+	return &DefaultUserDataContainer{UserDataContainer: *obj}
 }

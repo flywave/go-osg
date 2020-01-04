@@ -458,58 +458,58 @@ func init() {
 	ser19.Add("NONE", model.NONE)
 
 	ser20 := NewPropByValSerializer("ShadowAmbient", false, getShadowAmbient, setShadowAmbient)
-	wrap.AddSerializer(&ser1, RWUSER)
-	wrap.AddSerializer(&ser2, RWUSER)
-	wrap.AddSerializer(&ser3, RWUSER)
-	wrap.AddSerializer(&ser4, RWUSER)
-	wrap.AddSerializer(&ser5, RWUSER)
-	wrap.AddSerializer(&ser6, RWFLOAT)
-	wrap.AddSerializer(&ser7, RWBOOL)
-	wrap.AddSerializer(&ser8, RWBOOL)
-	wrap.AddSerializer(&ser9, RWBOOL)
-	wrap.AddSerializer(&ser10, RWBOOL)
-	wrap.AddSerializer(&ser11, RWVEC4D)
-	wrap.AddSerializer(&ser12, RWINT)
-	wrap.AddSerializer(&ser13, RWENUM)
-	wrap.AddSerializer(&ser14, RWUSER)
-	wrap.AddSerializer(&ser15, RWUSER)
-	wrap.AddSerializer(&ser16, RWUSER)
-	wrap.AddSerializer(&ser17, RWBOOL)
-	wrap.AddSerializer(&ser18, RWENUM)
-	wrap.AddSerializer(&ser19, RWENUM)
-	wrap.AddSerializer(&ser20, RWFLOAT)
+	wrap.AddSerializer(ser1, RWUSER)
+	wrap.AddSerializer(ser2, RWUSER)
+	wrap.AddSerializer(ser3, RWUSER)
+	wrap.AddSerializer(ser4, RWUSER)
+	wrap.AddSerializer(ser5, RWUSER)
+	wrap.AddSerializer(ser6, RWFLOAT)
+	wrap.AddSerializer(ser7, RWBOOL)
+	wrap.AddSerializer(ser8, RWBOOL)
+	wrap.AddSerializer(ser9, RWBOOL)
+	wrap.AddSerializer(ser10, RWBOOL)
+	wrap.AddSerializer(ser11, RWVEC4D)
+	wrap.AddSerializer(ser12, RWINT)
+	wrap.AddSerializer(ser13, RWENUM)
+	wrap.AddSerializer(ser14, RWUSER)
+	wrap.AddSerializer(ser15, RWUSER)
+	wrap.AddSerializer(ser16, RWUSER)
+	wrap.AddSerializer(ser17, RWBOOL)
+	wrap.AddSerializer(ser18, RWENUM)
+	wrap.AddSerializer(ser19, RWENUM)
+	wrap.AddSerializer(ser20, RWFLOAT)
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 95)
+		uv := AddUpdateWrapperVersionProxy(wrap, 95)
 		ser21 := NewUserSerializer("ImageAttachment", checkImageAttachment, readImageAttachment, writeImageAttachment)
 		uv.SetLastVersion()
-		wrap.AddSerializer(&ser21, RWUSER)
+		wrap.AddSerializer(ser21, RWUSER)
 
 	}
 
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 98)
+		uv := AddUpdateWrapperVersionProxy(wrap, 98)
 		wrap.MarkSerializerAsRemoved("ImageAttachment")
 		uv.SetLastVersion()
 
 	}
 
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 98)
+		uv := AddUpdateWrapperVersionProxy(wrap, 98)
 		ser22 := NewUserSerializer("Swizzle", checkSwizzle, readSwizzle, writeSwizzle)
 		uv.SetLastVersion()
-		wrap.AddSerializer(&ser22, RWUSER)
+		wrap.AddSerializer(ser22, RWUSER)
 	}
 
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 155)
+		uv := AddUpdateWrapperVersionProxy(wrap, 155)
 		ser23 := NewPropByValSerializer("MinLOD", false, getMinLOD, setMinLOD)
 		ser24 := NewPropByValSerializer("MaxLOD", false, getMaxLOD, setMaxLOD)
 		ser25 := NewPropByValSerializer("LODBias", false, getLODBias, setLODBias)
 		uv.SetLastVersion()
-		wrap.AddSerializer(&ser23, RWFLOAT)
-		wrap.AddSerializer(&ser24, RWFLOAT)
-		wrap.AddSerializer(&ser25, RWFLOAT)
+		wrap.AddSerializer(ser23, RWFLOAT)
+		wrap.AddSerializer(ser24, RWFLOAT)
+		wrap.AddSerializer(ser25, RWFLOAT)
 	}
 
-	GetObjectWrapperManager().AddWrap(&wrap)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

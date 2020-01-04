@@ -88,7 +88,7 @@ func setDrawCallback(obj interface{}, pro interface{}) {
 func init() {
 	wrap := NewObjectWrapper("Drawable", nil, "osg::Object osg::Node osg::Drawable")
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 154)
+		uv := AddUpdateWrapperVersionProxy(wrap, 154)
 		wrap.MarkSerializerAsAdded("osg::Node")
 		uv.SetLastVersion()
 	}
@@ -105,19 +105,19 @@ func init() {
 	sercc := NewObjectSerializer("CullCallback", getCullCallback, setCullCallback)
 	serdc := NewObjectSerializer("DrawCallback", getDrawCallback, setDrawCallback)
 
-	wrap.AddSerializer(&ser, RWOBJECT)
-	wrap.AddSerializer(&seruser, RWUSER)
-	wrap.AddSerializer(&sercpm, RWOBJECT)
-	wrap.AddSerializer(&sershape, RWOBJECT)
-	wrap.AddSerializer(&serbool1, RWBOOL)
-	wrap.AddSerializer(&serbool2, RWBOOL)
-	wrap.AddSerializer(&serbool3, RWBOOL)
-	wrap.AddSerializer(&seruc, RWOBJECT)
-	wrap.AddSerializer(&serec, RWOBJECT)
-	wrap.AddSerializer(&sercc, RWOBJECT)
-	wrap.AddSerializer(&serdc, RWOBJECT)
+	wrap.AddSerializer(ser, RWOBJECT)
+	wrap.AddSerializer(seruser, RWUSER)
+	wrap.AddSerializer(sercpm, RWOBJECT)
+	wrap.AddSerializer(sershape, RWOBJECT)
+	wrap.AddSerializer(serbool1, RWBOOL)
+	wrap.AddSerializer(serbool2, RWBOOL)
+	wrap.AddSerializer(serbool3, RWBOOL)
+	wrap.AddSerializer(seruc, RWOBJECT)
+	wrap.AddSerializer(serec, RWOBJECT)
+	wrap.AddSerializer(sercc, RWOBJECT)
+	wrap.AddSerializer(serdc, RWOBJECT)
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 156)
+		uv := AddUpdateWrapperVersionProxy(wrap, 156)
 		wrap.MarkSerializerAsRemoved("UpdateCallback")
 		wrap.MarkSerializerAsRemoved("EventCallback")
 		wrap.MarkSerializerAsRemoved("CullCallback")
@@ -125,16 +125,16 @@ func init() {
 		uv.SetLastVersion()
 	}
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 142)
+		uv := AddUpdateWrapperVersionProxy(wrap, 142)
 		serb1 := NewPropByValSerializer("NodeMask", false, getNodeMask, setNodeMask)
-		wrap.AddSerializer(&serb1, RWUINT)
+		wrap.AddSerializer(serb1, RWUINT)
 		uv.SetLastVersion()
 	}
 	{
-		uv := AddUpdateWrapperVersionProxy(&wrap, 145)
+		uv := AddUpdateWrapperVersionProxy(wrap, 145)
 		serb2 := NewPropByValSerializer("CullingActive", false, getCullingActive, setCullingActive)
-		wrap.AddSerializer(&serb2, RWBOOL)
+		wrap.AddSerializer(serb2, RWBOOL)
 		uv.SetLastVersion()
 	}
-	GetObjectWrapperManager().AddWrap(&wrap)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

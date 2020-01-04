@@ -192,7 +192,7 @@ func setColorMode(obj interface{}, pro interface{}) {
 func init() {
 	fn := func() interface{} {
 		mt := model.NewMaterial()
-		return &mt
+		return mt
 	}
 	wrap := NewObjectWrapper("Material", fn, "osg::Object osg::StateAttribute osg::Material")
 	ser1 := NewEnumSerializer("ColorMode", getColorMode, setColorMode)
@@ -202,7 +202,7 @@ func init() {
 	ser1.Add("EMISSION", model.EMISSION)
 	ser1.Add("AMBIENTANDDIFFUSE", model.AMBIENTANDDIFFUSE)
 	ser1.Add("MTLOFF", model.MTLOFF)
-	wrap.AddSerializer(&ser1, RWENUM)
+	wrap.AddSerializer(ser1, RWENUM)
 
 	ser2 := NewUserSerializer("Ambient", checkAmbient, readAmbient, writeAmbient)
 	ser3 := NewUserSerializer("Diffuse", checkDiffuse, readDiffuse, writeDiffuse)
@@ -210,10 +210,10 @@ func init() {
 	ser5 := NewUserSerializer("Emission", checkEmission, readEmission, writeEmission)
 	ser6 := NewUserSerializer("Shininess", checkShininess, readShininess, writeShininess)
 
-	wrap.AddSerializer(&ser2, RWUSER)
-	wrap.AddSerializer(&ser3, RWUSER)
-	wrap.AddSerializer(&ser4, RWUSER)
-	wrap.AddSerializer(&ser5, RWUSER)
-	wrap.AddSerializer(&ser6, RWUSER)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(ser2, RWUSER)
+	wrap.AddSerializer(ser3, RWUSER)
+	wrap.AddSerializer(ser4, RWUSER)
+	wrap.AddSerializer(ser5, RWUSER)
+	wrap.AddSerializer(ser6, RWUSER)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

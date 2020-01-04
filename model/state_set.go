@@ -81,10 +81,10 @@ type StateSet struct {
 	EventCallback  *Callback
 }
 
-func NewStateSet() StateSet {
+func NewStateSet() *StateSet {
 	obj := NewObject()
 	obj.Type = STATESETT
-	return StateSet{Object: obj, ModeList: make(ModeListType), AttributeList: make(AttributeListType), RenderingHint: DEFAULTBIN, BinMode: INHERITRENDERBINDETAILS, NestRenderBins: true, BinNum: 0, BinName: ""}
+	return &StateSet{Object: *obj, ModeList: make(ModeListType), AttributeList: make(AttributeListType), RenderingHint: DEFAULTBIN, BinMode: INHERITRENDERBINDETAILS, NestRenderBins: true, BinNum: 0, BinName: ""}
 }
 
 func (ss *StateSet) setMode3(unit int, mode int32, val int32) {

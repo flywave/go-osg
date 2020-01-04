@@ -197,8 +197,8 @@ type ClassInterface struct {
 	BlackList ObjectPropertyMapType
 }
 
-func NewClassInterface() ClassInterface {
-	cf := ClassInterface{PropertyMap: make(PropertyMapType), TypeMap: make(TypeMapType), WhiteList: make(ObjectPropertyMapType), BlackList: make(ObjectPropertyMapType)}
+func NewClassInterface() *ClassInterface {
+	cf := &ClassInterface{PropertyMap: make(PropertyMapType), TypeMap: make(TypeMapType), WhiteList: make(ObjectPropertyMapType), BlackList: make(ObjectPropertyMapType)}
 	cf.TypeMap[RWUNDEFINED] = "UNDEFINED"
 	cf.PropertyMap["UNDEFINED"] = RWUNDEFINED
 

@@ -161,13 +161,13 @@ func (rw *ReadWrite) ReadInputIterator(reader *bufio.Reader, op *OsgIstreamOptio
 		reader.Read(head)
 		if string(head) == "#Ascii" {
 			rd := NewAsciiInputIterator(reader)
-			return &rd
+			return rd
 		} else {
 			return nil
 		}
 	} else {
 		rd := NewBinaryInputIterator(reader, 1)
-		return &rd
+		return rd
 	}
 }
 
@@ -178,10 +178,10 @@ func (rw *ReadWrite) WriteOutputIterator(wt *bufio.Writer, op *OsgOstreamOptions
 	}
 	if optionString == "Ascii" {
 		it := NewAsciiOutputIterator(wt)
-		return &it
+		return it
 	}
 	it := NewBinaryOutputIterator(wt)
-	return &it
+	return it
 }
 
 func (rw *ReadWrite) AcceptsExtension(ext string) bool {
@@ -217,7 +217,7 @@ func (rw *ReadWrite) prepareReading(fname string, op *OsgIstreamOptions) (*OsgIs
 	}
 	if op == nil {
 		o := NewOsgIstreamOptions()
-		op = &o
+		op = o
 	}
 
 	if ext == "osgt" {

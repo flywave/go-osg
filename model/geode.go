@@ -8,10 +8,10 @@ type Geode struct {
 	Group
 }
 
-func NewGeode() Geode {
+func NewGeode() *Geode {
 	g := NewGroup()
 	g.Type = GEODET
-	return Geode{Group: g}
+	return &Geode{Group: *g}
 }
 
 func (g *Geode) AddDrawable(d *Drawable) {

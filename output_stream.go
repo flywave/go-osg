@@ -73,7 +73,7 @@ type OsgOstream struct {
 	CRLF         *CrlfType
 }
 
-func NewOsgOstream(opts *OsgOstreamOptions) OsgOstream {
+func NewOsgOstream(opts *OsgOstreamOptions) *OsgOstream {
 	p := model.NewObjectProperty()
 	bb := model.NewObjectMark()
 	bb.Name = "{"
@@ -81,7 +81,7 @@ func NewOsgOstream(opts *OsgOstreamOptions) OsgOstream {
 	eb := model.NewObjectMark()
 	bb.Name = "}"
 	bb.IndentDelta = -INDENT_VALUE
-	osg := OsgOstream{PROPERTY: &p, BEGINBRACKET: &bb, ENDBRACKET: &eb, CRLF: &CrlfType{}, TargetFileVersion: OPENSCENEGRAPHSOVERSION, UseRobustBinaryFormat: true, UseSchemaData: false}
+	osg := &OsgOstream{PROPERTY: p, BEGINBRACKET: bb, ENDBRACKET: eb, CRLF: &CrlfType{}, TargetFileVersion: OPENSCENEGRAPHSOVERSION, UseRobustBinaryFormat: true, UseSchemaData: false}
 	osg.Options = opts
 	if !opts.UseRobustBinaryFormat {
 		osg.UseRobustBinaryFormat = false

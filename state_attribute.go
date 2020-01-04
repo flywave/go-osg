@@ -25,7 +25,7 @@ func init() {
 	ser1 := NewObjectSerializer("UpdateCallback", getSAUpdateCallback, setSAUpdateCallback)
 	ser2 := NewObjectSerializer("EventCallback", getSAEventCallback, setSAEventCallback)
 
-	wrap.AddSerializer(&ser1, RWOBJECT)
-	wrap.AddSerializer(&ser2, RWOBJECT)
-	GetObjectWrapperManager().AddWrap(&wrap)
+	wrap.AddSerializer(ser1, RWOBJECT)
+	wrap.AddSerializer(ser2, RWOBJECT)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

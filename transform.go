@@ -24,5 +24,5 @@ func init() {
 	ser1.Add("RELATIVERF", model.RELATIVERF)
 	ser1.Add("ABSOLUTERF", model.ABSOLUTERF)
 	ser1.Add("ABSOLUTERFINHERITVIEWPOINT", model.ABSOLUTERFINHERITVIEWPOINT)
-	wrap.AddSerializer(&ser1, RWENUM)
+	wrap.AddSerializer(ser1, RWENUM)
 }

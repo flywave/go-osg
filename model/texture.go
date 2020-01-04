@@ -13,10 +13,10 @@ const (
 	MINFILTER FilterParameter = 0
 	MAGFILTER FilterParameter = 1
 
-	LINEAR                 = GLLINEAR
+	LINEAR               = GLLINEAR
 	LINEARMIPMAPLINEAR   = GLLINEARMIPMAPLINEAR
 	LINEARMIPMAPNEAREST  = GLLINEARMIPMAPNEAREST
-	NEAREST                = GLNEAREST
+	NEAREST              = GLNEAREST
 	NEARESTMIPMAPLINEAR  = GLNEARESTMIPMAPLINEAR
 	NEARESTMIPMAPNEAREST = GLNEARESTMIPMAPNEAREST
 
@@ -24,14 +24,14 @@ const (
 	WRAPT = 1
 	WRAPR = 2
 
-	CLAMP           = GLCLAMP
+	CLAMP         = GLCLAMP
 	CLAMPTOEDGE   = GLCLAMPTOEDGE
 	CLAMPTOBORDER = GLCLAMPTOBORDER
-	REPEAT          = GLREPEAT
-	MIRROR          = GLMIRROR
+	REPEAT        = GLREPEAT
+	MIRROR        = GLMIRROR
 
-	NORMALIZED       InternalFormatType = 0x0
-	FLOAT            InternalFormatType = 0x1
+	NORMALIZED      InternalFormatType = 0x0
+	FLOAT           InternalFormatType = 0x1
 	SIGNEDINTEGER   InternalFormatType = 0x2
 	UNSIGNEDINTEGER InternalFormatType = 0x4
 )
@@ -242,11 +242,11 @@ func (tex *Texture) GetFilter(which FilterParameter) int {
 	}
 }
 
-func NewTexture() Texture {
+func NewTexture() *Texture {
 	st := NewStateAttribute()
 	st.Type = TEXTURET
-	return Texture{
-		StateAttribute:              st,
+	return &Texture{
+		StateAttribute:              *st,
 		MaxAnisotropy:               1,
 		UseHardwareMipmapGeneration: true,
 		UnRefImageDataAfterApply:    false,
@@ -259,7 +259,7 @@ func NewTexture() Texture {
 	}
 }
 
-func NewTexture1d() Texture {
+func NewTexture1d() *Texture {
 	t := NewTexture()
 	t.Type = TEXTURE1DT
 	t.TextureHeight = 1
@@ -267,14 +267,14 @@ func NewTexture1d() Texture {
 	return t
 }
 
-func NewTexture2d() Texture {
+func NewTexture2d() *Texture {
 	t := NewTexture()
 	t.Type = TEXTURE2DT
 	t.TextureDepth = 1
 	return t
 }
 
-func NewTexture3d() Texture {
+func NewTexture3d() *Texture {
 	t := NewTexture()
 	t.Type = TEXTURE3DT
 	return t

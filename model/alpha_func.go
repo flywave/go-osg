@@ -10,8 +10,8 @@ type AlphaFunc struct {
 	ComparisonFunc int
 }
 
-func NewAlphaFunc() AlphaFunc {
+func NewAlphaFunc() *AlphaFunc {
 	att := NewStateAttribute()
 	att.Type = ALPHAFUNCT
-	return AlphaFunc{StateAttribute: att, ReferenceValue: 1.0, ComparisonFunc: GLALWAYS}
+	return &AlphaFunc{StateAttribute: *att, ReferenceValue: 1.0, ComparisonFunc: GLALWAYS}
 }

@@ -65,7 +65,7 @@ func setTXMode(obj interface{}, val interface{}) {
 func init() {
 	fn := func() interface{} {
 		tg := model.NewTexGen()
-		return &tg
+		return tg
 	}
 	wrap := NewObjectWrapper2("TexGen", "flywave::osg::texgen", fn, "osg::Object osg::StateAttribute osg::TexGen")
 	ser1 := NewEnumSerializer("Mode", getTXMode, setTXMode)
@@ -74,16 +74,16 @@ func init() {
 	ser1.Add("SPHEREMAP", model.GLSPHEREMAP)
 	ser1.Add("NORMALMAP", model.GLNORMALMAP)
 	ser1.Add("REFLECTIONMAP", model.GLREFLECTIONMAP)
-	wrap.AddSerializer(&ser1, RWENUM)
+	wrap.AddSerializer(ser1, RWENUM)
 
 	ser2 := NewUserSerializer("PlaneS", checkPlaneT, readPlaneR, writePlaneQ)
 	ser3 := NewUserSerializer("PlaneT", checkPlaneT, readPlaneR, writePlaneQ)
 	ser4 := NewUserSerializer("PlaneR", checkPlaneT, readPlaneR, writePlaneQ)
 	ser5 := NewUserSerializer("PlaneQ", checkPlaneT, readPlaneR, writePlaneQ)
-	wrap.AddSerializer(&ser2, RWUSER)
-	wrap.AddSerializer(&ser3, RWUSER)
-	wrap.AddSerializer(&ser4, RWUSER)
-	wrap.AddSerializer(&ser5, RWUSER)
+	wrap.AddSerializer(ser2, RWUSER)
+	wrap.AddSerializer(ser3, RWUSER)
+	wrap.AddSerializer(ser4, RWUSER)
+	wrap.AddSerializer(ser5, RWUSER)
 
-	GetObjectWrapperManager().AddWrap(&wrap)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

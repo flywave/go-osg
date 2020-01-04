@@ -35,10 +35,10 @@ type Material struct {
 	Cmod           int
 }
 
-func NewMaterial() Material {
+func NewMaterial() *Material {
 	st := NewStateAttribute()
 	st.Type = MTLT
-	return Material{StateAttribute: st,
+	return &Material{StateAttribute: *st,
 		AmbientFrontAndBack:   true,
 		DiffuseFrontAndBack:   true,
 		SpecularFrontAndBack:  true,

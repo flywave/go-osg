@@ -9,7 +9,7 @@ type MatrixTransform struct {
 	Matrix [4][4]float32
 }
 
-func NewMatrixTransform() MatrixTransform {
+func NewMatrixTransform() *MatrixTransform {
 	mt := NewTransform()
-	return MatrixTransform{Transform: mt}
+	return &MatrixTransform{Transform: *mt}
 }

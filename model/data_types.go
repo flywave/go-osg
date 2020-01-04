@@ -6,7 +6,7 @@ const (
 
 	IMAGEINLINEDATA int32 = 0
 	IMAGEINLINEFILE int32 = 1
-	IMAGEEXTERNAL    int32 = 2
+	IMAGEEXTERNAL   int32 = 2
 	IMAGEWRITEOUT   int32 = 3
 )
 
@@ -14,8 +14,8 @@ type ObjectGlenum struct {
 	Value int32
 }
 
-func NewObjectGlenum() ObjectGlenum {
-	return ObjectGlenum{}
+func NewObjectGlenum() *ObjectGlenum {
+	return &ObjectGlenum{}
 }
 
 type ObjectProperty struct {
@@ -24,8 +24,8 @@ type ObjectProperty struct {
 	MapProperty bool
 }
 
-func NewObjectProperty() ObjectProperty {
-	return ObjectProperty{}
+func NewObjectProperty() *ObjectProperty {
+	return &ObjectProperty{}
 }
 
 type ObjectMark struct {
@@ -33,6 +33,6 @@ type ObjectMark struct {
 	IndentDelta int32
 }
 
-func NewObjectMark() ObjectMark {
-	return ObjectMark{}
+func NewObjectMark() *ObjectMark {
+	return &ObjectMark{}
 }
