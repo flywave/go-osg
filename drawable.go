@@ -118,6 +118,7 @@ func init() {
 	wrap.AddSerializer(serdc, RWOBJECT)
 	{
 		uv := AddUpdateWrapperVersionProxy(wrap, 156)
+		wrap.MarkSerializerAsRemoved("StateSet")
 		wrap.MarkSerializerAsRemoved("UpdateCallback")
 		wrap.MarkSerializerAsRemoved("EventCallback")
 		wrap.MarkSerializerAsRemoved("CullCallback")

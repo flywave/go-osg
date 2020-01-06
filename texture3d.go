@@ -11,7 +11,7 @@ func getTextureDepth(obj interface{}) interface{} {
 
 func setTextureDepth(obj interface{}, val interface{}) {
 	td := obj.(*model.Texture)
-	td.TextureDepth = val.(uint64)
+	td.TextureDepth = val.(uint32)
 }
 
 func init() {

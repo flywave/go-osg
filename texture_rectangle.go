@@ -20,7 +20,7 @@ func getTextureWidthRec(obj interface{}) interface{} {
 }
 func setTextureWidthRec(obj interface{}, val interface{}) {
 	t := obj.(*model.TextureRectangle)
-	t.TextureWidth = val.(uint64)
+	t.TextureWidth = val.(uint32)
 }
 
 func getTextureHeightRec(obj interface{}) interface{} {
@@ -29,7 +29,7 @@ func getTextureHeightRec(obj interface{}) interface{} {
 }
 func setTextureHeightRec(obj interface{}, val interface{}) {
 	t := obj.(*model.TextureRectangle)
-	t.TextureHeight = val.(uint64)
+	t.TextureHeight = val.(uint32)
 }
 
 func init() {

@@ -458,6 +458,7 @@ func init() {
 	ser19.Add("NONE", model.NONE)
 
 	ser20 := NewPropByValSerializer("ShadowAmbient", false, getShadowAmbient, setShadowAmbient)
+
 	wrap.AddSerializer(ser1, RWUSER)
 	wrap.AddSerializer(ser2, RWUSER)
 	wrap.AddSerializer(ser3, RWUSER)
@@ -481,23 +482,21 @@ func init() {
 	{
 		uv := AddUpdateWrapperVersionProxy(wrap, 95)
 		ser21 := NewUserSerializer("ImageAttachment", checkImageAttachment, readImageAttachment, writeImageAttachment)
-		uv.SetLastVersion()
 		wrap.AddSerializer(ser21, RWUSER)
-
+		uv.SetLastVersion()
 	}
 
 	{
 		uv := AddUpdateWrapperVersionProxy(wrap, 154)
 		wrap.MarkSerializerAsRemoved("ImageAttachment")
 		uv.SetLastVersion()
-
 	}
 
 	{
 		uv := AddUpdateWrapperVersionProxy(wrap, 98)
 		ser22 := NewUserSerializer("Swizzle", checkSwizzle, readSwizzle, writeSwizzle)
-		uv.SetLastVersion()
 		wrap.AddSerializer(ser22, RWUSER)
+		uv.SetLastVersion()
 	}
 
 	{
@@ -505,10 +504,10 @@ func init() {
 		ser23 := NewPropByValSerializer("MinLOD", false, getMinLOD, setMinLOD)
 		ser24 := NewPropByValSerializer("MaxLOD", false, getMaxLOD, setMaxLOD)
 		ser25 := NewPropByValSerializer("LODBias", false, getLODBias, setLODBias)
-		uv.SetLastVersion()
 		wrap.AddSerializer(ser23, RWFLOAT)
 		wrap.AddSerializer(ser24, RWFLOAT)
 		wrap.AddSerializer(ser25, RWFLOAT)
+		uv.SetLastVersion()
 	}
 
 	GetObjectWrapperManager().AddWrap(wrap)

@@ -389,14 +389,14 @@ func (ser *ImageSerializer) Read(is *OsgIstream, obj interface{}) {
 	if is.IsBinary() {
 		is.Read(&hasObj)
 		if hasObj {
-			ser.Setter(obj, is.ReadImage(true))
+			ser.Setter(obj, is.ReadImage(false))
 		}
 	} else {
 		if is.MatchString(ser.Name) {
 			is.Read(&hasObj)
 			if hasObj {
 				is.Read(is.BEGINBRACKET)
-				ser.Setter(obj, is.ReadImage(true))
+				ser.Setter(obj, is.ReadImage(false))
 				is.Read(is.ENDBRACKET)
 			}
 		}

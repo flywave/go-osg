@@ -66,9 +66,9 @@ type Texture struct {
 	ShadowAmbient       float32
 
 	Image         *Image
-	TextureWidth  uint64
-	TextureHeight uint64
-	TextureDepth  uint64
+	TextureWidth  uint32
+	TextureHeight uint32
+	TextureDepth  uint32
 	TextureTarget int
 }
 

@@ -26,6 +26,7 @@ type NodeVisitor struct {
 	TraversalMask    uint32
 	NodeMaskOverride uint32
 	Npath            NodePath
+	Geos             []*Geometry
 }
 
 func NewNodeVisitor() *NodeVisitor {

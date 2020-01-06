@@ -94,12 +94,11 @@ func (g *Geometry) SetVertexAttribArray(i int, array *Array, binding int32) erro
 	return nil
 }
 
-func (g *Geometry) Accept(inter interface{}) {
-	for _, pri := range g.Primitives {
-		switch p := pri.(type) {
-		case *DrawArrays:
-		case *DrawArrayLengths:
-			p.Accept(inter)
-		}
+func (g *Geometry) Accept(nv *NodeVisitor) {
+	nv.Geos = append(nv.Geos, g)
+	if nv.ValidNodeMask(g) {
+		nv.PushOntoNodePath(g)
+		nv.Apply(g)
+		nv.PopFromNodePath()
 	}
 }

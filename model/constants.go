@@ -10,7 +10,7 @@ const (
 	CHARSIZE    = 1
 	SHORTSIZE   = 2
 	INTSIZE     = 4
-	LONGSIZE    = 4
+	LONGSIZE    = 8
 	INT64SIZE   = 8
 	FLOATSIZE   = 4
 	DOUBLESIZE  = 8

@@ -168,7 +168,7 @@ func getTextureWidth(obj interface{}) interface{} {
 }
 func setTextureWidth(obj interface{}, val interface{}) {
 	t := obj.(*model.TextureCubeMap)
-	t.TextureWidth = val.(uint64)
+	t.TextureWidth = val.(uint32)
 }
 
 func getTextureHeight(obj interface{}) interface{} {
@@ -177,7 +177,7 @@ func getTextureHeight(obj interface{}) interface{} {
 }
 func setTextureHeight(obj interface{}, val interface{}) {
 	t := obj.(*model.TextureCubeMap)
-	t.TextureHeight = val.(uint64)
+	t.TextureHeight = val.(uint32)
 }
 
 func init() {
