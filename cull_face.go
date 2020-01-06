@@ -13,7 +13,7 @@ func setMode(obj interface{}, fc interface{}) {
 }
 
 func init() {
-	wrap := NewObjectWrapper2("CullFace", " model.CullFace", nil, "osg::Object osg::StateAttribute osg::CullFace")
+	wrap := NewObjectWrapper("CullFace", nil, "osg::Object osg::StateAttribute osg::CullFace")
 	ser := NewEnumSerializer("Mode", getMode, setMode)
 	ser.Add("FRONT", model.GLFRONT)
 	ser.Add("FRONT", model.GLBACK)

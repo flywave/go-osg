@@ -29,7 +29,7 @@ func init() {
 		tg := model.NewTexEnv()
 		return tg
 	}
-	wrap := NewObjectWrapper2("TexEnv", "flywave::osg::texenv", fn, "osg::Object osg::StateAttribute osg::TexEnv")
+	wrap := NewObjectWrapper("TexEnv", fn, "osg::Object osg::StateAttribute osg::TexEnv")
 	ser1 := NewEnumSerializer("Mode", getEnvMode, setEnvMode)
 	ser1.Add("DECAL", model.GLDECAL)
 	ser1.Add("MODULATE", model.GLMODULATE)

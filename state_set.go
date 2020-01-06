@@ -378,7 +378,7 @@ func init() {
 		ss := model.NewStateSet()
 		return ss
 	}
-	wrap := NewObjectWrapper2("StateSet", "flywave::osg::stateset", fn, "osg::Object osg::StateSet")
+	wrap := NewObjectWrapper("StateSet", fn, "osg::Object osg::StateSet")
 	ser1 := NewUserSerializer("ModeList", checkModeList, readModeList, writeModeList)
 	ser2 := NewUserSerializer("AttributeList", checkAttributeList, readAttributeList, writeAttributeList)
 	ser3 := NewUserSerializer("TextureModeList", checkTextureModeList, readTextureModeList, writeTextureModeList)
@@ -406,4 +406,9 @@ func init() {
 	wrap.AddSerializer(ser11, RWOBJECT)
 	wrap.AddSerializer(ser12, RWOBJECT)
 	GetObjectWrapperManager().AddWrap(wrap)
+	{
+		uv := AddUpdateWrapperVersionProxy(wrap, 151)
+		wrap.MarkSerializerAsAdded("DefineList")
+		uv.SetLastVersion()
+	}
 }

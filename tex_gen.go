@@ -67,7 +67,7 @@ func init() {
 		tg := model.NewTexGen()
 		return tg
 	}
-	wrap := NewObjectWrapper2("TexGen", "flywave::osg::texgen", fn, "osg::Object osg::StateAttribute osg::TexGen")
+	wrap := NewObjectWrapper("TexGen", fn, "osg::Object osg::StateAttribute osg::TexGen")
 	ser1 := NewEnumSerializer("Mode", getTXMode, setTXMode)
 	ser1.Add("OBJECTLINEAR", model.GLOBJECTLINEAR)
 	ser1.Add("EYELINEAR", model.GLEYELINEAR)

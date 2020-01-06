@@ -13,7 +13,7 @@ func checkWRAPS(obj interface{}) bool {
 func readWRAPS(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
 	mode := model.NewObjectGlenum()
-	is.Read(&mode)
+	is.Read(mode)
 	tex.SetWrap(model.WRAPS, int(mode.Value))
 }
 
@@ -30,7 +30,7 @@ func checkWRAPT(obj interface{}) bool {
 func readWRAPT(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
 	mode := model.NewObjectGlenum()
-	is.Read(&mode)
+	is.Read(mode)
 	tex.SetWrap(model.WRAPT, int(mode.Value))
 }
 
@@ -47,7 +47,7 @@ func checkWRAPR(obj interface{}) bool {
 func readWRAPR(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
 	mode := model.NewObjectGlenum()
-	is.Read(&mode)
+	is.Read(mode)
 	tex.SetWrap(model.WRAPR, int(mode.Value))
 }
 
@@ -64,7 +64,7 @@ func checkMINFILTER(obj interface{}) bool {
 func readMINFILTER(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
 	mode := model.NewObjectGlenum()
-	is.Read(&mode)
+	is.Read(mode)
 	tex.SetFilter(model.MINFILTER, int(mode.Value))
 }
 
@@ -81,7 +81,7 @@ func checkMAGFILTER(obj interface{}) bool {
 func readMAGFILTER(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
 	mode := model.NewObjectGlenum()
-	is.Read(&mode)
+	is.Read(mode)
 	tex.SetFilter(model.MAGFILTER, int(mode.Value))
 }
 
@@ -133,7 +133,7 @@ func checkInternalFormat(obj interface{}) bool {
 func readInternalFormat(is *OsgIstream, obj interface{}) {
 	tex := obj.(*model.Texture)
 	mode := model.NewObjectGlenum()
-	is.Read(&mode)
+	is.Read(mode)
 	if tex.InternalFormat == model.USEUSERDEFINEDFORMAT {
 		tex.InternalFormat = int(mode.Value)
 	}
@@ -167,12 +167,12 @@ func checkImageAttachment(obj interface{}) bool {
 }
 
 func readImageAttachment(is *OsgIstream, obj interface{}) {
-	is.Read(attachment1.unit)
-	is.Read(attachment1.level)
-	is.Read(attachment1.layered)
-	is.Read(attachment1.layer)
-	is.Read(attachment1.access)
-	is.Read(attachment1.format)
+	is.Read(&attachment1.unit)
+	is.Read(&attachment1.level)
+	is.Read(&attachment1.layered)
+	is.Read(&attachment1.layer)
+	is.Read(&attachment1.access)
+	is.Read(&attachment1.format)
 }
 
 func writeImageAttachment(os *OsgOstream, obj interface{}) {
@@ -334,7 +334,7 @@ func getInternalFormatMode(obj interface{}) interface{} {
 
 func setInternalFormatMode(obj interface{}, val interface{}) {
 	tex := obj.(*model.Texture)
-	tex.InternalFormatMode = val.(model.InternalFormatMode)
+	tex.InternalFormatMode = val.(uint32)
 }
 
 func getShadowComparison(obj interface{}) interface{} {
@@ -418,8 +418,8 @@ func init() {
 	ser8 := NewPropByValSerializer("UnRefImageDataAfterApply", false, getUnRefImageDataAfterApply, setUnRefImageDataAfterApply)
 	ser9 := NewPropByValSerializer("ClientStorageHint", false, getClientStorageHint, setClientStorageHint)
 	ser10 := NewPropByValSerializer("ResizeNonPowerOfTwoHint", false, getResizeNonPowerOfTwoHint, setResizeNonPowerOfTwoHint)
-	var tydata float64
-	ser11 := NewVectorSerializer("BorderColor", RWDOUBLE, &tydata, getBorderColor, setBorderColor)
+	// tydata := [4]float64{}
+	ser11 := NewPropByValSerializer("BorderColor", false, getBorderColor, setBorderColor)
 	ser12 := NewPropByValSerializer("BorderWidth", false, getBorderWidth, setBorderWidth)
 	ser13 := NewEnumSerializer("InternalFormatMode", getInternalFormatMode, setInternalFormatMode)
 	ser13.Add("USEIMAGEDATAFORMAT", model.USEIMAGEDATAFORMAT)
@@ -487,7 +487,7 @@ func init() {
 	}
 
 	{
-		uv := AddUpdateWrapperVersionProxy(wrap, 98)
+		uv := AddUpdateWrapperVersionProxy(wrap, 154)
 		wrap.MarkSerializerAsRemoved("ImageAttachment")
 		uv.SetLastVersion()
 

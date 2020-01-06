@@ -1,17 +1,13 @@
 package model
 
-type FilterParameter uint32
-type InternalFormatMode uint32
-type InternalFormatType uint32
-
 const (
 	TEXTURET   string = "osg::Texture"
 	TEXTURE1DT string = "osg::Texture1D"
 	TEXTURE2DT string = "osg::Texture2D"
 	TEXTURE3DT string = "osg::Texture3D"
 
-	MINFILTER FilterParameter = 0
-	MAGFILTER FilterParameter = 1
+	MINFILTER uint32 = 0
+	MAGFILTER uint32 = 1
 
 	LINEAR               = GLLINEAR
 	LINEARMIPMAPLINEAR   = GLLINEARMIPMAPLINEAR
@@ -30,10 +26,10 @@ const (
 	REPEAT        = GLREPEAT
 	MIRROR        = GLMIRROR
 
-	NORMALIZED      InternalFormatType = 0x0
-	FLOAT           InternalFormatType = 0x1
-	SIGNEDINTEGER   InternalFormatType = 0x2
-	UNSIGNEDINTEGER InternalFormatType = 0x4
+	NORMALIZED      uint32 = 0x0
+	FLOAT           uint32 = 0x1
+	SIGNEDINTEGER   uint32 = 0x2
+	UNSIGNEDINTEGER uint32 = 0x4
 )
 
 type Texture struct {
@@ -58,8 +54,8 @@ type Texture struct {
 	BorderColor [4]float64
 	BorderWidth int
 
-	InternalFormatMode InternalFormatMode
-	InternalFormatType InternalFormatType
+	InternalFormatMode uint32
+	InternalFormatType uint32
 	InternalFormat     int
 	SourceFormat       int
 	SourceType         int
@@ -218,7 +214,7 @@ func (tex *Texture) GetWrap(wrap int) int {
 	return WRAPS
 }
 
-func (tex *Texture) SetFilter(which FilterParameter, filter int) {
+func (tex *Texture) SetFilter(which uint32, filter int) {
 	switch which {
 	case MINFILTER:
 		tex.MinFilter = filter
@@ -231,7 +227,7 @@ func (tex *Texture) SetFilter(which FilterParameter, filter int) {
 	}
 }
 
-func (tex *Texture) GetFilter(which FilterParameter) int {
+func (tex *Texture) GetFilter(which uint32) int {
 	switch which {
 	case MINFILTER:
 		return tex.MinFilter

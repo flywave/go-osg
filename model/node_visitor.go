@@ -29,7 +29,7 @@ type NodeVisitor struct {
 }
 
 func NewNodeVisitor() *NodeVisitor {
-	return &NodeVisitor{VisitorType: NODEVISITOR, TraversalMode: TRAVERSENONE, NodeMaskOverride: 0x0, TraversalMask: 0xffffffff, TraversalNumber: UNINITIALIZEDFRAMENUMBER}
+	return &NodeVisitor{VisitorType: NODEVISITOR, TraversalMode: TRAVERSEALLCHILDREN, NodeMaskOverride: 0x0, TraversalMask: 0xffffffff, TraversalNumber: UNINITIALIZEDFRAMENUMBER}
 }
 
 func (v *NodeVisitor) PushOntoNodePath(n NodeInterface) {
@@ -50,7 +50,7 @@ func (v *NodeVisitor) PopFromNodePath() {
 }
 
 func (v *NodeVisitor) Traverse(node NodeInterface) {
-	if v.TraversalMode != TRAVERSEPARENTS {
+	if v.TraversalMode == TRAVERSEPARENTS {
 		node.Ascend(v)
 	} else {
 		node.Traverse(v)
@@ -60,6 +60,8 @@ func (v *NodeVisitor) Traverse(node NodeInterface) {
 func (v *NodeVisitor) Apply(val NodeInterface) {
 	switch node := val.(type) {
 	case *Node:
+		v.Traverse(node)
+	case *PagedLod:
 		v.Traverse(node)
 	case *Group:
 		v.Traverse(node)

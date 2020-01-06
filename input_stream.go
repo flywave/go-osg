@@ -128,10 +128,18 @@ func (is *OsgIstream) Read(inter interface{}) {
 		is.In.ReadUShort(val)
 		break
 	case *int:
+		var t int32
+		is.In.ReadInt(&t)
+		*val = int(t)
+		break
 	case *int32:
 		is.In.ReadInt((*int32)(val))
 		break
 	case *uint:
+		var t uint32
+		is.In.ReadUInt(&t)
+		*val = uint(t)
+		break
 	case *uint32:
 		is.In.ReadUInt((*uint32)(val))
 		break

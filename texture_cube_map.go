@@ -185,7 +185,7 @@ func init() {
 		tg := model.NewTextureCubeMap()
 		return tg
 	}
-	wrap := NewObjectWrapper2("TextureCubeMap", "flywave::osg::texturecubemap", fn, "osg::Object osg::StateAttribute osg::Texture osg::TextureCubeMap")
+	wrap := NewObjectWrapper("TextureCubeMap", fn, "osg::Object osg::StateAttribute osg::Texture osg::TextureCubeMap")
 	ser1 := NewUserSerializer("PosX", checkPosX, readPosX, writePosX)
 	ser2 := NewUserSerializer("NegX", checkNegX, readNegX, writeNegX)
 	ser3 := NewUserSerializer("PosY", checkPosY, readPosY, writePosY)

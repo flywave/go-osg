@@ -14,6 +14,14 @@ func NewGeode() *Geode {
 	return &Geode{Group: *g}
 }
 
+func (g *Geode) Accept(nv *NodeVisitor) {
+	if nv.ValidNodeMask(g) {
+		nv.PushOntoNodePath(g)
+		nv.Apply(g)
+		nv.PopFromNodePath()
+	}
+}
+
 func (g *Geode) AddDrawable(d *Drawable) {
 	g.AddChild(d)
 }

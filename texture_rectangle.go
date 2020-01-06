@@ -37,7 +37,7 @@ func init() {
 		tg := model.NewTextureRectangle()
 		return tg
 	}
-	wrap := NewObjectWrapper2("TextureRectangle", "flywave::osg::texturerectangle", fn, "osg::Object osg::StateAttribute osg::Texture osg::TextureRectangle")
+	wrap := NewObjectWrapper("TextureRectangle", fn, "osg::Object osg::StateAttribute osg::Texture osg::TextureRectangle")
 	ser1 := NewImageSerializer("Image", getRectImage, setRectImage)
 	ser2 := NewPropByValSerializer("TextureWidth", false, getTextureWidthRec, setTextureWidthRec)
 	ser3 := NewPropByValSerializer("TextureHeight", false, getTextureHeightRec, setTextureHeightRec)

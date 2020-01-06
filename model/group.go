@@ -32,6 +32,12 @@ func (g *Group) SetChildren(c []NodeInterface) {
 	g.Children = c
 }
 
+func (g *Group) Traverse(nv *NodeVisitor) {
+	for _, c := range g.Children {
+		c.Accept(nv)
+	}
+}
+
 func NewGroup() *Group {
 	n := NewNode()
 	n.Type = GROUPT

@@ -17,7 +17,7 @@ func init() {
 		sm := model.NewShadeModel()
 		return sm
 	}
-	wrap := NewObjectWrapper2("ShadeModel", "flywave::osg::shademodel", fn, "osg::Object osg::StateAttribute osg::ShadeModel")
+	wrap := NewObjectWrapper("ShadeModel", fn, "osg::Object osg::StateAttribute osg::ShadeModel")
 	ser := NewEnumSerializer("Mode", getShadeMode, setShadeMode)
 	ser.Add("FLAT", model.FLAT)
 	ser.Add("SMOOTH", model.SMOOTH)

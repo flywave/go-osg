@@ -15,7 +15,7 @@ func init() {
 		mt := model.NewMatrixTransform()
 		return mt
 	}
-	wrap := NewObjectWrapper2("MatrixTransform", "flywave::osg::matrixtransform", fn, "osg::Object osg::Node osg::Group osg::Transform osg::MatrixTransform")
+	wrap := NewObjectWrapper("MatrixTransform", fn, "osg::Object osg::Node osg::Group osg::Transform osg::MatrixTransform")
 	ser := NewMatrixSerializer("Matrix", getMatrixf, setMatrixf)
 	wrap.AddSerializer(ser, RWMATRIXF)
 	GetObjectWrapperManager().AddWrap(wrap)

@@ -21,8 +21,8 @@ type PerRangeData struct {
 type PagedLod struct {
 	Lod
 	DataBasePath                   string
-	FrameNumberOfLastTraversal     uint
-	NumChildrenThatCannotBeExpired uint
+	FrameNumberOfLastTraversal     uint32
+	NumChildrenThatCannotBeExpired uint32
 	DisableExternalChildrenPaging  bool
 	PerRangeDataList               []PerRangeData
 }
@@ -39,6 +39,14 @@ func (p *PagedLod) expandPerRangeDataTo(pos int) {
 		s := l - 1 - pos
 		pl := make([]PerRangeData, s, s)
 		p.PerRangeDataList = append(p.PerRangeDataList, pl...)
+	}
+}
+
+func (p *PagedLod) Accept(nv *NodeVisitor) {
+	if nv.ValidNodeMask(p) {
+		nv.PushOntoNodePath(p)
+		nv.Apply(p)
+		nv.PopFromNodePath()
 	}
 }
 

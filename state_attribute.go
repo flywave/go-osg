@@ -21,7 +21,7 @@ func setSAEventCallback(obj interface{}, val interface{}) {
 }
 
 func init() {
-	wrap := NewObjectWrapper2("StateAttribute", "flywave::osg::stateattribute", nil, "osg::Object osg::StateAttribute")
+	wrap := NewObjectWrapper("StateAttribute", nil, "osg::Object osg::StateAttribute")
 	ser1 := NewObjectSerializer("UpdateCallback", getSAUpdateCallback, setSAUpdateCallback)
 	ser2 := NewObjectSerializer("EventCallback", getSAEventCallback, setSAEventCallback)
 
