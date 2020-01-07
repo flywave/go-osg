@@ -1,7 +1,5 @@
 package model
 
-import "reflect"
-
 type NodePath []interface{}
 
 const (
@@ -144,14 +142,4 @@ func (n *Node) Traverse(nv *NodeVisitor) {
 
 func (n *Node) IsNode() bool {
 	return true
-}
-
-func IsBaseOfNode(obj interface{}) bool {
-	if obj == nil {
-		return false
-	}
-	no := NewNode()
-	baset := reflect.TypeOf(no)
-	t := reflect.TypeOf(obj)
-	return t.Implements(baset)
 }

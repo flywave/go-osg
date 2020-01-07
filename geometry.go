@@ -385,7 +385,7 @@ func init() {
 		uv.SetLastVersion()
 	}
 	ps := model.NewPrimitiveSet()
-	vser := NewVectorSerializer("PrimitiveSetList", RWOBJECT, &ps, getPrimitiveSetList, setPrimitiveSetList)
+	vser := NewVectorSerializer("PrimitiveSetList", RWOBJECT, ps, getPrimitiveSetList, setPrimitiveSetList)
 	wrap.AddSerializer(vser, RWVECTOR)
 
 	ser1 := NewUserSerializer("VertexData", checkVertexData, readVertexData, writeVertexData)
@@ -429,8 +429,8 @@ func init() {
 		wrap.AddSerializer(ser51, RWOBJECT)
 
 		ay := model.NewArray2()
-		vser2 := NewVectorSerializer("TexCoordArrayList", RWOBJECT, &ay, getTexCoordArrayList, setTexCoordArrayList)
-		vser3 := NewVectorSerializer("VertexAttribArrayList", RWOBJECT, &ay, getVertexAttribArrayList, setVertexAttribArrayList)
+		vser2 := NewVectorSerializer("TexCoordArrayList", RWOBJECT, ay, getTexCoordArrayList, setTexCoordArrayList)
+		vser3 := NewVectorSerializer("VertexAttribArrayList", RWOBJECT, ay, getVertexAttribArrayList, setVertexAttribArrayList)
 		wrap.AddSerializer(vser2, RWVECTOR)
 		wrap.AddSerializer(vser3, RWVECTOR)
 		uv.SetLastVersion()

@@ -3,7 +3,7 @@ package model
 type ModeListType map[int32]int32
 
 type RefAttributePair struct {
-	First  interface{}
+	First  StateAttributeInterface
 	Second int32
 }
 
@@ -155,7 +155,7 @@ func (ss *StateSet) setAttribute3(lst AttributeListType, attr interface{}, val i
 		if ok {
 			par.Second = val & (OVERRIDE | PROTECTED)
 		} else {
-			ref := &RefAttributePair{First: attr, Second: val & (OVERRIDE | PROTECTED)}
+			ref := &RefAttributePair{First: attr.(StateAttributeInterface), Second: val & (OVERRIDE | PROTECTED)}
 			lst[key] = ref
 		}
 	}

@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"errors"
 	"image"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"os"
 	"strings"
@@ -209,7 +211,7 @@ func (rw *ReadWrite) SupportOption(fmt string, desc string) {
 	rw.SupportedOptions[fmt] = desc
 }
 
-func (rw *ReadWrite) prepareReading(fname string, op *OsgIstreamOptions) (*OsgIstreamOptions, error) {
+func (rw *ReadWrite) PrepareReading(fname string, op *OsgIstreamOptions) (*OsgIstreamOptions, error) {
 	subs := strings.Split(fname, ".")
 	ext := subs[len(subs)-1]
 	if !rw.AcceptsExtension(ext) {
@@ -236,7 +238,7 @@ func (rw *ReadWrite) prepareReading(fname string, op *OsgIstreamOptions) (*OsgIs
 	return op, nil
 }
 
-func (rw *ReadWrite) prepareWriting(fname string, op *OsgOstreamOptions) (*OsgOstreamOptions, error) {
+func (rw *ReadWrite) PrepareWriting(fname string, op *OsgOstreamOptions) (*OsgOstreamOptions, error) {
 	subs := strings.Split(fname, ".")
 	ext := subs[len(subs)-1]
 	if !rw.AcceptsExtension(ext) {
@@ -281,7 +283,7 @@ func (rw *ReadWrite) OpenWriter(fname string) *os.File {
 }
 
 func (rw *ReadWrite) ReadObject(fname string, opt *OsgIstreamOptions) *ReadResult {
-	lopt, e := rw.prepareReading(fname, opt)
+	lopt, e := rw.PrepareReading(fname, opt)
 	if e != nil {
 		return nil
 	}
@@ -316,13 +318,22 @@ func (rw *ReadWrite) ReadObjectWithReader(rd *bufio.Reader, opt *OsgIstreamOptio
 }
 
 func (rw *ReadWrite) ReadImage(path string, opts *OsgIstreamOptions) *ReadResult {
-	lopt, _ := rw.prepareReading(path, opts)
+	lopt, _ := rw.PrepareReading(path, opts)
 	in := rw.OpenReader(path)
+	sb := strings.Split(path, ".")
+	lopt.FileType = sb[len(sb)-1]
 	return rw.ReadImageWithReader(in, lopt)
 }
 
-func (rw *ReadWrite) ReadImageWithReader(rd *bufio.Reader, opts *OsgIstreamOptions) *ReadResult { //TODO process image
-	mg, _, e := image.Decode(rd)
+func (rw *ReadWrite) ReadImageWithReader(rd io.Reader, opts *OsgIstreamOptions) *ReadResult { //TODO process image
+	var mg image.Image
+	var e error
+	ext := opts.FileType
+	if ext == "jpg" || ext == "jpeg" {
+		mg, e = jpeg.Decode(rd)
+	} else if ext == "png" {
+		mg, e = png.Decode(rd)
+	}
 	if e == nil {
 		img := model.NewImage()
 		img.S = int32(mg.Bounds().Max.X - mg.Bounds().Min.X)
@@ -339,13 +350,13 @@ func (rw *ReadWrite) ReadImageWithReader(rd *bufio.Reader, opts *OsgIstreamOptio
 				img.Data = append(img.Data, uint8(a))
 			}
 		}
-		return &ReadResult{Object: &img}
+		return &ReadResult{Object: img}
 	}
 	return &ReadResult{Status: FILENOTHANDLED}
 }
 
 func (rw *ReadWrite) ReadNode(path string, opts *OsgIstreamOptions) *ReadResult {
-	lopt, _ := rw.prepareReading(path, opts)
+	lopt, _ := rw.PrepareReading(path, opts)
 	in := rw.OpenReader(path)
 	return rw.ReadNodeWithReader(bufio.NewReader(in), lopt)
 }
@@ -373,7 +384,7 @@ func (rw *ReadWrite) ReadNodeWithReader(rd *bufio.Reader, opts *OsgIstreamOption
 }
 
 func (rw *ReadWrite) WriteObject(inte interface{}, path string, opts *OsgOstreamOptions) *WriteResult {
-	opt, _ := rw.prepareWriting(path, opts)
+	opt, _ := rw.PrepareWriting(path, opts)
 	f := rw.OpenWriter(path)
 	defer f.Close()
 	return rw.WriteObjectWithWriter(inte, f, opt)
@@ -394,7 +405,7 @@ func (rw *ReadWrite) WriteObjectWithWriter(inte interface{}, wt io.Writer, opts 
 }
 
 func (rw *ReadWrite) WriteImage(image *model.Image, path string, opts *OsgOstreamOptions) *WriteResult {
-	opt, _ := rw.prepareWriting(path, opts)
+	opt, _ := rw.PrepareWriting(path, opts)
 	f := rw.OpenWriter(path)
 	defer f.Close()
 	return rw.WriteImageWithWrite(image, f, opt)
@@ -415,7 +426,7 @@ func (rw *ReadWrite) WriteImageWithWrite(image *model.Image, wt io.Writer, opts 
 }
 
 func (rw *ReadWrite) WriteNode(inte interface{}, path string, opts *OsgOstreamOptions) *WriteResult {
-	opt, _ := rw.prepareWriting(path, opts)
+	opt, _ := rw.PrepareWriting(path, opts)
 	f := rw.OpenWriter(path)
 	defer f.Close()
 	return rw.WriteNodeWithWrite(inte, f, opt)

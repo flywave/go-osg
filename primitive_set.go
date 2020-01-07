@@ -154,8 +154,7 @@ func init() {
 	}
 	ser5 := NewPropByValSerializer("First", false, getDLFirst, setDLFirst)
 
-	var tydata int32
-	ser6 := NewVectorSerializer("Data", RWOBJECT, &tydata, getDAData, setDAData)
+	ser6 := NewIsAVectorSerializer("Data", RWINT, 4, getDAData, setDAData)
 	wrap3.AddSerializer(ser5, RWINT)
 	wrap3.AddSerializer(ser6, RWVECTOR)
 	GetObjectWrapperManager().AddWrap(wrap3)
@@ -166,8 +165,7 @@ func init() {
 		wrap4.MarkSerializerAsAdded("osg::BufferData")
 		uv.SetLastVersion()
 	}
-	var tydata2 uint8
-	ser7 := NewVectorSerializer("Data", RWOBJECT, &tydata2, getDADataUByte, setDADataUByte)
+	ser7 := NewIsAVectorSerializer("Data", RWUCHAR, 4, getDADataUByte, setDADataUByte)
 	wrap4.AddSerializer(ser7, RWUCHAR)
 	GetObjectWrapperManager().AddWrap(wrap4)
 
@@ -177,8 +175,8 @@ func init() {
 		wrap5.MarkSerializerAsAdded("osg::BufferData")
 		uv.SetLastVersion()
 	}
-	var tydata3 uint16
-	ser8 := NewVectorSerializer("Data", RWOBJECT, &tydata3, getDADataUShort, setDADataUShort)
+
+	ser8 := NewIsAVectorSerializer("Data", RWUSHORT, 4, getDADataUShort, setDADataUShort)
 	wrap5.AddSerializer(ser8, RWUSHORT)
 	GetObjectWrapperManager().AddWrap(wrap5)
 
@@ -188,8 +186,8 @@ func init() {
 		wrap6.MarkSerializerAsAdded("osg::BufferData")
 		uv.SetLastVersion()
 	}
-	var tydata4 uint32
-	ser9 := NewVectorSerializer("Data", RWOBJECT, &tydata4, getDADataUInt, setDADataUInt)
+
+	ser9 := NewIsAVectorSerializer("Data", RWUINT, 4, getDADataUInt, setDADataUInt)
 	wrap5.AddSerializer(ser9, RWUINT)
 	GetObjectWrapperManager().AddWrap(wrap6)
 }

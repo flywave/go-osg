@@ -930,8 +930,7 @@ func (is *OsgIstream) ReadImage(readFromExternal bool) *model.Image {
 					sub := strings.Split(name, ".")
 					opts.FileType = sub[len(sub)-1]
 					buf := bytes.NewBuffer(dt)
-					rd := bufio.NewReader(buf)
-					img = rw.ReadImageWithReader(rd, &opts).GetImage()
+					img = rw.ReadImageWithReader(buf, &opts).GetImage()
 				}
 			}
 		}
@@ -948,10 +947,10 @@ func (is *OsgIstream) ReadImage(readFromExternal bool) *model.Image {
 		img = rw.ReadImage(name, &opts).GetImage()
 	}
 	if loadedFromCache {
-		img2 := is.ReadObjectFields("osg::image", id, img)
+		img2 := is.ReadObjectFields("osg::object", id, img)
 		return img2.(*model.Image)
 	} else {
-		img2 := is.ReadObjectFields("osg::image", id, img)
+		img2 := is.ReadObjectFields("osg::object", id, img)
 		img = img2.(*model.Image)
 		img.Name = name
 		img.WriteHint = writeHint
@@ -1103,8 +1102,10 @@ func (is *OsgIstream) Decompress() error {
 		if compressor == nil {
 			return errors.New("inputstream: Failed to decompress stream, No such compressor.")
 		}
-		var src []byte
-		compressor.DeCompress(is.In.GetIterator(), src)
+		src, e := compressor.DeCompress(is.In.GetIterator())
+		if e != nil {
+			return e
+		}
 		bufReader := bytes.NewBuffer(src)
 		is.In.SetIterator(bufio.NewReader(bufReader))
 		is.Fields = is.Fields[:len(is.Fields)-1]

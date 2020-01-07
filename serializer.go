@@ -453,10 +453,9 @@ func (ser *VectorSerializer) Read(is *OsgIstream, obj interface{}) {
 			for i := 0; i < size; i++ {
 				ser.Setter(obj, is.ReadPrimitiveSet())
 			}
-		default:
+		case *model.Array:
 			for i := 0; i < size; i++ {
-				is.Read(ser.Element)
-				ser.Setter(obj, ser.Element)
+				ser.Setter(obj, is.ReadArray())
 			}
 		}
 	} else {
@@ -469,10 +468,9 @@ func (ser *VectorSerializer) Read(is *OsgIstream, obj interface{}) {
 					for i := 0; i < size; i++ {
 						ser.Setter(obj, is.ReadPrimitiveSet())
 					}
-				default:
+				case *model.Array:
 					for i := 0; i < size; i++ {
-						is.Read(ser.Element)
-						ser.Setter(obj, ser.Element)
+						ser.Setter(obj, is.ReadArray())
 					}
 				}
 			}
@@ -496,14 +494,52 @@ type IsAVectorSerializer struct {
 
 func (ser *IsAVectorSerializer) Read(is *OsgIstream, obj interface{}) {
 	if is.IsBinary() {
-
+		var size int32
+		is.Read(&size)
+		vec := ser.genVect(is, size)
+		ser.Setter(obj, vec)
 	} else {
+		if is.MatchString(ser.Name) {
+			var size int32
+			is.Read(&size)
+			vec := ser.genVect(is, size)
+			ser.Setter(obj, vec)
+		}
+	}
+}
+
+func (ser *IsAVectorSerializer) genVect(is *OsgIstream, size int32) interface{} {
+	switch ser.ElementType {
+	case RWUCHAR:
+		vec := make([]uint8, int(size), int(size))
+		for i := range vec {
+			is.Read(&vec[i])
+		}
+		return vec
+	case RWUSHORT:
+		vec := make([]uint16, int(size), int(size))
+		for i := range vec {
+			is.Read(&vec[i])
+		}
+		return vec
+	case RWINT:
+		vec := make([]int32, int(size), int(size))
+		for i := range vec {
+			is.Read(&vec[i])
+		}
+		return vec
+	case RWUINT:
+		vec := make([]uint32, int(size), int(size))
+		for i := range vec {
+			is.Read(&vec[i])
+		}
+		return vec
 	}
 }
 
 func (ser *IsAVectorSerializer) Writer(is *OsgOstream, obj interface{}) {}
 
-func NewIsAVectorSerializer(name string, ty SerType, nrow uint) *IsAVectorSerializer {
+func NewIsAVectorSerializer(name string, ty SerType, nrow uint, gt Getter, st Setter) *IsAVectorSerializer {
 	ser := NewTemplateSerializer(name, nil, nil)
 	return &IsAVectorSerializer{TemplateSerializer: *ser, ElementType: ty, NumElementOnRow: nrow}
 }
