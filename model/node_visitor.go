@@ -64,6 +64,8 @@ func (v *NodeVisitor) Apply(val NodeInterface) {
 		v.Traverse(node)
 	case *PagedLod:
 		v.Traverse(node)
+	case *Geode:
+		v.Traverse(node)
 	case *Group:
 		v.Traverse(node)
 	}

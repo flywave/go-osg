@@ -534,6 +534,8 @@ func (ser *IsAVectorSerializer) genVect(is *OsgIstream, size int32) interface{} 
 			is.Read(&vec[i])
 		}
 		return vec
+	default:
+		return nil
 	}
 }
 

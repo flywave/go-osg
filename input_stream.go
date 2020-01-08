@@ -764,7 +764,7 @@ func (is *OsgIstream) ReadPrimitiveSet() interface{} {
 			da.First = first
 			da.Count = count
 			da.NumInstances = numInstances
-			return &da
+			return da
 		case model.IDDRAWARRAYLENGTH:
 			is.Read(&first)
 			is.Read(&size)
@@ -779,7 +779,7 @@ func (is *OsgIstream) ReadPrimitiveSet() interface{} {
 			}
 			is.Read(is.ENDBRACKET)
 			dl.NumInstances = numInstances
-			return &dl
+			return dl
 		case model.IDDRAWELEMENTSUBYTE:
 			is.Read(&size)
 			is.Read(is.BEGINBRACKET)
@@ -791,7 +791,7 @@ func (is *OsgIstream) ReadPrimitiveSet() interface{} {
 			}
 			is.Read(is.ENDBRACKET)
 			de.NumInstances = numInstances
-			return &de
+			return de
 		case model.IDDRAWELEMENTSUSHORT:
 			is.Read(&size)
 			is.Read(is.BEGINBRACKET)
@@ -815,7 +815,7 @@ func (is *OsgIstream) ReadPrimitiveSet() interface{} {
 			}
 			is.Read(is.ENDBRACKET)
 			duint.NumInstances = numInstances
-			return &duint
+			return duint
 		}
 	}
 	return nil
