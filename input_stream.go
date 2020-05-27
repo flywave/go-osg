@@ -936,6 +936,7 @@ func (is *OsgIstream) ReadImage(readFromExternal bool) *model.Image {
 		}
 		break
 	case model.IMAGEEXTERNAL:
+		readFromExternal = true
 		break
 	case model.IMAGEWRITEOUT:
 		break
