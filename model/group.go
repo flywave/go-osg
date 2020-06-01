@@ -17,6 +17,7 @@ type GroupInterface interface {
 	ReplaceChild(origChild NodeInterface, newChild NodeInterface) error
 	SetChild(index int, newChild NodeInterface) error
 	Containsnode(n NodeInterface) bool
+	Accept(*NodeVisitor)
 }
 
 type Group struct {
@@ -127,4 +128,12 @@ func (g *Group) Containsnode(n NodeInterface) bool {
 		return false
 	}
 	return true
+}
+
+func (g *Group) Accept(nv *NodeVisitor) {
+	if nv.ValidNodeMask(g) {
+		nv.PushOntoNodePath(g)
+		nv.Apply(g)
+		nv.PopFromNodePath()
+	}
 }
