@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"errors"
 	"image"
+	"image/draw"
 	"image/jpeg"
 	"image/png"
 	"io"
@@ -325,7 +326,7 @@ func (rw *ReadWrite) ReadImage(path string, opts *OsgIstreamOptions) *ReadResult
 	return rw.ReadImageWithReader(in, lopt)
 }
 
-func (rw *ReadWrite) ReadImageWithReader(rd io.Reader, opts *OsgIstreamOptions) *ReadResult { //TODO process image
+func (rw *ReadWrite) ReadImageWithReader(rd io.Reader, opts *OsgIstreamOptions) *ReadResult {
 	var mg image.Image
 	var e error
 	ext := opts.FileType
@@ -341,13 +342,21 @@ func (rw *ReadWrite) ReadImageWithReader(rd io.Reader, opts *OsgIstreamOptions) 
 		img.T = int32(mg.Bounds().Max.Y - mg.Bounds().Min.Y)
 		img.R = 1
 		img.PixelFormat = 0
-		for y := 0; y < int(img.T); y++ {
-			for x := 0; x < int(img.S); x++ {
-				r, g, b, a := mg.At(x, y).RGBA()
-				img.Data = append(img.Data, uint8(r))
-				img.Data = append(img.Data, uint8(g))
-				img.Data = append(img.Data, uint8(b))
-				img.Data = append(img.Data, uint8(a))
+		img.Data = make([]uint8, img.S*img.T*4)
+		width := int(img.S)
+		height := int(img.T)
+
+		dest := image.NewNRGBA(image.Rect(0, 0, width, height))
+		r := image.Rect(0, 0, width, height)
+		draw.Draw(dest, r, mg, image.Point{X: 0, Y: 0}, draw.Src)
+
+		for y := 0; y < height; y++ {
+			for x := 0; x < width; x++ {
+				r, g, b, a := dest.At(x, y).RGBA()
+				img.Data[(width*y+x)*4] = uint8(r)
+				img.Data[(width*y+x)*4+1] = uint8(g)
+				img.Data[(width*y+x)*4+2] = uint8(b)
+				img.Data[(width*y+x)*4+3] = uint8(a)
 			}
 		}
 		return &ReadResult{Object: img}
