@@ -803,7 +803,7 @@ func (is *OsgIstream) ReadPrimitiveSet() interface{} {
 			}
 			is.Read(is.ENDBRACKET)
 			ds.NumInstances = numInstances
-			return &ds
+			return ds
 		case model.IDDRAWELEMENTSUINT:
 			is.Read(&size)
 			is.Read(is.BEGINBRACKET)
