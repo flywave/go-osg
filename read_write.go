@@ -169,7 +169,7 @@ func (rw *ReadWrite) ReadInputIterator(reader *bufio.Reader, op *OsgIstreamOptio
 			return nil
 		}
 	} else {
-		rd := NewBinaryInputIterator(reader, 1)
+		rd := NewBinaryInputIterator(reader)
 		return rd
 	}
 }

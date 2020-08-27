@@ -7,6 +7,9 @@ import (
 	"github.com/flywave/go-osg/model"
 )
 
+const OSG_HEADER_LOW = 0x6C910EA1
+const OSG_HEADER_HIGH = 0x1AFB4545
+
 type OsgInputIterator interface {
 	IsBinary() bool
 	ReadBool(b *bool)
@@ -71,10 +74,17 @@ type BinaryInputIterator struct {
 	BlockSizes     []int64
 }
 
-func NewBinaryInputIterator(in *bufio.Reader, bysp int) *BinaryInputIterator {
+func NewBinaryInputIterator(in *bufio.Reader) *BinaryInputIterator {
+	var low int32
+	var high int32
+	bysp := 1
+	binary.Read(in, binary.LittleEndian, &low)
+	binary.Read(in, binary.LittleEndian, &high)
+	if low == OSG_HEADER_LOW && high == OSG_HEADER_HIGH {
+		bysp = 0
+	}
 	it := NewInputIterator(in, bysp)
-	bf := make([]byte, 8)
-	in.Read(bf)
+
 	return &BinaryInputIterator{InputIterator: *it}
 }
 
@@ -83,7 +93,11 @@ func (iter *BinaryInputIterator) IsBinary() bool {
 }
 
 func (iter *BinaryInputIterator) readData(val interface{}, size int) {
-	binary.Read(iter.In, binary.LittleEndian, val)
+	if iter.ByteSwap == 0 {
+		binary.Read(iter.In, binary.LittleEndian, val)
+	} else {
+		binary.Read(iter.In, binary.BigEndian, val)
+	}
 	iter.Offset += int64(size)
 }
 

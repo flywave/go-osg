@@ -12,7 +12,7 @@ import (
 
 func TestReadNode(t *testing.T) {
 	rw := NewReadWrite()
-	res := rw.ReadNode("test_data/skydome.osgt", nil)
+	res := rw.ReadNode("test_data/cessna.osgb", nil)
 	obj := res.GetNode()
 	if obj == nil {
 		fmt.Println("....")
