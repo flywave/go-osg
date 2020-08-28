@@ -364,6 +364,9 @@ func (rw *ReadWrite) ReadImageWithReader(rd io.Reader, opts *OsgIstreamOptions) 
 func (rw *ReadWrite) ReadNode(path string, opts *OsgIstreamOptions) *ReadResult {
 	_, ext := filepath.Split(path)
 	lopt, _ := rw.PrepareReading(ext, opts)
+	if lopt == nil {
+		return &ReadResult{Status: ERRORINREADINGFILE}
+	}
 	in := rw.OpenReader(path)
 	return rw.ReadNodeWithReader(bufio.NewReader(in), lopt)
 }
@@ -392,6 +395,9 @@ func (rw *ReadWrite) ReadNodeWithReader(rd *bufio.Reader, opts *OsgIstreamOption
 
 func (rw *ReadWrite) WriteObject(inte interface{}, path string, opts *OsgOstreamOptions) *WriteResult {
 	opt, _ := rw.PrepareWriting(path, opts)
+	if opt == nil {
+		return &WriteResult{Status: ERRORINWRITINGFILE}
+	}
 	f := rw.OpenWriter(path)
 	defer f.Close()
 	return rw.WriteObjectWithWriter(inte, f, opt)
