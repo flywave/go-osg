@@ -10,6 +10,7 @@ import (
 	"image/png"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/flywave/go-osg/model"
@@ -212,9 +213,7 @@ func (rw *ReadWrite) SupportOption(fmt string, desc string) {
 	rw.SupportedOptions[fmt] = desc
 }
 
-func (rw *ReadWrite) PrepareReading(fname string, op *OsgIstreamOptions) (*OsgIstreamOptions, error) {
-	subs := strings.Split(fname, ".")
-	ext := subs[len(subs)-1]
+func (rw *ReadWrite) PrepareReading(ext string, op *OsgIstreamOptions) (*OsgIstreamOptions, error) {
 	if !rw.AcceptsExtension(ext) {
 		return nil, errors.New("not support")
 	}
@@ -239,9 +238,7 @@ func (rw *ReadWrite) PrepareReading(fname string, op *OsgIstreamOptions) (*OsgIs
 	return op, nil
 }
 
-func (rw *ReadWrite) PrepareWriting(fname string, op *OsgOstreamOptions) (*OsgOstreamOptions, error) {
-	subs := strings.Split(fname, ".")
-	ext := subs[len(subs)-1]
+func (rw *ReadWrite) PrepareWriting(ext string, op *OsgOstreamOptions) (*OsgOstreamOptions, error) {
 	if !rw.AcceptsExtension(ext) {
 		return nil, errors.New("not support")
 	}
@@ -365,7 +362,8 @@ func (rw *ReadWrite) ReadImageWithReader(rd io.Reader, opts *OsgIstreamOptions) 
 }
 
 func (rw *ReadWrite) ReadNode(path string, opts *OsgIstreamOptions) *ReadResult {
-	lopt, _ := rw.PrepareReading(path, opts)
+	_, ext := filepath.Split(path)
+	lopt, _ := rw.PrepareReading(ext, opts)
 	in := rw.OpenReader(path)
 	return rw.ReadNodeWithReader(bufio.NewReader(in), lopt)
 }
