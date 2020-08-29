@@ -363,7 +363,7 @@ func (rw *ReadWrite) ReadImageWithReader(rd io.Reader, opts *OsgIstreamOptions) 
 }
 
 func (rw *ReadWrite) ReadNode(path string, opts *OsgIstreamOptions) *ReadResult {
-	lopt, _ := rw.PrepareReading(ext, opts)
+	lopt, _ := rw.PrepareReading(path, opts)
 	if lopt == nil {
 		return &ReadResult{Status: ERRORINREADINGFILE}
 	}
