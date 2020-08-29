@@ -10,7 +10,6 @@ import (
 	"image/png"
 	"io"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/flywave/go-osg/model"
@@ -213,7 +212,9 @@ func (rw *ReadWrite) SupportOption(fmt string, desc string) {
 	rw.SupportedOptions[fmt] = desc
 }
 
-func (rw *ReadWrite) PrepareReading(ext string, op *OsgIstreamOptions) (*OsgIstreamOptions, error) {
+func (rw *ReadWrite) PrepareReading(path string, op *OsgIstreamOptions) (*OsgIstreamOptions, error) {
+	sub := strings.Split(path, ".")
+	ext := sub[len(sub)-1]
 	if !rw.AcceptsExtension(ext) {
 		return nil, errors.New("not support")
 	}
@@ -362,7 +363,6 @@ func (rw *ReadWrite) ReadImageWithReader(rd io.Reader, opts *OsgIstreamOptions) 
 }
 
 func (rw *ReadWrite) ReadNode(path string, opts *OsgIstreamOptions) *ReadResult {
-	_, ext := filepath.Split(path)
 	lopt, _ := rw.PrepareReading(ext, opts)
 	if lopt == nil {
 		return &ReadResult{Status: ERRORINREADINGFILE}
