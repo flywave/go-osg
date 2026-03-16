@@ -533,15 +533,12 @@ func ComputePixelSizeInBits(format int, t int) uint {
 	case (GLCOMPRESSEDSRGB8ALPHA8ASTC10x10KHR):
 	case (GLCOMPRESSEDSRGB8ALPHA8ASTC12x10KHR):
 	case (GLCOMPRESSEDSRGB8ALPHA8ASTC12x12KHR):
-		{
-			footprint := ComputeBlockFootprint(format)
-			pixelsPerBlock := footprint[0] * footprint[1]
-			bitsPerBlock := ComputeBlockSize(format, 0) // 16 x 8 = 128
-			bitsPerPixel := bitsPerBlock / uint(pixelsPerBlock)
-			if bitsPerBlock == bitsPerPixel*uint(pixelsPerBlock) {
-				return bitsPerPixel
-			}
-			return 0
+		footprint := ComputeBlockFootprint(format)
+		pixelsPerBlock := footprint[0] * footprint[1]
+		bitsPerBlock := ComputeBlockSize(format, 0)
+		bitsPerPixel := bitsPerBlock / uint(pixelsPerBlock)
+		if bitsPerBlock == bitsPerPixel*uint(pixelsPerBlock) {
+			return bitsPerPixel
 		}
 		return 0
 	}

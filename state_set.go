@@ -57,7 +57,7 @@ func readAttributes(is *OsgIstream, attr model.AttributeListType) {
 			val := readValue(is)
 			sa, ok := ob.(model.StateAttributeInterface)
 			if ok {
-				rp := model.RefAttributePair{sa, val}
+				rp := model.RefAttributePair{First: sa, Second: val}
 				attr[sa.GetType()] = &rp
 			}
 		}

@@ -81,6 +81,10 @@ func NewBinaryOutputIterator(wt *bufio.Writer) *BinaryOutputIterator {
 	return &BinaryOutputIterator{OutputIterator: *ot}
 }
 
+func (it *BinaryOutputIterator) IsBinary() bool {
+	return true
+}
+
 func (it *BinaryOutputIterator) writerData(iter interface{}) {
 	binary.Write(it.Out, binary.LittleEndian, iter)
 }

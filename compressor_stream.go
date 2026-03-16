@@ -9,24 +9,19 @@ type CompressorStream struct {
 	Name string
 }
 
-func (stream *CompressorStream) Compress(st io.Writer, src []byte) {
+func (stream *CompressorStream) Compress(st io.Writer, src []byte) error {
 	w := zlib.NewWriter(st)
-	w.Write(src)
-	w.Close()
+	if _, err := w.Write(src); err != nil {
+		return err
+	}
+	return w.Close()
 }
 
 func (stream *CompressorStream) DeCompress(st io.Reader) ([]byte, error) {
-	r, _ := zlib.NewReader(st)
-	var src []byte
-	for {
-		buf := make([]byte, 4096)
-		n, e := io.ReadFull(r, buf)
-		if e != nil {
-			return nil, e
-		}
-		if n != 0 {
-			src = append(src, buf[0:n]...)
-		}
+	r, err := zlib.NewReader(st)
+	if err != nil {
+		return nil, err
 	}
-	return src, nil
+	defer r.Close()
+	return io.ReadAll(r)
 }

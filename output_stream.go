@@ -79,9 +79,21 @@ func NewOsgOstream(opts *OsgOstreamOptions) *OsgOstream {
 	bb.Name = "{"
 	bb.IndentDelta = INDENT_VALUE
 	eb := model.NewObjectMark()
-	bb.Name = "}"
-	bb.IndentDelta = -INDENT_VALUE
-	osg := &OsgOstream{PROPERTY: p, BEGINBRACKET: bb, ENDBRACKET: eb, CRLF: &CrlfType{}, TargetFileVersion: OPENSCENEGRAPHSOVERSION, UseRobustBinaryFormat: true, UseSchemaData: false}
+	eb.Name = "}"
+	eb.IndentDelta = -INDENT_VALUE
+	osg := &OsgOstream{
+		PROPERTY:              p,
+		BEGINBRACKET:          bb,
+		ENDBRACKET:            eb,
+		CRLF:                  &CrlfType{},
+		TargetFileVersion:     OPENSCENEGRAPHSOVERSION,
+		UseRobustBinaryFormat: true,
+		UseSchemaData:         false,
+		DomainVersionMap:      make(map[string]int32),
+		ArrayMap:              make(map[*model.Array]int32),
+		ObjectMap:             make(map[model.ObjectInterface]int32),
+		InbuiltSchemaMap:      make(map[string]string),
+	}
 	osg.Options = opts
 	if !opts.UseRobustBinaryFormat {
 		osg.UseRobustBinaryFormat = false
@@ -129,226 +141,175 @@ func (ostream *OsgOstream) Write(inter interface{}) {
 	switch val := inter.(type) {
 	case bool:
 		ostream.Out.WriteBool(val)
-		break
 	case int8:
 		ostream.Out.WriteChar(val)
-		break
 	case uint8:
 		ostream.Out.WriteUChar(val)
-		break
 	case int16:
 		ostream.Out.WriteShort(val)
-		break
 	case uint16:
 		ostream.Out.WriteUShort(val)
-		break
 	case int32:
 		ostream.Out.WriteInt(val)
-		break
 	case uint32:
 		ostream.Out.WriteUInt(val)
-		break
 	case int64:
 		ostream.Out.WriteLong(val)
-		break
 	case uint64:
 		ostream.Out.WriteULong(val)
-		break
 	case float32:
 		ostream.Out.WriteFloat(val)
-		break
 	case float64:
 		ostream.Out.WriteDouble(val)
-		break
 	case *[2]float32:
 		ostream.Out.WriteFloat(val[0])
 		ostream.Out.WriteFloat(val[1])
-		break
 	case *[2]float64:
 		ostream.Out.WriteDouble(val[0])
 		ostream.Out.WriteDouble(val[1])
-		break
 	case *[3]float32:
 		ostream.Out.WriteFloat(val[0])
 		ostream.Out.WriteFloat(val[1])
 		ostream.Out.WriteFloat(val[2])
-		break
 	case *[3]float64:
 		ostream.Out.WriteDouble(val[0])
 		ostream.Out.WriteDouble(val[1])
 		ostream.Out.WriteDouble(val[2])
-		break
 	case *[4]float32:
 		ostream.Out.WriteFloat(val[0])
 		ostream.Out.WriteFloat(val[1])
 		ostream.Out.WriteFloat(val[2])
 		ostream.Out.WriteFloat(val[3])
-		break
 	case *[4]float64:
 		ostream.Out.WriteDouble(val[0])
 		ostream.Out.WriteDouble(val[1])
 		ostream.Out.WriteDouble(val[2])
 		ostream.Out.WriteDouble(val[3])
-		break
 	case *[2]int32:
 		ostream.Out.WriteInt(val[0])
 		ostream.Out.WriteInt(val[1])
-		break
 	case *[2]int64:
 		ostream.Out.WriteLong(val[0])
 		ostream.Out.WriteLong(val[1])
-		break
 	case *[3]int32:
 		ostream.Out.WriteInt(val[0])
 		ostream.Out.WriteInt(val[1])
 		ostream.Out.WriteInt(val[2])
-		break
 	case *[3]int64:
 		ostream.Out.WriteLong(val[0])
 		ostream.Out.WriteLong(val[1])
 		ostream.Out.WriteLong(val[2])
-		break
 	case *[4]int32:
 		ostream.Out.WriteInt(val[0])
 		ostream.Out.WriteInt(val[1])
 		ostream.Out.WriteInt(val[2])
 		ostream.Out.WriteInt(val[3])
-		break
 	case *[4]int64:
 		ostream.Out.WriteLong(val[0])
 		ostream.Out.WriteLong(val[1])
 		ostream.Out.WriteLong(val[2])
 		ostream.Out.WriteLong(val[3])
-		break
 	case *[2]uint32:
 		ostream.Out.WriteUInt(val[0])
 		ostream.Out.WriteUInt(val[1])
-		break
 	case *[2]uint64:
 		ostream.Out.WriteULong(val[0])
 		ostream.Out.WriteULong(val[1])
-		break
 	case *[3]uint32:
 		ostream.Out.WriteUInt(val[0])
 		ostream.Out.WriteUInt(val[1])
 		ostream.Out.WriteUInt(val[2])
-		break
 	case *[3]uint64:
 		ostream.Out.WriteULong(val[0])
 		ostream.Out.WriteULong(val[1])
 		ostream.Out.WriteULong(val[2])
-		break
 	case *[4]uint32:
 		ostream.Out.WriteUInt(val[0])
 		ostream.Out.WriteUInt(val[1])
 		ostream.Out.WriteUInt(val[2])
 		ostream.Out.WriteUInt(val[3])
-		break
 	case *[4]uint64:
 		ostream.Out.WriteULong(val[0])
 		ostream.Out.WriteULong(val[1])
 		ostream.Out.WriteULong(val[2])
 		ostream.Out.WriteULong(val[3])
-		break
 	case *[2]uint8:
 		ostream.Out.WriteUChar(val[0])
 		ostream.Out.WriteUChar(val[1])
-		break
 	case *[2]uint16:
 		ostream.Out.WriteUShort(val[0])
 		ostream.Out.WriteUShort(val[1])
-		break
 	case *[3]uint8:
 		ostream.Out.WriteUChar(val[0])
 		ostream.Out.WriteUChar(val[1])
 		ostream.Out.WriteUChar(val[2])
-		break
 	case *[3]uint16:
 		ostream.Out.WriteUShort(val[0])
 		ostream.Out.WriteUShort(val[1])
 		ostream.Out.WriteUShort(val[2])
-		break
 	case *[4]uint8:
 		ostream.Out.WriteUChar(val[0])
 		ostream.Out.WriteUChar(val[1])
 		ostream.Out.WriteUChar(val[2])
 		ostream.Out.WriteUChar(val[3])
-		break
 	case *[4]uint16:
 		ostream.Out.WriteUShort(val[0])
 		ostream.Out.WriteUShort(val[1])
 		ostream.Out.WriteUShort(val[2])
 		ostream.Out.WriteUShort(val[3])
-		break
 	case *[2]int8:
 		ostream.Out.WriteChar(val[0])
 		ostream.Out.WriteChar(val[1])
-		break
 	case *[2]int16:
 		ostream.Out.WriteShort(val[0])
 		ostream.Out.WriteShort(val[1])
-		break
 	case *[3]int8:
 		ostream.Out.WriteChar(val[0])
 		ostream.Out.WriteChar(val[1])
 		ostream.Out.WriteChar(val[2])
-		break
 	case *[3]int16:
 		ostream.Out.WriteShort(val[0])
 		ostream.Out.WriteShort(val[1])
 		ostream.Out.WriteShort(val[2])
-		break
 	case *[4]int8:
 		ostream.Out.WriteChar(val[0])
 		ostream.Out.WriteChar(val[1])
 		ostream.Out.WriteChar(val[2])
 		ostream.Out.WriteChar(val[3])
-		break
 	case *[4]int16:
 		ostream.Out.WriteShort(val[0])
 		ostream.Out.WriteShort(val[1])
 		ostream.Out.WriteShort(val[2])
 		ostream.Out.WriteShort(val[3])
-		break
 	case *[4][4]float32:
 		ostream.WriteMatrix4f(val)
-		break
 	case *[4][4]float64:
 		ostream.WriteMatrix4d(val)
-		break
 	case *[4][4]int32:
 		ostream.Write(&val[0])
 		ostream.Write(&val[1])
 		ostream.Write(&val[2])
 		ostream.Write(&val[3])
-		break
 	case *[4][4]int64:
 		ostream.Write(&val[0])
 		ostream.Write(&val[1])
 		ostream.Write(&val[2])
 		ostream.Write(&val[3])
-		break
 	case *string:
 		ostream.Out.WriteString(val)
-		break
 	case *model.ObjectGlenum:
 		ostream.Out.WriteGlenum(val)
-		break
 	case *model.ObjectProperty:
 		ostream.Out.WriteProperty(val)
-		break
 	case *model.ObjectMark:
 		ostream.Out.WriteMark(val)
-		break
 	case *model.PrimitiveSet:
 		ostream.WritePrimitiveSet(val)
-		break
 	case *CrlfType:
 		if ostream.Out.IsBinary() {
 			str := "\r\n"
 			ostream.Out.WriteString(&str)
 		}
-		break
 	}
 }
 
@@ -415,7 +376,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 				ostream.Write(ostream.CRLF)
 			}
 		}
-		break
 	case model.UByteArrayType:
 		dt := ay.Data.([]uint8)
 		for index, d := range dt {
@@ -424,7 +384,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 				ostream.Write(ostream.CRLF)
 			}
 		}
-		break
 	case model.ShortArrayType:
 		dt := ay.Data.([]int16)
 		for index, d := range dt {
@@ -433,7 +392,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 				ostream.Write(ostream.CRLF)
 			}
 		}
-		break
 	case model.UShortArrayType:
 		dt := ay.Data.([]uint16)
 		for index, d := range dt {
@@ -442,7 +400,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 				ostream.Write(ostream.CRLF)
 			}
 		}
-		break
 	case model.IntArrayType:
 		dt := ay.Data.([]int32)
 		for index, d := range dt {
@@ -451,7 +408,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 				ostream.Write(ostream.CRLF)
 			}
 		}
-		break
 	case model.UIntArrayType:
 		dt := ay.Data.([]uint32)
 		for index, d := range dt {
@@ -460,7 +416,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 				ostream.Write(ostream.CRLF)
 			}
 		}
-		break
 	case model.FloatArrayType:
 		dt := ay.Data.([]float32)
 		for index, d := range dt {
@@ -469,7 +424,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 				ostream.Write(ostream.CRLF)
 			}
 		}
-		break
 	case model.DoubleArrayType:
 		dt := ay.Data.([]float64)
 		for index, d := range dt {
@@ -478,7 +432,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 				ostream.Write(ostream.CRLF)
 			}
 		}
-		break
 	case model.Vec2bArrayType:
 		dt := ay.Data.([][2]int8)
 		for _, d := range dt {
@@ -486,7 +439,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[1])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec3bArrayType:
 		dt := ay.Data.([][3]int8)
 		for _, d := range dt {
@@ -497,7 +449,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[2])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec4bArrayType:
 		dt := ay.Data.([][4]int8)
 		for _, d := range dt {
@@ -510,7 +461,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[3])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec2ubArrayType:
 		dt := ay.Data.([][2]uint8)
 		for _, d := range dt {
@@ -518,7 +468,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[1])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec3ubArrayType:
 		dt := ay.Data.([][3]uint8)
 		for _, d := range dt {
@@ -529,7 +478,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[2])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec4ubArrayType:
 		dt := ay.Data.([][4]uint8)
 		for _, d := range dt {
@@ -542,7 +490,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[3])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 
 	case model.Vec2sArrayType:
 		dt := ay.Data.([][2]int16)
@@ -551,7 +498,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[1])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec3sArrayType:
 		dt := ay.Data.([][3]int16)
 		for _, d := range dt {
@@ -562,7 +508,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[2])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec4sArrayType:
 		dt := ay.Data.([][4]int16)
 		for _, d := range dt {
@@ -575,7 +520,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[3])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 
 	case model.Vec2usArrayType:
 		dt := ay.Data.([][2]uint16)
@@ -584,7 +528,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[1])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec3usArrayType:
 		dt := ay.Data.([][3]uint16)
 		for _, d := range dt {
@@ -595,7 +538,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[2])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec4usArrayType:
 		dt := ay.Data.([][4]uint16)
 		for _, d := range dt {
@@ -608,7 +550,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[3])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 
 	case model.Vec2ArrayType:
 		dt := ay.Data.([][2]float32)
@@ -617,7 +558,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[1])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec3ArrayType:
 		dt := ay.Data.([][3]float32)
 		for _, d := range dt {
@@ -628,7 +568,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[2])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec4ArrayType:
 		dt := ay.Data.([][4]float32)
 		for _, d := range dt {
@@ -641,7 +580,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[3])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 
 	case model.Vec2dArrayType:
 		dt := ay.Data.([][2]float64)
@@ -650,7 +588,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[1])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec3dArrayType:
 		dt := ay.Data.([][3]float64)
 		for _, d := range dt {
@@ -661,7 +598,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[2])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec4dArrayType:
 		dt := ay.Data.([][4]float64)
 		for _, d := range dt {
@@ -674,7 +610,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[3])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 
 	case model.Vec2iArrayType:
 		dt := ay.Data.([][2]int32)
@@ -683,7 +618,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[1])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec3iArrayType:
 		dt := ay.Data.([][3]int32)
 		for _, d := range dt {
@@ -694,7 +628,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[2])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec4iArrayType:
 		dt := ay.Data.([][4]int32)
 		for _, d := range dt {
@@ -703,7 +636,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[2])
 			ostream.Write(d[3])
 		}
-		break
 
 	case model.Vec2uiArrayType:
 		dt := ay.Data.([][2]uint32)
@@ -711,7 +643,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[0])
 			ostream.Write(d[1])
 		}
-		break
 	case model.Vec3uiArrayType:
 		dt := ay.Data.([][3]uint32)
 		for _, d := range dt {
@@ -722,7 +653,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[2])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	case model.Vec4uiArrayType:
 		dt := ay.Data.([][4]uint32)
 		for _, d := range dt {
@@ -735,7 +665,6 @@ func (ostream *OsgOstream) WriteArray(ay *model.Array) {
 			ostream.Write(d[3])
 			ostream.Write(ostream.CRLF)
 		}
-		break
 	}
 	ostream.Write(ostream.ENDBRACKET)
 }
@@ -757,7 +686,6 @@ func (ostream *OsgOstream) WritePrimitiveSet(ps interface{}) {
 		}
 		ostream.Write(p.Count)
 		ostream.Write(ostream.CRLF)
-		break
 	case model.DrawArrayLengths:
 		pro.Value = p.PrimitiveType
 		md.Value = p.Mode
@@ -780,7 +708,6 @@ func (ostream *OsgOstream) WritePrimitiveSet(ps interface{}) {
 		}
 		ostream.Write(ostream.ENDBRACKET)
 		ostream.Write(ostream.CRLF)
-		break
 	case model.DrawElementsUByte:
 		pro.Value = p.PrimitiveType
 		md.Value = p.Mode
@@ -802,7 +729,6 @@ func (ostream *OsgOstream) WritePrimitiveSet(ps interface{}) {
 		}
 		ostream.Write(ostream.ENDBRACKET)
 		ostream.Write(ostream.CRLF)
-		break
 	case model.DrawElementsUShort:
 		pro.Value = p.PrimitiveType
 		md.Value = p.Mode
@@ -824,7 +750,6 @@ func (ostream *OsgOstream) WritePrimitiveSet(ps interface{}) {
 		}
 		ostream.Write(ostream.ENDBRACKET)
 		ostream.Write(ostream.CRLF)
-		break
 	case model.DrawElementsUInt:
 		pro.Value = p.PrimitiveType
 		md.Value = p.Mode
@@ -846,7 +771,6 @@ func (ostream *OsgOstream) WritePrimitiveSet(ps interface{}) {
 		}
 		ostream.Write(ostream.ENDBRACKET)
 		ostream.Write(ostream.CRLF)
-		break
 	}
 }
 
@@ -875,23 +799,18 @@ func (ostream *OsgOstream) WriteImage(img *model.Image) {
 		switch ostream.WriteImageHint {
 		case WRITEINLINEDATA:
 			decision = model.IMAGEINLINEDATA
-			break
 		case WRITEINLINEFILE:
 			decision = model.IMAGEINLINEFILE
-			break
 		case WRITEEXTERNALFILE:
 			decision = model.IMAGEWRITEOUT
-			break
 		case WRITEUSEEXTERNAL:
 			decision = model.IMAGEEXTERNAL
-			break
 		default:
 			if img.WriteHint == model.EXTERNALFILE {
 				decision = model.IMAGEEXTERNAL
 			} else {
 				decision = model.IMAGEINLINEDATA
 			}
-			break
 		}
 		filename := img.FileName
 
@@ -976,7 +895,6 @@ func (ostream *OsgOstream) WriteImage(img *model.Image) {
 				ostream.Write(ostream.ENDBRACKET)
 				ostream.Write(ostream.CRLF)
 			}
-			break
 		case model.IMAGEINLINEFILE:
 			if ostream.IsBinary() {
 				fp := img.FileName
@@ -1005,9 +923,7 @@ func (ostream *OsgOstream) WriteImage(img *model.Image) {
 					}
 				}
 			}
-			break
 		default:
-			break
 		}
 		ostream.WriteObjectFileds(img, "osg::Object")
 	}
@@ -1144,13 +1060,10 @@ func (ostream *OsgOstream) Start(out OsgOutputIterator, ty int32) error {
 		switch ty {
 		case WRITESCENE:
 			typeString = "Scene"
-			break
 		case WRITEIMAGE:
 			typeString = "Image"
-			break
 		case WRITEOBJECT:
 			typeString = "Object"
-			break
 		}
 		ostream.Write(&typeString)
 		ostream.Write(ostream.CRLF)

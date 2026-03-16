@@ -531,7 +531,10 @@ func (man *objectWrapperManager) AddWrap(wrap *ObjectWrapper) {
 }
 
 func (man *objectWrapperManager) RemoveWrap(wrap *ObjectWrapper) {
-	nm := strings.ToLower(wrap.Name)
+	if wrap == nil {
+		return
+	}
+	nm := "osg::" + strings.ToLower(wrap.Name)
 	delete(manager.Wraps, nm)
 }
 

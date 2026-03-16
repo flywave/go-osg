@@ -114,228 +114,177 @@ func (is *OsgIstream) Read(inter interface{}) {
 	switch val := inter.(type) {
 	case *bool:
 		is.In.ReadBool(val)
-		break
 	case *int8:
 		is.In.ReadChar(val)
-		break
 	case *uint8:
 		is.In.ReadUChar(val)
-		break
 	case *int16:
 		is.In.ReadShort(val)
-		break
 	case *uint16:
 		is.In.ReadUShort(val)
-		break
 	case *int:
 		var t int32
 		is.In.ReadInt(&t)
 		*val = int(t)
-		break
 	case *int32:
 		is.In.ReadInt((*int32)(val))
-		break
 	case *uint:
 		var t uint32
 		is.In.ReadUInt(&t)
 		*val = uint(t)
-		break
 	case *uint32:
 		is.In.ReadUInt((*uint32)(val))
-		break
 	case *int64:
 		is.In.ReadLong(val)
-		break
 	case *uint64:
 		is.In.ReadULong(val)
-		break
 	case *float32:
 		is.In.ReadFloat(val)
-		break
 	case *float64:
 		is.In.ReadDouble(val)
-		break
 	case *[2]float32:
 		is.In.ReadFloat(&val[0])
 		is.In.ReadFloat(&val[1])
-		break
 	case *[2]float64:
 		is.In.ReadDouble(&val[0])
 		is.In.ReadDouble(&val[1])
-		break
 	case *[3]float32:
 		is.In.ReadFloat(&val[0])
 		is.In.ReadFloat(&val[1])
 		is.In.ReadFloat(&val[2])
-		break
 	case *[3]float64:
 		is.In.ReadDouble(&val[0])
 		is.In.ReadDouble(&val[1])
 		is.In.ReadDouble(&val[2])
-		break
 	case *[4]float32:
 		is.In.ReadFloat(&val[0])
 		is.In.ReadFloat(&val[1])
 		is.In.ReadFloat(&val[2])
 		is.In.ReadFloat(&val[3])
-		break
 	case *[4]float64:
 		is.In.ReadDouble(&val[0])
 		is.In.ReadDouble(&val[1])
 		is.In.ReadDouble(&val[2])
 		is.In.ReadDouble(&val[3])
-		break
 	case *[2]int32:
 		is.In.ReadInt(&val[0])
 		is.In.ReadInt(&val[1])
-		break
 	case *[2]int64:
 		is.In.ReadLong(&val[0])
 		is.In.ReadLong(&val[1])
-		break
 	case *[3]int32:
 		is.In.ReadInt(&val[0])
 		is.In.ReadInt(&val[1])
 		is.In.ReadInt(&val[2])
-		break
 	case *[3]int64:
 		is.In.ReadLong(&val[0])
 		is.In.ReadLong(&val[1])
 		is.In.ReadLong(&val[2])
-		break
 	case *[4]int32:
 		is.In.ReadInt(&val[0])
 		is.In.ReadInt(&val[1])
 		is.In.ReadInt(&val[2])
 		is.In.ReadInt(&val[3])
-		break
 	case *[4]int64:
 		is.In.ReadLong(&val[0])
 		is.In.ReadLong(&val[1])
 		is.In.ReadLong(&val[2])
 		is.In.ReadLong(&val[3])
-		break
 	case *[2]uint32:
 		is.In.ReadUInt(&val[0])
 		is.In.ReadUInt(&val[1])
-		break
 	case *[2]uint64:
 		is.In.ReadULong(&val[0])
 		is.In.ReadULong(&val[1])
-		break
 	case *[3]uint32:
 		is.In.ReadUInt(&val[0])
 		is.In.ReadUInt(&val[1])
 		is.In.ReadUInt(&val[2])
-		break
 	case *[3]uint64:
 		is.In.ReadULong(&val[0])
 		is.In.ReadULong(&val[1])
 		is.In.ReadULong(&val[2])
-		break
 	case *[4]uint32:
 		is.In.ReadUInt(&val[0])
 		is.In.ReadUInt(&val[1])
 		is.In.ReadUInt(&val[2])
 		is.In.ReadUInt(&val[3])
-		break
 	case *[4]uint64:
 		is.In.ReadULong(&val[0])
 		is.In.ReadULong(&val[1])
 		is.In.ReadULong(&val[2])
 		is.In.ReadULong(&val[3])
-		break
 	case *[2]uint8:
 		is.In.ReadUChar(&val[0])
 		is.In.ReadUChar(&val[1])
-		break
 	case *[2]uint16:
 		is.In.ReadUShort(&val[0])
 		is.In.ReadUShort(&val[1])
-		break
 	case *[3]uint8:
 		is.In.ReadUChar(&val[0])
 		is.In.ReadUChar(&val[1])
 		is.In.ReadUChar(&val[2])
-		break
 	case *[3]uint16:
 		is.In.ReadUShort(&val[0])
 		is.In.ReadUShort(&val[1])
 		is.In.ReadUShort(&val[2])
-		break
 	case *[4]uint8:
 		is.In.ReadUChar(&val[0])
 		is.In.ReadUChar(&val[1])
 		is.In.ReadUChar(&val[2])
 		is.In.ReadUChar(&val[3])
-		break
 	case *[4]uint16:
 		is.In.ReadUShort(&val[0])
 		is.In.ReadUShort(&val[1])
 		is.In.ReadUShort(&val[2])
 		is.In.ReadUShort(&val[3])
-		break
 	case *[2]int8:
 		is.In.ReadChar(&val[0])
 		is.In.ReadChar(&val[1])
-		break
 	case *[2]int16:
 		is.In.ReadShort(&val[0])
 		is.In.ReadShort(&val[1])
-		break
 	case *[3]int8:
 		is.In.ReadChar(&val[0])
 		is.In.ReadChar(&val[1])
 		is.In.ReadChar(&val[2])
-		break
 	case *[3]int16:
 		is.In.ReadShort(&val[0])
 		is.In.ReadShort(&val[1])
 		is.In.ReadShort(&val[2])
-		break
 	case *[4]int8:
 		is.In.ReadChar(&val[0])
 		is.In.ReadChar(&val[1])
 		is.In.ReadChar(&val[2])
 		is.In.ReadChar(&val[3])
-		break
 	case *[4]int16:
 		is.In.ReadShort(&val[0])
 		is.In.ReadShort(&val[1])
 		is.In.ReadShort(&val[2])
 		is.In.ReadShort(&val[3])
-		break
 	case *[4][4]float32:
 		is.ReadMatrix4f(val)
-		break
 	case *[4][4]float64:
 		is.ReadMatrix4d(val)
-		break
 	case *[4][4]int32:
 		is.Read(&val[0])
 		is.Read(&val[1])
 		is.Read(&val[2])
 		is.Read(&val[3])
-		break
 	case *[4][4]int64:
 		is.Read(&val[0])
 		is.Read(&val[1])
 		is.Read(&val[2])
 		is.Read(&val[3])
-		break
 	case *string:
 		st := is.In.ReadString()
 		*val = st
-		break
 	case *model.ObjectGlenum:
 		is.In.ReadGlenum(val)
-		break
 	case *model.ObjectProperty:
 		is.In.ReadProperty(val)
-		break
 	case *model.ObjectMark:
 		is.In.ReadMark(val)
-		break
 	}
 }
 
@@ -919,7 +868,6 @@ func (is *OsgIstream) ReadImage(readFromExternal bool) *model.Image {
 		img.Data = ([]uint8)(imgdata.Data)
 		img.AllocationMode = model.USENEWDELETE
 		readFromExternal = false
-		break
 	case model.IMAGEINLINEFILE:
 		if is.IsBinary() {
 			size := is.ReadSize()
@@ -934,14 +882,10 @@ func (is *OsgIstream) ReadImage(readFromExternal bool) *model.Image {
 				}
 			}
 		}
-		break
 	case model.IMAGEEXTERNAL:
 		readFromExternal = true
-		break
 	case model.IMAGEWRITEOUT:
-		break
 	default:
-		break
 	}
 	if readFromExternal && name != "" {
 		rw := getReaderWriter()
@@ -1130,7 +1074,6 @@ func (is *OsgIstream) ReadSchema() {
 	for {
 		l, prx, err := rd.ReadLine()
 		if !prx && err != nil {
-			break
 		}
 		vs := strings.Split(string(l), "=")
 		if len(vs) < 2 {
