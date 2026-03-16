@@ -5,19 +5,73 @@ import (
 )
 
 func getNumInstances(obj interface{}) interface{} {
-	return &obj.(*model.PrimitiveSet).NumInstances
+	switch o := obj.(type) {
+	case *model.PrimitiveSet:
+		return &o.NumInstances
+	case *model.DrawArrays:
+		return &o.NumInstances
+	case *model.DrawArrayLengths:
+		return &o.NumInstances
+	case *model.DrawElementsUByte:
+		return &o.NumInstances
+	case *model.DrawElementsUShort:
+		return &o.NumInstances
+	case *model.DrawElementsUInt:
+		return &o.NumInstances
+	}
+	return nil
 }
 
 func setNumInstances(obj interface{}, val interface{}) {
-	obj.(*model.PrimitiveSet).NumInstances = val.(int32)
+	switch o := obj.(type) {
+	case *model.PrimitiveSet:
+		o.NumInstances = val.(int32)
+	case *model.DrawArrays:
+		o.NumInstances = val.(int32)
+	case *model.DrawArrayLengths:
+		o.NumInstances = val.(int32)
+	case *model.DrawElementsUByte:
+		o.NumInstances = val.(int32)
+	case *model.DrawElementsUShort:
+		o.NumInstances = val.(int32)
+	case *model.DrawElementsUInt:
+		o.NumInstances = val.(int32)
+	}
 }
 
 func getPrimitMode(obj interface{}) interface{} {
-	return &obj.(*model.PrimitiveSet).Mode
+	switch o := obj.(type) {
+	case *model.PrimitiveSet:
+		return &o.Mode
+	case *model.DrawArrays:
+		return &o.Mode
+	case *model.DrawArrayLengths:
+		return &o.Mode
+	case *model.DrawElementsUByte:
+		return &o.Mode
+	case *model.DrawElementsUShort:
+		return &o.Mode
+	case *model.DrawElementsUInt:
+		return &o.Mode
+	}
+	return nil
 }
 
 func setPrimitMode(obj interface{}, val interface{}) {
-	obj.(*model.PrimitiveSet).Mode = val.(int32)
+	switch o := obj.(type) {
+	case *model.PrimitiveSet:
+		o.Mode = val.(int32)
+	case *model.DrawArrays:
+		o.Mode = val.(int32)
+	case *model.DrawArrayLengths:
+		o.Mode = val.(int32)
+	case *model.DrawElementsUByte:
+		o.Mode = val.(int32)
+	case *model.DrawElementsUShort:
+		o.Mode = val.(int32)
+	case *model.DrawElementsUInt:
+		o.Mode = val.(int32)
+	}
 }
 
 func getDAFirst(obj interface{}) interface{} {

@@ -449,13 +449,13 @@ func (ser *VectorSerializer) Read(is *OsgIstream, obj interface{}) {
 	if is.IsBinary() {
 		size := is.ReadSize()
 		switch ser.Element.(type) {
-		case *model.PrimitiveSet:
-			for i := 0; i < size; i++ {
-				ser.Setter(obj, is.ReadPrimitiveSet())
-			}
 		case *model.Array:
 			for i := 0; i < size; i++ {
 				ser.Setter(obj, is.ReadArray())
+			}
+		default:
+			for i := 0; i < size; i++ {
+				ser.Setter(obj, is.ReadPrimitiveSet())
 			}
 		}
 	} else {
@@ -464,13 +464,13 @@ func (ser *VectorSerializer) Read(is *OsgIstream, obj interface{}) {
 			is.Read(is.BEGINBRACKET)
 			if size > 0 {
 				switch ser.Element.(type) {
-				case *model.PrimitiveSet:
-					for i := 0; i < size; i++ {
-						ser.Setter(obj, is.ReadPrimitiveSet())
-					}
 				case *model.Array:
 					for i := 0; i < size; i++ {
 						ser.Setter(obj, is.ReadArray())
+					}
+				default:
+					for i := 0; i < size; i++ {
+						ser.Setter(obj, is.ReadPrimitiveSet())
 					}
 				}
 			}

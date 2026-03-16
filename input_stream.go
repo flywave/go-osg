@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -920,6 +921,12 @@ func (is *OsgIstream) ReadObject(obj interface{}) interface{} {
 		return v
 	}
 	obj = is.ReadObjectFields(cls, int32(id), obj)
+	if obj == nil && strings.HasPrefix(cls, "osg::Vec") {
+		is.Read(is.ENDBRACKET)
+		ary := is.ReadArray()
+		is.AdvanceToCurrentEndBracket()
+		return ary
+	}
 	is.AdvanceToCurrentEndBracket()
 	return obj
 }
@@ -927,6 +934,7 @@ func (is *OsgIstream) ReadObject(obj interface{}) interface{} {
 func (is *OsgIstream) ReadObjectFields(className string, id int32, obj interface{}) interface{} {
 	wrap := GetObjectWrapperManager().FindWrap(className)
 	if wrap == nil {
+		fmt.Printf("[DEBUG] FindWrap returned nil for className: %q\n", className)
 		return nil
 	}
 	ver := is.GetFileVersion(wrap.Domain)

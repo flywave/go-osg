@@ -21,6 +21,19 @@ func TestReadNode(t *testing.T) {
 	obj.Accept(vst)
 }
 
+func TestReadTile(t *testing.T) {
+	rw := NewReadWrite()
+	res := rw.ReadNode("test_data/Tile_+003_+003_L18_000.osgb", nil)
+	if res == nil {
+		t.Fatal("failed to read node")
+	}
+	obj := res.GetNode()
+	if obj == nil {
+		t.Fatal("failed to get node")
+	}
+	fmt.Printf("Node: %+v\n", obj)
+}
+
 func TestCompress(t *testing.T) {
 	buf := []byte{1, 2, 3, 4, 5, 6, 7, 7, 8, 8, 2, 3, 4, 5, 6, 7, 7, 8, 8, 2, 3, 4, 5, 6, 7, 7, 8, 8, 2, 3, 4, 5, 6, 7, 7, 8, 8, 2, 3, 4, 5, 6, 7, 7, 8, 8, 2, 3, 4, 5, 6, 7, 7, 8, 8, 2, 3, 4, 5, 6, 7, 7, 8, 8, 2, 3, 4, 5, 6, 7, 7, 8, 8, 2, 3, 4, 5, 6, 7, 7, 8, 8, 2, 3, 4, 5, 6, 7, 7, 8, 8, 2, 3, 4, 5, 6, 7, 7, 8, 8, 2, 3, 4, 5, 6, 7, 7, 8, 8}
 	var bt []byte

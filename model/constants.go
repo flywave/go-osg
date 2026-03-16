@@ -301,56 +301,46 @@ const (
 
 	ArrayType ArrayTable = 0
 
-	ByteArrayType  ArrayTable = 1
-	ShortArrayType ArrayTable = 2
-	IntArrayType   ArrayTable = 3
+	ByteArrayType   ArrayTable = 0
+	ShortArrayType  ArrayTable = 2
+	IntArrayType    ArrayTable = 4
+	UByteArrayType  ArrayTable = 1
+	UShortArrayType ArrayTable = 3
+	UIntArrayType   ArrayTable = 5
+	FloatArrayType  ArrayTable = 6
+	DoubleArrayType ArrayTable = 7
 
-	UByteArrayType  ArrayTable = 4
-	UShortArrayType ArrayTable = 5
-	UIntArrayType   ArrayTable = 6
+	Vec2bArrayType  ArrayTable = 8
+	Vec3bArrayType  ArrayTable = 9
+	Vec4bArrayType  ArrayTable = 10
+	Vec4ubArrayType ArrayTable = 11
+	Vec2sArrayType  ArrayTable = 12
+	Vec3sArrayType  ArrayTable = 13
+	Vec4sArrayType  ArrayTable = 14
+	Vec2ArrayType   ArrayTable = 15
+	Vec3ArrayType   ArrayTable = 16
+	Vec4ArrayType   ArrayTable = 17
+	Vec2dArrayType  ArrayTable = 18
+	Vec3dArrayType  ArrayTable = 19
+	Vec4dArrayType  ArrayTable = 20
+	Vec2ubArrayType ArrayTable = 21
+	Vec3ubArrayType ArrayTable = 22
+	Vec2usArrayType ArrayTable = 23
+	Vec3usArrayType ArrayTable = 24
+	Vec4usArrayType ArrayTable = 25
+	Vec2iArrayType  ArrayTable = 26
+	Vec3iArrayType  ArrayTable = 27
+	Vec4iArrayType  ArrayTable = 28
+	Vec2uiArrayType ArrayTable = 29
+	Vec3uiArrayType ArrayTable = 30
+	Vec4uiArrayType ArrayTable = 31
+	UInt64ArrayType ArrayTable = 32
+	Int64ArrayType  ArrayTable = 33
 
-	FloatArrayType  ArrayTable = 7
-	DoubleArrayType ArrayTable = 8
+	MatrixArrayType  ArrayTable = 34
+	MatrixdArrayType ArrayTable = 35
 
-	Vec2bArrayType ArrayTable = 9
-	Vec3bArrayType ArrayTable = 10
-	Vec4bArrayType ArrayTable = 11
-
-	Vec2sArrayType ArrayTable = 12
-	Vec3sArrayType ArrayTable = 13
-	Vec4sArrayType ArrayTable = 14
-
-	Vec2iArrayType ArrayTable = 15
-	Vec3iArrayType ArrayTable = 16
-	Vec4iArrayType ArrayTable = 17
-
-	Vec2ubArrayType ArrayTable = 18
-	Vec3ubArrayType ArrayTable = 19
-	Vec4ubArrayType ArrayTable = 20
-
-	Vec2usArrayType ArrayTable = 21
-	Vec3usArrayType ArrayTable = 22
-	Vec4usArrayType ArrayTable = 23
-
-	Vec2uiArrayType ArrayTable = 24
-	Vec3uiArrayType ArrayTable = 25
-	Vec4uiArrayType ArrayTable = 26
-
-	Vec2ArrayType ArrayTable = 27
-	Vec3ArrayType ArrayTable = 28
-	Vec4ArrayType ArrayTable = 29
-
-	Vec2dArrayType ArrayTable = 30
-	Vec3dArrayType ArrayTable = 31
-	Vec4dArrayType ArrayTable = 32
-
-	MatrixArrayType  ArrayTable = 33
-	MatrixdArrayType ArrayTable = 34
-
-	QuatArrayType ArrayTable = 35
-
-	UInt64ArrayType ArrayTable = 36
-	Int64ArrayType  ArrayTable = 37
+	QuatArrayType ArrayTable = 36
 
 	LastArrayType ArrayTable = 37
 
