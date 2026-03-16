@@ -49,7 +49,12 @@ func getUserDataContainer(obj interface{}) interface{} {
 }
 
 func setUserDataContainer(obj interface{}, val interface{}) {
-	obj.(model.ObjectInterface).SetUserDataContainer(val.(*model.UserDataContainer))
+	if val == nil {
+		return
+	}
+	if udc, ok := val.(*model.UserDataContainer); ok {
+		obj.(model.ObjectInterface).SetUserDataContainer(udc)
+	}
 }
 
 func init() {

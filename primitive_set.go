@@ -103,7 +103,15 @@ func getDAData(obj interface{}) interface{} {
 }
 
 func setDAData(obj interface{}, val interface{}) {
-	obj.(*model.DrawArrayLengths).Data = val.([]int32)
+	if val == nil {
+		return
+	}
+	switch o := obj.(type) {
+	case *model.DrawArrayLengths:
+		if v, ok := val.([]int32); ok {
+			o.Data = v
+		}
+	}
 }
 
 func getDADataUByte(obj interface{}) interface{} {
@@ -111,7 +119,15 @@ func getDADataUByte(obj interface{}) interface{} {
 }
 
 func setDADataUByte(obj interface{}, val interface{}) {
-	obj.(*model.DrawElementsUByte).Data = val.([]uint8)
+	if val == nil {
+		return
+	}
+	switch o := obj.(type) {
+	case *model.DrawElementsUByte:
+		if v, ok := val.([]uint8); ok {
+			o.Data = v
+		}
+	}
 }
 
 func getDADataUShort(obj interface{}) interface{} {
@@ -119,7 +135,15 @@ func getDADataUShort(obj interface{}) interface{} {
 }
 
 func setDADataUShort(obj interface{}, val interface{}) {
-	obj.(*model.DrawElementsUShort).Data = val.([]uint16)
+	if val == nil {
+		return
+	}
+	switch o := obj.(type) {
+	case *model.DrawElementsUShort:
+		if v, ok := val.([]uint16); ok {
+			o.Data = v
+		}
+	}
 }
 
 func getDADataUInt(obj interface{}) interface{} {
@@ -127,7 +151,15 @@ func getDADataUInt(obj interface{}) interface{} {
 }
 
 func setDADataUInt(obj interface{}, val interface{}) {
-	obj.(*model.DrawElementsUInt).Data = val.([]uint32)
+	if val == nil {
+		return
+	}
+	switch o := obj.(type) {
+	case *model.DrawElementsUInt:
+		if v, ok := val.([]uint32); ok {
+			o.Data = v
+		}
+	}
 }
 
 func init() {

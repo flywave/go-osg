@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -348,6 +347,10 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	is.Read(&ty)
 	var size int32
 	is.Read(&size)
+	if size < 0 || size > 1<<30 {
+		is.AdvanceToCurrentEndBracket()
+		return nil
+	}
 	is.Read(is.BEGINBRACKET)
 	var arry *model.Array
 	switch ty.Value {
@@ -934,7 +937,6 @@ func (is *OsgIstream) ReadObject(obj interface{}) interface{} {
 func (is *OsgIstream) ReadObjectFields(className string, id int32, obj interface{}) interface{} {
 	wrap := GetObjectWrapperManager().FindWrap(className)
 	if wrap == nil {
-		fmt.Printf("[DEBUG] FindWrap returned nil for className: %q\n", className)
 		return nil
 	}
 	ver := is.GetFileVersion(wrap.Domain)

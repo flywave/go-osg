@@ -307,8 +307,13 @@ func getTexCoordArrayList(obj interface{}) interface{} {
 }
 
 func setTexCoordArrayList(obj interface{}, pro interface{}) {
-	pl := obj.(*model.Geometry).TexCoordArrayList
-	pl = append(pl, pro.(*model.Array))
+	if pro == nil {
+		return
+	}
+	if arr, ok := pro.(*model.Array); ok {
+		pl := obj.(*model.Geometry).TexCoordArrayList
+		pl = append(pl, arr)
+	}
 }
 
 func getVertexAttribArrayList(obj interface{}) interface{} {
@@ -316,8 +321,13 @@ func getVertexAttribArrayList(obj interface{}) interface{} {
 }
 
 func setVertexAttribArrayList(obj interface{}, pro interface{}) {
-	pl := obj.(*model.Geometry).VertexAttribList
-	pl = append(pl, pro.(*model.Array))
+	if pro == nil {
+		return
+	}
+	if arr, ok := pro.(*model.Array); ok {
+		pl := obj.(*model.Geometry).VertexAttribList
+		pl = append(pl, arr)
+	}
 }
 
 func getVertexData(obj interface{}) interface{} {
@@ -325,7 +335,11 @@ func getVertexData(obj interface{}) interface{} {
 }
 
 func setVertexData(obj interface{}, pro interface{}) {
-	obj.(*model.Geometry).VertexArray = pro.(*model.Array)
+	if pro == nil {
+		obj.(*model.Geometry).VertexArray = nil
+	} else if arr, ok := pro.(*model.Array); ok {
+		obj.(*model.Geometry).VertexArray = arr
+	}
 }
 
 func getNormalData(obj interface{}) interface{} {
@@ -333,8 +347,11 @@ func getNormalData(obj interface{}) interface{} {
 }
 
 func setNormalData(obj interface{}, pro interface{}) {
-	obj.(*model.Geometry).NormalArray = pro.(*model.Array)
-
+	if pro == nil {
+		obj.(*model.Geometry).NormalArray = nil
+	} else if arr, ok := pro.(*model.Array); ok {
+		obj.(*model.Geometry).NormalArray = arr
+	}
 }
 
 func getColorData(obj interface{}) interface{} {
@@ -342,8 +359,11 @@ func getColorData(obj interface{}) interface{} {
 }
 
 func setColorData(obj interface{}, pro interface{}) {
-	obj.(*model.Geometry).ColorArray = pro.(*model.Array)
-
+	if pro == nil {
+		obj.(*model.Geometry).ColorArray = nil
+	} else if arr, ok := pro.(*model.Array); ok {
+		obj.(*model.Geometry).ColorArray = arr
+	}
 }
 
 func getSecondaryColorData(obj interface{}) interface{} {
@@ -352,8 +372,11 @@ func getSecondaryColorData(obj interface{}) interface{} {
 }
 
 func setSecondaryColorData(obj interface{}, pro interface{}) {
-	obj.(*model.Geometry).SecondaryColorArray = pro.(*model.Array)
-
+	if pro == nil {
+		obj.(*model.Geometry).SecondaryColorArray = nil
+	} else if arr, ok := pro.(*model.Array); ok {
+		obj.(*model.Geometry).SecondaryColorArray = arr
+	}
 }
 
 func getFogCoordData(obj interface{}) interface{} {
@@ -361,7 +384,11 @@ func getFogCoordData(obj interface{}) interface{} {
 
 }
 func setFogCoordData(obj interface{}, pro interface{}) {
-	obj.(*model.Geometry).FogCoordArray = pro.(*model.Array)
+	if pro == nil {
+		obj.(*model.Geometry).FogCoordArray = nil
+	} else if arr, ok := pro.(*model.Array); ok {
+		obj.(*model.Geometry).FogCoordArray = arr
+	}
 }
 
 func init() {

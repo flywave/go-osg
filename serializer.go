@@ -509,6 +509,9 @@ func (ser *IsAVectorSerializer) Read(is *OsgIstream, obj interface{}) {
 }
 
 func (ser *IsAVectorSerializer) genVect(is *OsgIstream, size int32) interface{} {
+	if size < 0 || size > 1<<30 {
+		return nil
+	}
 	switch ser.ElementType {
 	case RWUCHAR:
 		vec := make([]uint8, int(size), int(size))
