@@ -3,6 +3,7 @@ package osg
 import (
 	"bufio"
 	"encoding/binary"
+	"fmt"
 
 	"github.com/flywave/go-osg/model"
 )
@@ -102,6 +103,10 @@ func (iter *BinaryInputIterator) readData(val interface{}, size int) {
 }
 
 func (iter *BinaryInputIterator) ReadCharArray(s int) []byte {
+	if s < 0 || s > 10000000 {
+		fmt.Printf("WARNING: ReadCharArray called with invalid size: %d\n", s)
+		return nil
+	}
 	arry := make([]byte, s)
 	iter.readData(arry, s)
 	return arry
@@ -154,7 +159,11 @@ func (iter *BinaryInputIterator) ReadDouble(val *float64) {
 func (iter *BinaryInputIterator) ReadString() string {
 	var size int32
 	iter.ReadInt(&size)
-	return string(iter.ReadCharArray(int(size)))
+	arr := iter.ReadCharArray(int(size))
+	if arr == nil {
+		return ""
+	}
+	return string(arr)
 }
 
 func (iter *BinaryInputIterator) ReadGlenum(val *model.ObjectGlenum) {

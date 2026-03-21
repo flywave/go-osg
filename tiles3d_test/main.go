@@ -30,7 +30,7 @@ func main() {
 	opts := tiles3d.DefaultConverterOptions()
 	opts.EnableTexture = true
 	opts.EnableUnlit = true
-	opts.MaxLOD = 10
+	opts.MaxLOD = 15
 
 	// Source SRS is EPSG:4548 (CGCS2000 / 3-degree Gauss-Kruger CM 117E)
 	opts.SourceSRS = "EPSG:4548"
