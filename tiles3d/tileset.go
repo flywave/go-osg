@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -87,6 +88,7 @@ func (g *B3DMGenerator) Generate(tile *Tile) ([]byte, error) {
 	doc := g.buildGLTF(tile.Content)
 
 	b3dm := tile3d.NewB3dm()
+	b3dm.Header.Version = 1
 	b3dm.Model = doc
 
 	view := tile3d.B3dmFeatureTableView{
@@ -371,6 +373,8 @@ func (c *Converter) Convert(inputPath, outputPath string) error {
 	}
 
 	tile := c.convertNodeToTile(node, filepath.Base(inputPath))
+	fmt.Printf("DEBUG Convert: root tile ID=%s, bbox center = (%f, %f, %f)\n",
+		tile.ID, tile.BoundingBox[0], tile.BoundingBox[1], tile.BoundingBox[2])
 
 	if c.opts.MaxLOD < 0 {
 		c.loadPagedLODs(tile, outputPath)
@@ -379,6 +383,8 @@ func (c *Converter) Convert(inputPath, outputPath string) error {
 	}
 
 	c.extendTileBox(tile)
+	fmt.Printf("DEBUG Convert: after extendTileBox, root tile bbox center = (%f, %f, %f)\n",
+		tile.BoundingBox[0], tile.BoundingBox[1], tile.BoundingBox[2])
 
 	c.calcGeometricError(tile)
 
@@ -430,11 +436,17 @@ func (c *Converter) loadPagedLODsLimited(tile *Tile, outputPath string, currentL
 	}
 
 	children := c.getPagedLODChildren(tile)
+	fmt.Printf("DEBUG loadPagedLODsLimited: tile=%s, level=%d/%d, found %d children\n",
+		tile.ID, currentLevel, maxLevel, len(children))
+	if tile.ID == "Tile_+002_+000_L22_000020.osgb" {
+		fmt.Printf("DEBUG: L22 loaded, checking children...\n")
+	}
 	for _, childPath := range children {
 		fullPath := childPath
 		if !filepath.IsAbs(fullPath) && c.basePath != "" {
 			fullPath = filepath.Join(c.basePath, childPath)
 		}
+		fmt.Printf("DEBUG: Loading child: %s -> %s\n", childPath, fullPath)
 
 		defer func() {
 			if r := recover(); r != nil {
@@ -459,13 +471,18 @@ func (c *Converter) loadPagedLODsLimited(tile *Tile, outputPath string, currentL
 
 func (c *Converter) getPagedLODChildren(tile *Tile) []string {
 	if tile == nil || tile.Node == nil {
+		fmt.Printf("DEBUG getPagedLODChildren: tile=%s has nil Node!\n", tile.ID)
 		return nil
 	}
 
 	var result []string
 
+	fmt.Printf("DEBUG getPagedLODChildren: tile=%s, Node type=%T\n", tile.ID, tile.Node)
+
 	processPagedLod := func(plod *model.PagedLod) {
-		for _, perRange := range plod.PerRangeDataList {
+		fmt.Printf("DEBUG getPagedLODChildren: found PagedLod with %d ranges\n", len(plod.PerRangeDataList))
+		for i, perRange := range plod.PerRangeDataList {
+			fmt.Printf("DEBUG: range[%d] filename=%q, dbpath=%q\n", i, perRange.FileName, plod.DataBasePath)
 			if perRange.FileName != "" {
 				childPath := strings.ReplaceAll(perRange.FileName, "\\", string(filepath.Separator))
 				if !filepath.IsAbs(childPath) && plod.DataBasePath != "" {
@@ -521,21 +538,32 @@ func (c *Converter) extendTileBox(tile *Tile) {
 		c.extendTileBox(child)
 	}
 
-	if len(tile.Children) == 0 || len(tile.BoundingBox) != 12 {
+	if len(tile.Children) == 0 {
 		return
 	}
 
-	minX := tile.BoundingBox[0] - tile.BoundingBox[3]
-	maxX := tile.BoundingBox[0] + tile.BoundingBox[3]
-	minY := tile.BoundingBox[1] - tile.BoundingBox[7]
-	maxY := tile.BoundingBox[1] + tile.BoundingBox[7]
-	minZ := tile.BoundingBox[2] - tile.BoundingBox[11]
-	maxZ := tile.BoundingBox[2] + tile.BoundingBox[11]
+	fmt.Printf("DEBUG extendTileBox: tile=%s, children=%d, tile.BoundingBox=%v\n",
+		tile.ID, len(tile.Children), tile.BoundingBox[:3])
+	if len(tile.Children) > 0 {
+		fmt.Printf("DEBUG extendTileBox: first child bbox center = (%f, %f, %f)\n",
+			tile.Children[0].BoundingBox[0], tile.Children[0].BoundingBox[1], tile.Children[0].BoundingBox[2])
+	}
+
+	minX := math.MaxFloat64
+	maxX := -math.MaxFloat64
+	minY := math.MaxFloat64
+	maxY := -math.MaxFloat64
+	minZ := math.MaxFloat64
+	maxZ := -math.MaxFloat64
+
+	hasValidChild := false
 
 	for _, child := range tile.Children {
 		if len(child.BoundingBox) != 12 {
 			continue
 		}
+
+		hasValidChild = true
 
 		cminX := child.BoundingBox[0] - child.BoundingBox[3]
 		cmaxX := child.BoundingBox[0] + child.BoundingBox[3]
@@ -564,12 +592,18 @@ func (c *Converter) extendTileBox(tile *Tile) {
 		}
 	}
 
+	if !hasValidChild {
+		return
+	}
+
 	tile.BoundingBox[0] = (maxX + minX) / 2
 	tile.BoundingBox[1] = (maxY + minY) / 2
 	tile.BoundingBox[2] = (maxZ + minZ) / 2
 	tile.BoundingBox[3] = (maxX - minX) / 2
 	tile.BoundingBox[7] = (maxY - minY) / 2
 	tile.BoundingBox[11] = (maxZ - minZ) / 2
+	fmt.Printf("DEBUG extendTileBox: tile=%s computed bbox center = (%f, %f, %f)\n",
+		tile.ID, tile.BoundingBox[0], tile.BoundingBox[1], tile.BoundingBox[2])
 }
 
 func (c *Converter) calcGeometricError(tile *Tile) {

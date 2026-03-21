@@ -14,7 +14,7 @@ func init() {
 }
 
 func main() {
-	inputPath := "/Users/xuning/Downloads/data/3/OSGB/Data/Tile_+002_+000/Tile_+002_+000_L24_00052230.osgb"
+	inputPath := "/Users/xuning/Downloads/data/3/OSGB/Data/Tile_+002_+000/Tile_+002_+000.osgb"
 	outputPath := "/tmp/test_output"
 
 	if len(os.Args) > 1 {
@@ -30,13 +30,14 @@ func main() {
 	opts := tiles3d.DefaultConverterOptions()
 	opts.EnableTexture = true
 	opts.EnableUnlit = true
-	opts.MaxLOD = 2
+	opts.MaxLOD = 10
 
-	// EPSG:4548 -> EPSG:4978 (ECEF)
+	// Source SRS is EPSG:4548 (CGCS2000 / 3-degree Gauss-Kruger CM 117E)
 	opts.SourceSRS = "EPSG:4548"
-	opts.TargetSRS = "EPSG:4978"
+	opts.TargetSRS = ""
 
-	// From metadata.xml: SRSOrigin="518078.000000,4080366.000000,0.000000"
+	// From metadata.xml: SRSOrigin="518078.000000,4080366.000000,0.000000" (EPSG:4548)
+	// SetCenter will convert this to WGS84 center
 	opts.CenterLongitude = 518078.0
 	opts.CenterLatitude = 4080366.0
 	opts.CenterHeight = 0.0

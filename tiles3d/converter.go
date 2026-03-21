@@ -86,6 +86,7 @@ func (c *GeometryConverter) extractGeometry(geom *model.Geometry) *TileContent {
 	}
 
 	bbox := c.calculateBoundingBox(vertices)
+	fmt.Printf("DEBUG extractGeometry: bbox center = (%f, %f, %f)\n", bbox[0], bbox[1], bbox[2])
 	content.BoundingBox = bbox
 	content.Vertices = vertices
 
@@ -240,37 +241,31 @@ func (c *GeometryConverter) extractVertices(arr *model.Array) []float32 {
 		vertices = vertices[:len(vertices)/3*3]
 	}
 
-	center := c.coordTrans.GetCenter()
-	hasOriginOffset := center[0] != 0 || center[1] != 0 || center[2] != 0
-	hasProjTransformation := c.coordTrans.HasProjection()
-	isGeographicOutput := c.coordTrans.IsGeographicOutput() && !c.coordTrans.IsECEFOutput()
+	originOffset := c.coordTrans.GetOriginOffset()
 
-	// First add origin offset
-	if hasOriginOffset {
-		for i := 0; i < len(vertices); i += 3 {
-			vertices[i] += float32(center[0])
-			vertices[i+1] += float32(center[1])
-			vertices[i+2] += float32(center[2])
-		}
-	}
+	// Debug output
+	fmt.Printf("DEBUG: originOffset = (%f, %f, %f)\n", originOffset[0], originOffset[1], originOffset[2])
+	fmt.Printf("DEBUG: center = (%f, %f, %f)\n", c.coordTrans.GetCenter()[0], c.coordTrans.GetCenter()[1], c.coordTrans.GetCenter()[2])
 
-	// Then apply PROJ transformation if target is set
-	if hasProjTransformation && c.coordTrans.GetTargetSRS() != "" {
-		for i := 0; i < len(vertices); i += 3 {
-			// EPSG:4548 is (Easting, Northing) = (X, Y)
-			// PROJ expects (lon, lat, height) for geographic, or (X, Y, Z) for projected
-			point := [3]float64{float64(vertices[i]), float64(vertices[i+1]), float64(vertices[i+2])}
+	// Transform vertices from source SRS to ENU using the geographic origin
+	// First add SRSOrigin offset to get absolute coordinates (if any)
+	// Then convert to ENU
+	for i := 0; i < len(vertices); i += 3 {
+		// Add offset first to get absolute coordinates
+		absX := float64(vertices[i]) + originOffset[0]
+		absY := float64(vertices[i+1]) + originOffset[1]
+		absZ := float64(vertices[i+2]) + originOffset[2]
 
-			point = c.coordTrans.Transform(point)
+		localCoords := [3]float64{absX, absY, absZ}
+		enuCoords := c.coordTrans.ToLocalENUFromSource(localCoords)
 
-			if isGeographicOutput {
-				point[0] = point[0] * 180.0 / math.Pi
-				point[1] = point[1] * 180.0 / math.Pi
-			}
-
-			vertices[i] = float32(point[0])
-			vertices[i+1] = float32(point[1])
-			vertices[i+2] = float32(point[2])
+		vertices[i] = float32(enuCoords[0])
+		vertices[i+1] = float32(enuCoords[1])
+		vertices[i+2] = float32(enuCoords[2])
+		if i == 0 {
+			fmt.Printf("DEBUG: First vertex: local=(%f, %f, %f) -> ENU=(%f, %f, %f)\n",
+				localCoords[0], localCoords[1], localCoords[2],
+				enuCoords[0], enuCoords[1], enuCoords[2])
 		}
 	}
 
