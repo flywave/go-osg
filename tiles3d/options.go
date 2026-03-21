@@ -37,7 +37,7 @@ type Tile struct {
 	ID             string
 	Path           string
 	GeometricError float64
-	BoundingBox    [6]float64
+	BoundingBox    [12]float64
 	Children       []*Tile
 	Content        *TileContent
 	Node           interface{}
@@ -48,11 +48,10 @@ type TileContent struct {
 	Normals     []float32
 	TexCoords   []float32
 	Indices     []uint32
-	Colors      []uint8
-	Materials   []*Material
-	Textures    []*Texture
-	BoundingBox [6]float64
+	Material    *Material
+	Textures    [][]byte
 	BatchLength int
+	BoundingBox [12]float64
 }
 
 type Material struct {

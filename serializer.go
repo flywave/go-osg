@@ -523,25 +523,25 @@ func (ser *IsAVectorSerializer) genVect(is *OsgIstream, size int32) interface{} 
 	}
 	switch ser.ElementType {
 	case RWUCHAR:
-		vec := make([]uint8, int(size), int(size))
+		vec := make([]uint8, int(size))
 		for i := range vec {
 			is.Read(&vec[i])
 		}
 		return vec
 	case RWUSHORT:
-		vec := make([]uint16, int(size), int(size))
+		vec := make([]uint16, int(size))
 		for i := range vec {
 			is.Read(&vec[i])
 		}
 		return vec
 	case RWINT:
-		vec := make([]int32, int(size), int(size))
+		vec := make([]int32, int(size))
 		for i := range vec {
 			is.Read(&vec[i])
 		}
 		return vec
 	case RWUINT:
-		vec := make([]uint32, int(size), int(size))
+		vec := make([]uint32, int(size))
 		for i := range vec {
 			is.Read(&vec[i])
 		}

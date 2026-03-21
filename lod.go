@@ -51,7 +51,7 @@ func rangeListReader(is *OsgIstream, obj interface{}) {
 	lod := obj.(model.LodInterface)
 	size := is.ReadSize()
 	is.Read(is.BEGINBRACKET)
-	lod.SetRangeList(make([][2]float32, size, size))
+	lod.SetRangeList(make([][2]float32, size))
 	for i := 0; i < size; i++ {
 		var min, max float32
 		is.Read(&min)

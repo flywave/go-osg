@@ -93,16 +93,12 @@ func (res *ReadResult) StatusMessage() string {
 	switch res.Status {
 	case NOTIMPLEMENTED:
 		description += "not implemented"
-		break
 	case FILENOTHANDLED:
 		description += "file not handled"
-		break
 	case ERRORINWRITINGFILE:
 		description += "write error"
-		break
 	case FILESAVED:
 		description += "file saved"
-		break
 	}
 
 	if len(res.Message) != 0 {
@@ -160,7 +156,7 @@ func (rw *ReadWrite) ReadInputIterator(reader *bufio.Reader, op *OsgIstreamOptio
 		}
 	}
 	if extensionIsAscii {
-		head := make([]byte, 6, 6)
+		head := make([]byte, 6)
 		reader.Read(head)
 		if string(head) == "#Ascii" {
 			rd := NewAsciiInputIterator(reader)
@@ -223,17 +219,18 @@ func (rw *ReadWrite) PrepareReading(path string, op *OsgIstreamOptions) (*OsgIst
 		op = o
 	}
 
-	if ext == "osgt" {
+	switch ext {
+	case "osgt":
 		op.FileType = "Ascii"
-	} else if ext == "osgb" {
+	case "osgb":
 		op.FileType = "Binary"
-	} else if ext == "jpg" || ext == "jpeg" {
+	case "jpg", "jpeg":
 		op.FileType = "JPEG"
-	} else if ext == "png" {
+	case "png":
 		op.FileType = "PNG"
-	} else if ext == "bmp" {
+	case "bmp":
 		op.FileType = "BMP"
-	} else {
+	default:
 		op.FileType = ""
 	}
 	return op, nil
@@ -250,17 +247,18 @@ func (rw *ReadWrite) PrepareWriting(path string, op *OsgOstreamOptions) (*OsgOst
 		op = &o
 	}
 
-	if ext == "osgt" {
+	switch ext {
+	case "osgt":
 		op.FileType = "Ascii"
-	} else if ext == "osgb" {
+	case "osgb":
 		op.FileType = "Binary"
-	} else if ext == "jpg" || ext == "jpeg" {
+	case "jpg", "jpeg":
 		op.FileType = "JPEG"
-	} else if ext == "png" {
+	case "png":
 		op.FileType = "PNG"
-	} else if ext == "bmp" {
+	case "bmp":
 		op.FileType = "BMP"
-	} else {
+	default:
 		op.FileType = ""
 	}
 	return op, nil
@@ -330,9 +328,10 @@ func (rw *ReadWrite) ReadImageWithReader(rd io.Reader, opts *OsgIstreamOptions) 
 	var mg image.Image
 	var e error
 	ext := opts.FileType
-	if ext == "jpg" || ext == "jpeg" {
+	switch ext {
+	case "jpg", "jpeg":
 		mg, e = jpeg.Decode(rd)
-	} else if ext == "png" {
+	case "png":
 		mg, e = png.Decode(rd)
 	}
 	if e == nil {

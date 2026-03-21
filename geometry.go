@@ -207,7 +207,7 @@ func readTexCoordData(is *OsgIstream, g interface{}) {
 	size := is.ReadSize()
 	is.Read(is.BEGINBRACKET)
 	is.PROPERTY.Name = "Data"
-	geom.TexCoordArrayList = make([]*model.Array, size, size)
+	geom.TexCoordArrayList = make([]*model.Array, size)
 	for i := 0; i < size; i++ {
 		is.Read(is.PROPERTY)
 		is.Read(is.BEGINBRACKET)
@@ -248,7 +248,7 @@ func readVertexAttribData(is *OsgIstream, g interface{}) {
 	size := is.ReadSize()
 	is.Read(is.BEGINBRACKET)
 	is.PROPERTY.Name = "Data"
-	geom.VertexAttribList = make([]*model.Array, size, size)
+	geom.VertexAttribList = make([]*model.Array, size)
 	for i := 0; i < size; i++ {
 		is.Read(is.PROPERTY)
 		is.Read(is.BEGINBRACKET)

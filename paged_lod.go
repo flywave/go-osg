@@ -64,7 +64,7 @@ func readRangeDataList(is *OsgIstream, obj interface{}) {
 	lod := obj.(*model.PagedLod)
 	size := is.ReadSize()
 	is.Read(is.BEGINBRACKET)
-	lod.PerRangeDataList = make([]model.PerRangeData, size, size)
+	lod.PerRangeDataList = make([]model.PerRangeData, size)
 	for i := 0; i < size; i++ {
 		var str string
 		is.ReadWrappedString(&str)

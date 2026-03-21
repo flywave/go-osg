@@ -318,9 +318,9 @@ func (c *GeometryConverter) extractTexCoords(arr *model.Array) []float32 {
 	return nil
 }
 
-func (c *GeometryConverter) calculateBoundingBox(vertices []float32) [6]float64 {
+func (c *GeometryConverter) calculateBoundingBox(vertices []float32) [12]float64 {
 	if len(vertices) == 0 {
-		return [6]float64{0, 0, 0, 0, 0, 0}
+		return [12]float64{0, 0, 0, 0.01, 0, 0, 0, 0.01, 0, 0, 0.01}
 	}
 
 	minX, maxX := float64(vertices[0]), float64(vertices[0])
@@ -348,7 +348,30 @@ func (c *GeometryConverter) calculateBoundingBox(vertices []float32) [6]float64 
 		}
 	}
 
-	return [6]float64{minX, minY, minZ, maxX, maxY, maxZ}
+	centerX := (maxX + minX) / 2
+	centerY := (maxY + minY) / 2
+	centerZ := (maxZ + minZ) / 2
+
+	xHalf := (maxX - minX) / 2
+	yHalf := (maxY - minY) / 2
+	zHalf := (maxZ - minZ) / 2
+
+	if xHalf < 0.01 {
+		xHalf = 0.01
+	}
+	if yHalf < 0.01 {
+		yHalf = 0.01
+	}
+	if zHalf < 0.01 {
+		zHalf = 0.01
+	}
+
+	return [12]float64{
+		centerX, centerY, centerZ,
+		xHalf, 0, 0,
+		0, yHalf, 0,
+		0, 0, zHalf,
+	}
 }
 
 func (c *TileContent) Merge(other *TileContent) {

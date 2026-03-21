@@ -27,12 +27,9 @@ func (iter *AsciiInputIterator) skip() byte {
 		}
 		switch c {
 		case ' ':
-			break
 		case '\n':
-			break
 		case '\r':
 			_, e = iter.In.ReadByte()
-			break
 		default:
 			return c
 		}
@@ -51,14 +48,11 @@ func (iter *AsciiInputIterator) ReadWordConsumer() string {
 		switch c {
 		case ' ':
 			done = true
-			break
 		case '\n':
 			done = true
-			break
 		case '\r':
 			done = true
 			_, e = iter.In.ReadByte()
-			break
 		default:
 			b.WriteRune(rune(c))
 		}
@@ -211,13 +205,14 @@ func (iter *AsciiInputIterator) AdvanceToCurrentEndBracket() {
 		if len(str) == 0 {
 			break
 		}
-		if str == "}" {
+		switch str {
+		case "}":
 			if blocks <= 0 {
 				return
 			} else {
 				blocks--
 			}
-		} else if str == "{" {
+		case "{":
 			blocks++
 		}
 	}

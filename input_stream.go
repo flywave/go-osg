@@ -13,7 +13,7 @@ import (
 
 const (
 	FileType     string = "Ascii"
-	INDENT_VALUE        = 2
+	INDENT_VALUE int32  = 2
 )
 
 type OsgOptions struct {
@@ -345,7 +345,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	}
 	ty := model.ObjectProperty{Name: "ArrayType", MapProperty: true}
 	is.Read(&ty)
-	var size int32
+	var size int
 	is.Read(&size)
 	if size < 0 || size > 1<<30 {
 		is.AdvanceToCurrentEndBracket()
@@ -357,7 +357,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDBYTEARRAY:
 		{
 			arry = model.NewArray(model.ByteArrayType, model.GLBYTE, 1)
-			data := make([]int8, size, size)
+			data := make([]int8, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadChar(&data[i])
 			}
@@ -366,7 +366,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDUBYTEARRAY:
 		{
 			arry = model.NewArray(model.UByteArrayType, model.GLUNSIGNEDBYTE, 1)
-			data := make([]byte, size, size)
+			data := make([]byte, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadUChar(&data[i])
 			}
@@ -375,7 +375,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDSHORTARRAY:
 		{
 			arry = model.NewArray(model.ShortArrayType, model.GLSHORT, 1)
-			data := make([]int16, size, size)
+			data := make([]int16, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadShort(&data[i])
 			}
@@ -384,7 +384,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDUSHORTARRAY:
 		{
 			arry = model.NewArray(model.UShortArrayType, model.GLUNSIGNEDSHORT, 1)
-			data := make([]uint16, size, size)
+			data := make([]uint16, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadUShort(&data[i])
 			}
@@ -393,7 +393,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDINTARRAY:
 		{
 			arry = model.NewArray(model.IntArrayType, model.GLINT, 1)
-			data := make([]int32, size, size)
+			data := make([]int32, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadInt(&data[i])
 			}
@@ -402,7 +402,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDUINTARRAY:
 		{
 			arry = model.NewArray(model.UIntArrayType, model.GLUNSIGNEDINT, 1)
-			data := make([]uint32, size, size)
+			data := make([]uint32, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadUInt(&data[i])
 			}
@@ -411,7 +411,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDFLOATARRAY:
 		{
 			arry = model.NewArray(model.FloatArrayType, model.GLFLOAT, 1)
-			data := make([]float32, size, size)
+			data := make([]float32, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadFloat(&data[i])
 			}
@@ -420,7 +420,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDDOUBLEARRAY:
 		{
 			arry = model.NewArray(model.DoubleArrayType, model.GLDOUBLE, 1)
-			data := make([]float64, size, size)
+			data := make([]float64, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadDouble(&data[i])
 			}
@@ -429,7 +429,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC2BARRAY:
 		{
 			arry = model.NewArray(model.Vec2bArrayType, model.GLBYTE, 2)
-			data := make([][2]int8, size, size)
+			data := make([][2]int8, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadChar(&data[i][0])
 				is.In.ReadChar(&data[i][1])
@@ -439,7 +439,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC3BARRAY:
 		{
 			arry = model.NewArray(model.Vec3bArrayType, model.GLBYTE, 3)
-			data := make([][3]int8, size, size)
+			data := make([][3]int8, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadChar(&data[i][0])
 				is.In.ReadChar(&data[i][1])
@@ -450,7 +450,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC4BARRAY:
 		{
 			arry = model.NewArray(model.Vec4bArrayType, model.GLBYTE, 4)
-			data := make([][4]int8, size, size)
+			data := make([][4]int8, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadChar(&data[i][0])
 				is.In.ReadChar(&data[i][1])
@@ -462,7 +462,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC2UBARRAY:
 		{
 			arry = model.NewArray(model.Vec2ubArrayType, model.GLUNSIGNEDBYTE, 2)
-			data := make([][2]uint8, size, size)
+			data := make([][2]uint8, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadUChar(&data[i][0])
 				is.In.ReadUChar(&data[i][1])
@@ -472,7 +472,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC3UBARRAY:
 		{
 			arry = model.NewArray(model.Vec3ubArrayType, model.GLUNSIGNEDBYTE, 3)
-			data := make([][3]uint8, size, size)
+			data := make([][3]uint8, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadUChar(&data[i][0])
 				is.In.ReadUChar(&data[i][1])
@@ -483,7 +483,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC4UBARRAY:
 		{
 			arry = model.NewArray(model.Vec4ubArrayType, model.GLUNSIGNEDBYTE, 4)
-			data := make([][4]uint8, size, size)
+			data := make([][4]uint8, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadUChar(&data[i][0])
 				is.In.ReadUChar(&data[i][1])
@@ -495,7 +495,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC2SARRAY:
 		{
 			arry = model.NewArray(model.Vec2sArrayType, model.GLSHORT, 2)
-			data := make([][2]int16, size, size)
+			data := make([][2]int16, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadShort(&data[i][0])
 				is.In.ReadShort(&data[i][1])
@@ -505,7 +505,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC3SARRAY:
 		{
 			arry = model.NewArray(model.Vec3sArrayType, model.GLSHORT, 3)
-			data := make([][3]int16, size, size)
+			data := make([][3]int16, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadShort(&data[i][0])
 				is.In.ReadShort(&data[i][1])
@@ -516,7 +516,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC4SARRAY:
 		{
 			arry = model.NewArray(model.Vec4sArrayType, model.GLSHORT, 4)
-			data := make([][4]int16, size, size)
+			data := make([][4]int16, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadShort(&data[i][0])
 				is.In.ReadShort(&data[i][1])
@@ -528,7 +528,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC2USARRAY:
 		{
 			arry = model.NewArray(model.Vec2usArrayType, model.GLUNSIGNEDSHORT, 2)
-			data := make([][2]uint16, size, size)
+			data := make([][2]uint16, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadUShort(&data[i][0])
 				is.In.ReadUShort(&data[i][1])
@@ -538,7 +538,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC3USARRAY:
 		{
 			arry = model.NewArray(model.Vec3usArrayType, model.GLUNSIGNEDSHORT, 3)
-			data := make([][3]uint16, size, size)
+			data := make([][3]uint16, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadUShort(&data[i][0])
 				is.In.ReadUShort(&data[i][1])
@@ -549,7 +549,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC4USARRAY:
 		{
 			arry = model.NewArray(model.Vec4usArrayType, model.GLUNSIGNEDSHORT, 4)
-			data := make([][4]uint16, size, size)
+			data := make([][4]uint16, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadUShort(&data[i][0])
 				is.In.ReadUShort(&data[i][1])
@@ -561,7 +561,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC2ARRAY:
 		{
 			arry = model.NewArray(model.Vec2ArrayType, model.GLFLOAT, 2)
-			data := make([][2]float32, size, size)
+			data := make([][2]float32, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadFloat(&data[i][0])
 				is.In.ReadFloat(&data[i][1])
@@ -571,7 +571,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC3ARRAY:
 		{
 			arry = model.NewArray(model.Vec3ArrayType, model.GLFLOAT, 3)
-			data := make([][3]float32, size, size)
+			data := make([][3]float32, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadFloat(&data[i][0])
 				is.In.ReadFloat(&data[i][1])
@@ -582,7 +582,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC4ARRAY:
 		{
 			arry = model.NewArray(model.Vec4ArrayType, model.GLFLOAT, 4)
-			data := make([][4]float32, size, size)
+			data := make([][4]float32, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadFloat(&data[i][0])
 				is.In.ReadFloat(&data[i][1])
@@ -594,7 +594,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC2DARRAY:
 		{
 			arry = model.NewArray(model.Vec2dArrayType, model.GLDOUBLE, 2)
-			data := make([][2]float64, size, size)
+			data := make([][2]float64, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadDouble(&data[i][0])
 				is.In.ReadDouble(&data[i][1])
@@ -604,7 +604,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC3DARRAY:
 		{
 			arry = model.NewArray(model.Vec3dArrayType, model.GLDOUBLE, 3)
-			data := make([][3]float64, size, size)
+			data := make([][3]float64, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadDouble(&data[i][0])
 				is.In.ReadDouble(&data[i][1])
@@ -615,7 +615,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC4DARRAY:
 		{
 			arry = model.NewArray(model.Vec4dArrayType, model.GLDOUBLE, 4)
-			data := make([][4]float64, size, size)
+			data := make([][4]float64, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadDouble(&data[i][0])
 				is.In.ReadDouble(&data[i][1])
@@ -627,7 +627,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC2IARRAY:
 		{
 			arry = model.NewArray(model.Vec2iArrayType, model.GLINT, 2)
-			data := make([][2]int32, size, size)
+			data := make([][2]int32, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadInt(&data[i][0])
 				is.In.ReadInt(&data[i][1])
@@ -637,7 +637,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC3IARRAY:
 		{
 			arry = model.NewArray(model.Vec3iArrayType, model.GLINT, 3)
-			data := make([][3]int32, size, size)
+			data := make([][3]int32, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadInt(&data[i][0])
 				is.In.ReadInt(&data[i][1])
@@ -648,7 +648,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC4IARRAY:
 		{
 			arry = model.NewArray(model.Vec4iArrayType, model.GLINT, 4)
-			data := make([][4]int32, size, size)
+			data := make([][4]int32, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadInt(&data[i][0])
 				is.In.ReadInt(&data[i][1])
@@ -660,7 +660,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC2UIARRAY:
 		{
 			arry = model.NewArray(model.Vec2uiArrayType, model.GLUNSIGNEDINT, 2)
-			data := make([][2]uint32, size, size)
+			data := make([][2]uint32, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadUInt(&data[i][0])
 				is.In.ReadUInt(&data[i][1])
@@ -670,7 +670,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC3UIARRAY:
 		{
 			arry = model.NewArray(model.Vec3uiArrayType, model.GLUNSIGNEDINT, 3)
-			data := make([][3]uint32, size, size)
+			data := make([][3]uint32, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadUInt(&data[i][0])
 				is.In.ReadUInt(&data[i][1])
@@ -681,7 +681,7 @@ func (is *OsgIstream) ReadArray() *model.Array {
 	case model.IDVEC4UIARRAY:
 		{
 			arry = model.NewArray(model.Vec3uiArrayType, model.GLUNSIGNEDINT, 4)
-			data := make([][4]uint32, size, size)
+			data := make([][4]uint32, size)
 			for i := 0; i < int(size); i++ {
 				is.In.ReadUInt(&data[i][0])
 				is.In.ReadUInt(&data[i][1])
@@ -1013,11 +1013,12 @@ func (is *OsgIstream) Start(iter OsgInputIterator) (uint32, error) {
 		}
 	} else {
 		is.Read(&header.TypeString)
-		if header.TypeString == "Scene" {
+		switch header.TypeString {
+		case "Scene":
 			header.Type = READSCENE
-		} else if header.TypeString == "Image" {
+		case "Image":
 			header.Type = READIMAGE
-		} else if header.TypeString == "Object" {
+		case "Object":
 			header.Type = READOBJECT
 		}
 		is.PROPERTY.Name = "#Version"

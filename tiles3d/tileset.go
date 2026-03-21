@@ -93,11 +93,11 @@ func (g *B3DMGenerator) Generate(tile *Tile) ([]byte, error) {
 		BatchLength: tile.Content.BatchLength,
 	}
 
-	if len(tile.Content.BoundingBox) == 6 {
+	if len(tile.Content.BoundingBox) == 12 {
 		center := []float64{
-			(tile.Content.BoundingBox[0] + tile.Content.BoundingBox[3]) / 2,
-			(tile.Content.BoundingBox[1] + tile.Content.BoundingBox[4]) / 2,
-			(tile.Content.BoundingBox[2] + tile.Content.BoundingBox[5]) / 2,
+			tile.Content.BoundingBox[0],
+			tile.Content.BoundingBox[1],
+			tile.Content.BoundingBox[2],
 		}
 		view.RtcCenter = center
 	}
@@ -372,13 +372,13 @@ func (c *Converter) Convert(inputPath, outputPath string) error {
 
 	tile := c.convertNodeToTile(node, filepath.Base(inputPath))
 
-	c.extendTileBox(tile)
-
 	if c.opts.MaxLOD < 0 {
 		c.loadPagedLODs(tile, outputPath)
 	} else {
 		c.loadPagedLODsLimited(tile, outputPath, 0, c.opts.MaxLOD)
 	}
+
+	c.extendTileBox(tile)
 
 	c.calcGeometricError(tile)
 
@@ -519,17 +519,57 @@ func (c *Converter) extendTileBox(tile *Tile) {
 
 	for _, child := range tile.Children {
 		c.extendTileBox(child)
-		if len(child.BoundingBox) == 6 && len(tile.BoundingBox) == 6 {
-			for i := 0; i < 3; i++ {
-				if child.BoundingBox[i] < tile.BoundingBox[i] {
-					tile.BoundingBox[i] = child.BoundingBox[i]
-				}
-				if child.BoundingBox[i+3] > tile.BoundingBox[i+3] {
-					tile.BoundingBox[i+3] = child.BoundingBox[i+3]
-				}
-			}
+	}
+
+	if len(tile.Children) == 0 || len(tile.BoundingBox) != 12 {
+		return
+	}
+
+	minX := tile.BoundingBox[0] - tile.BoundingBox[3]
+	maxX := tile.BoundingBox[0] + tile.BoundingBox[3]
+	minY := tile.BoundingBox[1] - tile.BoundingBox[7]
+	maxY := tile.BoundingBox[1] + tile.BoundingBox[7]
+	minZ := tile.BoundingBox[2] - tile.BoundingBox[11]
+	maxZ := tile.BoundingBox[2] + tile.BoundingBox[11]
+
+	for _, child := range tile.Children {
+		if len(child.BoundingBox) != 12 {
+			continue
+		}
+
+		cminX := child.BoundingBox[0] - child.BoundingBox[3]
+		cmaxX := child.BoundingBox[0] + child.BoundingBox[3]
+		cminY := child.BoundingBox[1] - child.BoundingBox[7]
+		cmaxY := child.BoundingBox[1] + child.BoundingBox[7]
+		cminZ := child.BoundingBox[2] - child.BoundingBox[11]
+		cmaxZ := child.BoundingBox[2] + child.BoundingBox[11]
+
+		if cminX < minX {
+			minX = cminX
+		}
+		if cmaxX > maxX {
+			maxX = cmaxX
+		}
+		if cminY < minY {
+			minY = cminY
+		}
+		if cmaxY > maxY {
+			maxY = cmaxY
+		}
+		if cminZ < minZ {
+			minZ = cminZ
+		}
+		if cmaxZ > maxZ {
+			maxZ = cmaxZ
 		}
 	}
+
+	tile.BoundingBox[0] = (maxX + minX) / 2
+	tile.BoundingBox[1] = (maxY + minY) / 2
+	tile.BoundingBox[2] = (maxZ + minZ) / 2
+	tile.BoundingBox[3] = (maxX - minX) / 2
+	tile.BoundingBox[7] = (maxY - minY) / 2
+	tile.BoundingBox[11] = (maxZ - minZ) / 2
 }
 
 func (c *Converter) calcGeometricError(tile *Tile) {
@@ -592,9 +632,9 @@ func (c *Converter) writeTiles(tile *Tile, outputPath string) error {
 	return nil
 }
 
-func calculateBoundingBox(vertices []float32) [6]float64 {
+func calculateBoundingBox(vertices []float32) [12]float64 {
 	if len(vertices) == 0 {
-		return [6]float64{0, 0, 0, 0, 0, 0}
+		return [12]float64{0, 0, 0, 0.01, 0, 0, 0, 0.01, 0, 0, 0.01}
 	}
 
 	minX, maxX := float64(vertices[0]), float64(vertices[0])
@@ -622,19 +662,45 @@ func calculateBoundingBox(vertices []float32) [6]float64 {
 		}
 	}
 
-	return [6]float64{minX, minY, minZ, maxX, maxY, maxZ}
+	centerX := (maxX + minX) / 2
+	centerY := (maxY + minY) / 2
+	centerZ := (maxZ + minZ) / 2
+
+	xHalf := (maxX - minX) / 2
+	yHalf := (maxY - minY) / 2
+	zHalf := (maxZ - minZ) / 2
+
+	if xHalf < 0.01 {
+		xHalf = 0.01
+	}
+	if yHalf < 0.01 {
+		yHalf = 0.01
+	}
+	if zHalf < 0.01 {
+		zHalf = 0.01
+	}
+
+	return [12]float64{
+		centerX, centerY, centerZ,
+		xHalf, 0, 0,
+		0, yHalf, 0,
+		0, 0, zHalf,
+	}
 }
 
-func calculateGeometricError(bbox [6]float64) float64 {
-	dx := bbox[3] - bbox[0]
-	dy := bbox[4] - bbox[1]
-	dz := bbox[5] - bbox[2]
+func calculateGeometricError(bbox [12]float64) float64 {
+	xHalf := bbox[3]
+	yHalf := bbox[7]
+	zHalf := bbox[11]
+	dx := xHalf * 2
+	dy := yHalf * 2
+	dz := zHalf * 2
 	return (dx + dy + dz) / 6.0 * 2.0
 }
 
 type ConvertResult struct {
 	JSON        string
-	BoundingBox [6]float64
+	BoundingBox [12]float64
 }
 
 func OSGBToGLB(inputPath string, opts *ConverterOptions) ([]byte, error) {
