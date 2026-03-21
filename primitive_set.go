@@ -99,7 +99,14 @@ func setDLFirst(obj interface{}, val interface{}) {
 }
 
 func getDAData(obj interface{}) interface{} {
-	return &obj.(*model.DrawArrayLengths).Data
+	if obj == nil {
+		return nil
+	}
+	switch o := obj.(type) {
+	case *model.DrawArrayLengths:
+		return &o.Data
+	}
+	return nil
 }
 
 func setDAData(obj interface{}, val interface{}) {
@@ -115,7 +122,14 @@ func setDAData(obj interface{}, val interface{}) {
 }
 
 func getDADataUByte(obj interface{}) interface{} {
-	return &obj.(*model.DrawElementsUByte).Data
+	if obj == nil {
+		return nil
+	}
+	switch o := obj.(type) {
+	case *model.DrawElementsUByte:
+		return &o.Data
+	}
+	return nil
 }
 
 func setDADataUByte(obj interface{}, val interface{}) {
@@ -131,7 +145,14 @@ func setDADataUByte(obj interface{}, val interface{}) {
 }
 
 func getDADataUShort(obj interface{}) interface{} {
-	return &obj.(*model.DrawElementsUShort).Data
+	if obj == nil {
+		return nil
+	}
+	switch o := obj.(type) {
+	case *model.DrawElementsUShort:
+		return &o.Data
+	}
+	return nil
 }
 
 func setDADataUShort(obj interface{}, val interface{}) {
@@ -147,7 +168,14 @@ func setDADataUShort(obj interface{}, val interface{}) {
 }
 
 func getDADataUInt(obj interface{}) interface{} {
-	return &obj.(*model.DrawElementsUInt).Data
+	if obj == nil {
+		return nil
+	}
+	switch o := obj.(type) {
+	case *model.DrawElementsUInt:
+		return &o.Data
+	}
+	return nil
 }
 
 func setDADataUInt(obj interface{}, val interface{}) {
@@ -274,6 +302,6 @@ func init() {
 	}
 
 	ser9 := NewIsAVectorSerializer("Data", RWUINT, 4, getDADataUInt, setDADataUInt)
-	wrap5.AddSerializer(ser9, RWUINT)
+	wrap6.AddSerializer(ser9, RWUINT)
 	GetObjectWrapperManager().AddWrap(wrap6)
 }

@@ -9,6 +9,10 @@ type CompressorStream struct {
 	Name string
 }
 
+func init() {
+	GetObjectWrapperManager().AddCompressor(&CompressorStream{Name: "zlib"})
+}
+
 func (stream *CompressorStream) Compress(st io.Writer, src []byte) error {
 	w := zlib.NewWriter(st)
 	if _, err := w.Write(src); err != nil {

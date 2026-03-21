@@ -338,8 +338,32 @@ func setVertexData(obj interface{}, pro interface{}) {
 	if pro == nil {
 		obj.(*model.Geometry).VertexArray = nil
 	} else if arr, ok := pro.(*model.Array); ok {
+		if arr.DataType == model.GLSHORT && arr.Data != nil {
+			arr = convertShortArrayToFloat(arr)
+		}
 		obj.(*model.Geometry).VertexArray = arr
 	}
+}
+
+func convertShortArrayToFloat(arr *model.Array) *model.Array {
+	if data, ok := arr.Data.([]int16); ok {
+		floatData := make([]float32, len(data))
+		for i, v := range data {
+			floatData[i] = float32(v)
+		}
+		newArr := &model.Array{
+			BufferData:       arr.BufferData,
+			Type:             model.IDFLOATARRAY,
+			DataSize:         arr.DataSize,
+			DataType:         model.GLFLOAT,
+			Binding:          arr.Binding,
+			Normalize:        arr.Normalize,
+			PreserveDataType: arr.PreserveDataType,
+			Data:             floatData,
+		}
+		return newArr
+	}
+	return arr
 }
 
 func getNormalData(obj interface{}) interface{} {
@@ -432,6 +456,7 @@ func init() {
 	wrap.AddSerializer(ser6, RWUSER)
 	wrap.AddSerializer(ser7, RWUSER)
 	wrap.AddSerializer(ser8, RWUSER)
+
 	{
 		uv := AddUpdateWrapperVersionProxy(wrap, 112)
 		wrap.MarkSerializerAsRemoved("VertexData")
@@ -443,11 +468,11 @@ func init() {
 		wrap.MarkSerializerAsRemoved("VertexAttribData")
 		wrap.MarkSerializerAsRemoved("FastPathHint")
 
-		ser11 := NewObjectSerializer("VertexData", getVertexData, setVertexData)
-		ser21 := NewObjectSerializer("NormalData", getNormalData, setNormalData)
-		ser31 := NewObjectSerializer("ColorData", getColorData, setColorData)
-		ser41 := NewObjectSerializer("SecondaryColorData", getSecondaryColorData, setSecondaryColorData)
-		ser51 := NewObjectSerializer("FogCoordData", getFogCoordData, setFogCoordData)
+		ser11 := NewObjectSerializer("VertexArray", getVertexData, setVertexData)
+		ser21 := NewObjectSerializer("NormalArray", getNormalData, setNormalData)
+		ser31 := NewObjectSerializer("ColorArray", getColorData, setColorData)
+		ser41 := NewObjectSerializer("SecondaryColorArray", getSecondaryColorData, setSecondaryColorData)
+		ser51 := NewObjectSerializer("FogCoordArray", getFogCoordData, setFogCoordData)
 
 		wrap.AddSerializer(ser11, RWOBJECT)
 		wrap.AddSerializer(ser21, RWOBJECT)

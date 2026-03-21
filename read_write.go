@@ -239,7 +239,9 @@ func (rw *ReadWrite) PrepareReading(path string, op *OsgIstreamOptions) (*OsgIst
 	return op, nil
 }
 
-func (rw *ReadWrite) PrepareWriting(ext string, op *OsgOstreamOptions) (*OsgOstreamOptions, error) {
+func (rw *ReadWrite) PrepareWriting(path string, op *OsgOstreamOptions) (*OsgOstreamOptions, error) {
+	sub := strings.Split(path, ".")
+	ext := sub[len(sub)-1]
 	if !rw.AcceptsExtension(ext) {
 		return nil, errors.New("not support")
 	}
@@ -440,6 +442,9 @@ func (rw *ReadWrite) WriteImageWithWrite(image *model.Image, wt io.Writer, opts 
 
 func (rw *ReadWrite) WriteNode(inte interface{}, path string, opts *OsgOstreamOptions) *WriteResult {
 	opt, _ := rw.PrepareWriting(path, opts)
+	if opt == nil {
+		return &WriteResult{Status: ERRORINWRITINGFILE}
+	}
 	f := rw.OpenWriter(path)
 	defer f.Close()
 	return rw.WriteNodeWithWrite(inte, f, opt)

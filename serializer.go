@@ -1,6 +1,8 @@
 package osg
 
-import "github.com/flywave/go-osg/model"
+import (
+	"github.com/flywave/go-osg/model"
+)
 
 type StringToValue map[string]int32
 type ValueToString map[int32]string
@@ -493,17 +495,24 @@ type IsAVectorSerializer struct {
 }
 
 func (ser *IsAVectorSerializer) Read(is *OsgIstream, obj interface{}) {
+	if obj == nil || ser.Setter == nil {
+		return
+	}
 	if is.IsBinary() {
 		var size int32
 		is.Read(&size)
 		vec := ser.genVect(is, size)
-		ser.Setter(obj, vec)
+		if vec != nil {
+			ser.Setter(obj, vec)
+		}
 	} else {
 		if is.MatchString(ser.Name) {
 			var size int32
 			is.Read(&size)
 			vec := ser.genVect(is, size)
-			ser.Setter(obj, vec)
+			if vec != nil {
+				ser.Setter(obj, vec)
+			}
 		}
 	}
 }
@@ -545,6 +554,6 @@ func (ser *IsAVectorSerializer) genVect(is *OsgIstream, size int32) interface{} 
 func (ser *IsAVectorSerializer) Writer(is *OsgOstream, obj interface{}) {}
 
 func NewIsAVectorSerializer(name string, ty SerType, nrow uint, gt Getter, st Setter) *IsAVectorSerializer {
-	ser := NewTemplateSerializer(name, nil, nil)
+	ser := NewTemplateSerializer(name, gt, st)
 	return &IsAVectorSerializer{TemplateSerializer: *ser, ElementType: ty, NumElementOnRow: nrow}
 }
