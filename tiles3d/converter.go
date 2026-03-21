@@ -101,7 +101,7 @@ func (c *GeometryConverter) extractGeometry(geom *model.Geometry) *TileContent {
 		content.Indices = c.extractIndices(geom.Primitives[0])
 	}
 
-	content.BatchLength = len(vertices) / 3
+	content.BatchLength = 1
 
 	return content
 }
@@ -363,6 +363,7 @@ func (c *TileContent) Merge(other *TileContent) {
 
 	if c.BatchLength == 0 {
 		c.BoundingBox = other.BoundingBox
+		c.BatchLength = other.BatchLength
 	} else {
 		c.BatchLength += other.BatchLength
 	}

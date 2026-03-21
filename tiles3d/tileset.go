@@ -403,6 +403,12 @@ func (c *Converter) loadPagedLODs(tile *Tile, outputPath string) {
 			fullPath = filepath.Join(c.basePath, childPath)
 		}
 
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("Warning: Recovered from panic loading %s: %v\n", fullPath, r)
+			}
+		}()
+
 		node, err := LoadOSGB(fullPath)
 		if err != nil {
 			fmt.Printf("Warning: Failed to load %s: %v\n", fullPath, err)
