@@ -348,8 +348,14 @@ func setVertexData(obj interface{}, pro interface{}) {
 func convertShortArrayToFloat(arr *model.Array) *model.Array {
 	if data, ok := arr.Data.([]int16); ok {
 		floatData := make([]float32, len(data))
-		for i, v := range data {
-			floatData[i] = float32(v)
+		if arr.Normalize {
+			for i, v := range data {
+				floatData[i] = float32(v) / 32767.0
+			}
+		} else {
+			for i, v := range data {
+				floatData[i] = float32(v)
+			}
 		}
 		newArr := &model.Array{
 			BufferData:       arr.BufferData,
