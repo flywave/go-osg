@@ -36,7 +36,7 @@ func setArrayData(obj interface{}, fc interface{}) {
 	obj.(*model.Array).Data = fc
 }
 
-// FIX: Add getters and setters for Type, DataSize
+// FIX: Add getters and setters for Type, DataType, DataSize
 func getType(obj interface{}) interface{} {
 	return obj.(*model.Array).Type
 }

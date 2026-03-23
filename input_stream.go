@@ -335,6 +335,16 @@ func (is *OsgIstream) ReadMatrix4d(mat *[4][4]float64) {
 }
 
 func (is *OsgIstream) ReadArray() *model.Array {
+	// FIX: Support FileVersion >= 112 format
+	if is.FileVersion >= 112 {
+		obj := is.ReadObject(nil)
+		if arr, ok := obj.(*model.Array); ok {
+			return arr
+		}
+		return nil
+	}
+
+	// Original logic for FileVersion < 112
 	is.PROPERTY.Name = "ArrayID"
 	is.Read(is.PROPERTY)
 	var id int32
