@@ -154,11 +154,6 @@ func init() {
 	registerArrayWrapper("FloatArray", model.IDFLOATARRAY, model.GLFLOAT, 1)
 	registerArrayWrapper("Vec2Array", model.IDVEC2ARRAY, model.GLFLOAT, 2)
 	registerArrayWrapper("Vec3Array", model.IDVEC3ARRAY, model.GLFLOAT, 3)
-	{
-		uv := AddUpdateWrapperVersionProxy(wrap, 117)
-		wrap.MarkSerializerAsAdded("osg::Vec3Array")
-		uv.SetLastVersion()
-	}
 	registerArrayWrapper("Vec4Array", model.IDVEC4ARRAY, model.GLFLOAT, 4)
 	registerArrayWrapper("DoubleArray", model.IDDOUBLEARRAY, model.GLDOUBLE, 1)
 	registerArrayWrapper("Vec2dArray", model.IDVEC2DARRAY, model.GLDOUBLE, 2)
