@@ -71,7 +71,11 @@ func getSphereCallback(obj interface{}) interface{} {
 }
 
 func setSphereCallback(obj interface{}, pro interface{}) {
-	obj.(model.NodeInterface).SetSphereCallback(pro.(*model.ComputeBoundingSphereCallback))
+	if pro == nil {
+		obj.(model.NodeInterface).SetSphereCallback(nil)
+	} else {
+		obj.(model.NodeInterface).SetSphereCallback(pro.(*model.ComputeBoundingSphereCallback))
+	}
 }
 
 func getUpdateCallback(obj interface{}) interface{} {
@@ -79,7 +83,11 @@ func getUpdateCallback(obj interface{}) interface{} {
 }
 
 func setUpdateCallback(obj interface{}, pro interface{}) {
-	obj.(model.NodeInterface).SetUpdateCallback(pro.(*model.Callback))
+	if pro == nil {
+		obj.(model.NodeInterface).SetUpdateCallback(nil)
+	} else {
+		obj.(model.NodeInterface).SetUpdateCallback(pro.(*model.Callback))
+	}
 }
 
 func getEventCallback(obj interface{}) interface{} {
@@ -87,7 +95,11 @@ func getEventCallback(obj interface{}) interface{} {
 }
 
 func setEventCallback(obj interface{}, pro interface{}) {
-	obj.(model.NodeInterface).SetEventCallback(pro.(*model.Callback))
+	if pro == nil {
+		obj.(model.NodeInterface).SetEventCallback(nil)
+	} else {
+		obj.(model.NodeInterface).SetEventCallback(pro.(*model.Callback))
+	}
 }
 
 func getCullCallback(obj interface{}) interface{} {
@@ -95,7 +107,11 @@ func getCullCallback(obj interface{}) interface{} {
 }
 
 func setCullCallback(obj interface{}, pro interface{}) {
-	obj.(model.NodeInterface).SetCullCallback(pro.(*model.Callback))
+	if pro == nil {
+		obj.(model.NodeInterface).SetCullCallback(nil)
+	} else {
+		obj.(model.NodeInterface).SetCullCallback(pro.(*model.Callback))
+	}
 }
 
 func getCullingActive(obj interface{}) interface{} {

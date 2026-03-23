@@ -8,7 +8,11 @@ func getSAUpdateCallback(obj interface{}) interface{} {
 	return &obj.(*model.StateAttribute).UpdateCallback
 }
 func setSAUpdateCallback(obj interface{}, val interface{}) {
-	obj.(*model.StateAttribute).UpdateCallback = val.(*model.Callback)
+	if val == nil {
+		obj.(*model.StateAttribute).UpdateCallback = nil
+	} else {
+		obj.(*model.StateAttribute).UpdateCallback = val.(*model.Callback)
+	}
 }
 
 func getSAEventCallback(obj interface{}) interface{} {
@@ -16,7 +20,11 @@ func getSAEventCallback(obj interface{}) interface{} {
 }
 
 func setSAEventCallback(obj interface{}, val interface{}) {
-	obj.(*model.StateAttribute).EventCallback = val.(*model.Callback)
+	if val == nil {
+		obj.(*model.StateAttribute).EventCallback = nil
+	} else {
+		obj.(*model.StateAttribute).EventCallback = val.(*model.Callback)
+	}
 
 }
 

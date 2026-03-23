@@ -1,6 +1,8 @@
 package osg
 
 import (
+	"fmt"
+
 	"github.com/flywave/go-osg/model"
 )
 
@@ -95,7 +97,14 @@ func readVertexData(is *OsgIstream, g interface{}) {
 	geom := g.(*model.Geometry)
 	is.Read(is.BEGINBRACKET)
 	is.Read(is.CRLF)
+	fmt.Printf("DEBUG readVertexData: before readArray\n")
 	ary := readArray(is)
+	fmt.Printf("DEBUG readVertexData: after readArray\n")
+	if ary != nil {
+		fmt.Printf("DEBUG readVertexData: ary.Type=%d, ary.DataType=%d, ary.DataSize=%d\n", ary.Type, ary.DataType, ary.DataSize)
+	} else {
+		fmt.Printf("DEBUG readVertexData: ary is nil\n")
+	}
 	geom.VertexArray = ary
 	is.Read(is.ENDBRACKET)
 	is.Read(is.CRLF)

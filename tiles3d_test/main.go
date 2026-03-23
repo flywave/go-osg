@@ -32,15 +32,10 @@ func main() {
 	opts.EnableUnlit = true
 	opts.MaxLOD = 15
 
-	// Source SRS is EPSG:4548 (CGCS2000 / 3-degree Gauss-Kruger CM 117E)
-	opts.SourceSRS = "EPSG:4548"
-	opts.TargetSRS = ""
+	opts.GeoidModel = "none"
+	opts.GeoidDataPath = ""
 
-	// From metadata.xml: SRSOrigin="518078.000000,4080366.000000,0.000000" (EPSG:4548)
-	// SetCenter will convert this to WGS84 center
-	opts.CenterLongitude = 518078.0
-	opts.CenterLatitude = 4080366.0
-	opts.CenterHeight = 0.0
+	opts.SourceSRS = "EPSG:4548"
 
 	err := os.MkdirAll(outputPath, 0755)
 	if err != nil {

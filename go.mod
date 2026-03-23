@@ -10,7 +10,11 @@ require (
 	github.com/flywave/go3d v0.0.0-20250816053852-aed5d825659f
 )
 
-go 1.24
+require gonum.org/v1/gonum v0.17.0
+
+go 1.24.0
+
+toolchain go1.24.4
 
 replace github.com/flywave/go-proj => ../go-proj
 

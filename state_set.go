@@ -360,7 +360,11 @@ func getUpdateCallbackSS(obj interface{}) interface{} {
 
 func setUpdateCallbackSS(obj interface{}, val interface{}) {
 	ss := obj.(*model.StateSet)
-	ss.UpdateCallback = val.(*model.Callback)
+	if val == nil {
+		ss.UpdateCallback = nil
+	} else {
+		ss.UpdateCallback = val.(*model.Callback)
+	}
 }
 
 func getEventCallbackSS(obj interface{}) interface{} {
@@ -370,7 +374,11 @@ func getEventCallbackSS(obj interface{}) interface{} {
 
 func setEventCallbackSS(obj interface{}, val interface{}) {
 	ss := obj.(*model.StateSet)
-	ss.EventCallback = val.(*model.Callback)
+	if val == nil {
+		ss.EventCallback = nil
+	} else {
+		ss.EventCallback = val.(*model.Callback)
+	}
 }
 
 func init() {

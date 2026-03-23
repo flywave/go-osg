@@ -42,7 +42,11 @@ func getBoxCallback(obj interface{}) interface{} {
 }
 
 func setBoxCallback(obj interface{}, pro interface{}) {
-	obj.(model.DrawableInterface).SetBoxCallback(pro.(*model.ComputeBoundingBoxCallback))
+	if pro == nil {
+		obj.(model.DrawableInterface).SetBoxCallback(nil)
+	} else {
+		obj.(model.DrawableInterface).SetBoxCallback(pro.(*model.ComputeBoundingBoxCallback))
+	}
 }
 
 func getShape(obj interface{}) interface{} {
@@ -50,7 +54,11 @@ func getShape(obj interface{}) interface{} {
 }
 
 func setShape(obj interface{}, pro interface{}) {
-	obj.(model.DrawableInterface).SetShape(pro.(*model.Shape))
+	if pro == nil {
+		obj.(model.DrawableInterface).SetShape(nil)
+	} else {
+		obj.(model.DrawableInterface).SetShape(pro.(*model.Shape))
+	}
 }
 
 func getSupportsDisplayList(obj interface{}) interface{} {
@@ -82,7 +90,11 @@ func getDrawCallback(obj interface{}) interface{} {
 }
 
 func setDrawCallback(obj interface{}, pro interface{}) {
-	obj.(model.DrawableInterface).SetDwCallback(pro.(*model.DrawCallback))
+	if pro == nil {
+		obj.(model.DrawableInterface).SetDwCallback(nil)
+	} else {
+		obj.(model.DrawableInterface).SetDwCallback(pro.(*model.DrawCallback))
+	}
 }
 
 func init() {

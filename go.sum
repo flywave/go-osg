@@ -5,3 +5,5 @@ github.com/flywave/go3d v0.0.0-20250816053852-aed5d825659f h1:fJm2K2wki1CyA7/UN+
 github.com/flywave/go3d v0.0.0-20250816053852-aed5d825659f/go.mod h1:V2ScPXLx6DmzHRt+rbR/EQ+QBdX5DN2NHNTpm13PXZE=
 github.com/go-test/deep v1.0.1 h1:UQhStjbkDClarlmv0am7OXXO4/GaPdCGiUiMTvi28sg=
 github.com/go-test/deep v1.0.1/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
+gonum.org/v1/gonum v0.17.0 h1:VbpOemQlsSMrYmn7T2OUvQ4dqxQXU+ouZFQsZOx50z4=
+gonum.org/v1/gonum v0.17.0/go.mod h1:El3tOrEuMpv2UdMrbNlKEh9vd86bmQ6vqIcDwxEOc1E=

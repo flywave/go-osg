@@ -3,7 +3,6 @@ package osg
 import (
 	"bufio"
 	"encoding/binary"
-	"fmt"
 
 	"github.com/flywave/go-osg/model"
 )
@@ -47,7 +46,12 @@ type InputIterator struct {
 }
 
 func NewInputIterator(in *bufio.Reader, bysp int) *InputIterator {
-	return &InputIterator{In: in, ByteSwap: bysp, SupportBinaryBrackets: false, Failed: false}
+	return &InputIterator{
+		In:                    in,
+		ByteSwap:              bysp,
+		SupportBinaryBrackets: false,
+		Failed:                false,
+	}
 }
 
 func (it *InputIterator) SetSupportBinaryBrackets(sbb bool) {
@@ -86,7 +90,11 @@ func NewBinaryInputIterator(in *bufio.Reader) *BinaryInputIterator {
 	}
 	it := NewInputIterator(in, bysp)
 
-	return &BinaryInputIterator{InputIterator: *it}
+	// FIX: We've already read 8 bytes (2 int32) for the magic header
+	return &BinaryInputIterator{
+		InputIterator: *it,
+		Offset:        8, // Set offset to 8 after reading the header
+	}
 }
 
 func (iter *BinaryInputIterator) IsBinary() bool {
@@ -104,7 +112,6 @@ func (iter *BinaryInputIterator) readData(val interface{}, size int) {
 
 func (iter *BinaryInputIterator) ReadCharArray(s int) []byte {
 	if s < 0 || s > 10000000 {
-		fmt.Printf("WARNING: ReadCharArray called with invalid size: %d\n", s)
 		return nil
 	}
 	arry := make([]byte, s)
@@ -159,6 +166,12 @@ func (iter *BinaryInputIterator) ReadDouble(val *float64) {
 func (iter *BinaryInputIterator) ReadString() string {
 	var size int32
 	iter.ReadInt(&size)
+
+	if size < 0 || size > 10000000 {
+		// 无效的 size，返回空字符串
+		return ""
+	}
+
 	arr := iter.ReadCharArray(int(size))
 	if arr == nil {
 		return ""
@@ -185,14 +198,21 @@ func (iter *BinaryInputIterator) ReadProperty(val *model.ObjectProperty) {
 func (iter *BinaryInputIterator) ReadMark(mark *model.ObjectMark) {
 	if iter.SupportBinaryBrackets {
 		if mark.Name == "{" {
+			// ⚠️ 关键修复：BlockSizes 中的 size 包括 size 字段本身
+			// 参考：BinaryStreamOperator.h:270-288
+			// C++ 中：_beginPositions 保存的是读取 size 之前的位置
+			// _blockSizes 保存的 size 是块的总大小（包括 size 字段本身）
 			iter.BeginPositions = append(iter.BeginPositions, iter.Offset)
+
 			if iter.InputStream.FileVersion > 148 {
 				var size int64
 				iter.ReadLong(&size)
+				// size 包括了这个 8 字节的 size 字段本身
 				iter.BlockSizes = append(iter.BlockSizes, size)
 			} else {
 				var size int32
 				iter.ReadInt(&size)
+				// size 包括了这个 4 字节的 size 字段本身
 				iter.BlockSizes = append(iter.BlockSizes, int64(size))
 			}
 		} else if mark.Name == "}" && len(iter.BeginPositions) > 0 {
@@ -213,8 +233,15 @@ func (iter *BinaryInputIterator) AdvanceToCurrentEndBracket() {
 		bs := len(iter.BlockSizes)
 		pos += iter.BlockSizes[bs-1]
 		skip := pos - iter.Offset
-		iter.Offset = pos
-		iter.In.Discard(int(skip))
+
+		// 保护：如果 skip 为负数，说明我们已经读取过了数据
+		// 不需要跳过，直接移除括号位置
+		if skip > 0 {
+			iter.Offset = pos
+			iter.In.Discard(int(skip))
+		}
+		// 如果 skip <= 0，不需要做任何操作，因为我们已经在正确的位置或已经过去了
+
 		iter.BeginPositions = iter.BeginPositions[:len(iter.BeginPositions)-1]
 		iter.BlockSizes = iter.BlockSizes[:len(iter.BlockSizes)-1]
 	}

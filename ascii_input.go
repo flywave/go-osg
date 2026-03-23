@@ -262,3 +262,7 @@ func (iter *AsciiInputIterator) getCharacter(c *byte) {
 	*c = iter.PreReadString[0]
 	iter.PreReadString = iter.PreReadString[1:]
 }
+
+func (iter *AsciiInputIterator) GetOffset() int64 {
+	return 0
+}

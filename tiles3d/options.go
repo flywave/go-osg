@@ -36,6 +36,7 @@ type ConverterOptions struct {
 type Tile struct {
 	ID             string
 	Path           string
+	SourcePath     string
 	GeometricError float64
 	BoundingBox    [12]float64
 	Children       []*Tile
@@ -82,16 +83,18 @@ type TileJSON struct {
 }
 
 type AssetJSON struct {
-	Version string `json:"version"`
-	GenBy   string `json:"genBy,omitempty"`
+	Version    string `json:"version"`
+	GenBy      string `json:"genBy,omitempty"`
+	GltfUpAxis string `json:"gltfUpAxis,omitempty"`
 }
 
 type TileJSONNode struct {
 	BoundVolume    BoundVolumeJSON `json:"boundingVolume"`
 	GeometricError float64         `json:"geometricError"`
-	Refine         string          `json:"refine"`
+	Refine         string          `json:"refine,omitempty"`
 	Content        *ContentJSON    `json:"content,omitempty"`
 	Children       []*TileJSONNode `json:"children,omitempty"`
+	Transform      []float64       `json:"transform,omitempty"`
 }
 
 type BoundVolumeJSON struct {

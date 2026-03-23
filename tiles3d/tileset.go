@@ -26,38 +26,42 @@ func NewTilesetGenerator(opts *ConverterOptions) *TilesetGenerator {
 func (g *TilesetGenerator) Generate(tile *Tile) *TileJSON {
 	tileset := &TileJSON{
 		Asset: AssetJSON{
-			Version: "1.0",
-			GenBy:   "go-osg-3dtiles",
+			Version:    "1.0",
+			GenBy:      "go-osg-3dtiles",
+			GltfUpAxis: "Z",
 		},
 		GeometricError: g.opts.GeometricError,
 	}
 
 	if tile != nil {
-		tileset.Root = g.convertTileToJSON(tile)
+		tileset.Root = g.convertTileToJSON(tile, true)
 	}
 
 	return tileset
 }
 
-func (g *TilesetGenerator) convertTileToJSON(tile *Tile) *TileJSONNode {
+func (g *TilesetGenerator) convertTileToJSON(tile *Tile, isRoot bool) *TileJSONNode {
 	node := &TileJSONNode{
 		GeometricError: tile.GeometricError,
-		Refine:         "REPLACE",
 		BoundVolume: BoundVolumeJSON{
 			Box: tile.BoundingBox[:],
 		},
 	}
 
-	if tile.Content != nil && tile.Path != "" {
-		node.Content = &ContentJSON{
-			URI: filepath.Base(tile.Path),
+	// Only add refine and content for non-root tiles (matching C++ structure)
+	if !isRoot {
+		node.Refine = "REPLACE"
+		if tile.Content != nil && tile.Path != "" {
+			node.Content = &ContentJSON{
+				URI: filepath.Base(tile.Path),
+			}
 		}
 	}
 
 	if len(tile.Children) > 0 {
 		node.Children = make([]*TileJSONNode, len(tile.Children))
 		for i, child := range tile.Children {
-			node.Children[i] = g.convertTileToJSON(child)
+			node.Children[i] = g.convertTileToJSON(child, false)
 		}
 	}
 
@@ -257,6 +261,77 @@ func (g *B3DMGenerator) buildGLTF(content *TileContent) *gltf.Document {
 		primitive.Attributes["TEXCOORD_0"] = texCoordAccessorID
 	}
 
+	if len(content.Textures) > 0 {
+		textureIndices := make([]uint32, 0, len(content.Textures))
+
+		for i, texData := range content.Textures {
+			textureBuffer := &gltf.Buffer{
+				Data:       texData,
+				ByteLength: uint32(len(texData)),
+			}
+			textureBufferID := uint32(len(doc.Buffers))
+			doc.Buffers = append(doc.Buffers, textureBuffer)
+
+			textureBufferView := &gltf.BufferView{
+				Buffer:     textureBufferID,
+				ByteOffset: 0,
+				ByteLength: uint32(len(texData)),
+			}
+			textureBufferViewID := uint32(len(doc.BufferViews))
+			doc.BufferViews = append(doc.BufferViews, textureBufferView)
+
+			image := &gltf.Image{
+				URI:        "",
+				BufferView: &textureBufferViewID,
+				MimeType:   "image/jpeg",
+			}
+			imageID := uint32(len(doc.Images))
+			doc.Images = append(doc.Images, image)
+
+			sampler := &gltf.Sampler{
+				MagFilter: gltf.MagLinear,
+				MinFilter: gltf.MinLinearMipMapLinear,
+				WrapS:     gltf.WrapRepeat,
+				WrapT:     gltf.WrapRepeat,
+			}
+			samplerID := uint32(len(doc.Samplers))
+			doc.Samplers = append(doc.Samplers, sampler)
+
+			texture := &gltf.Texture{
+				Name:    fmt.Sprintf("texture_%d", i),
+				Source:  &imageID,
+				Sampler: &samplerID,
+			}
+			textureID := uint32(len(doc.Textures))
+			doc.Textures = append(doc.Textures, texture)
+			textureIndices = append(textureIndices, textureID)
+		}
+
+		if len(textureIndices) > 0 {
+			baseColor := [4]float32{1.0, 1.0, 1.0, 1.0}
+			metallic := float32(0.0)
+			roughness := float32(1.0)
+
+			baseColorTexture := textureIndices[0]
+
+			material := &gltf.Material{
+				Name: "TexturedMaterial",
+				PBRMetallicRoughness: &gltf.PBRMetallicRoughness{
+					BaseColorFactor: &baseColor,
+					MetallicFactor:  &metallic,
+					RoughnessFactor: &roughness,
+					BaseColorTexture: &gltf.TextureInfo{
+						Index: baseColorTexture,
+					},
+				},
+				DoubleSided: false,
+			}
+			matID := uint32(len(doc.Materials))
+			doc.Materials = append(doc.Materials, material)
+			primitive.Material = &matID
+		}
+	}
+
 	if len(content.Indices) > 0 {
 		indexBuffer := &gltf.Buffer{
 			Data:       uint32ToByte(content.Indices),
@@ -335,13 +410,15 @@ type Converter struct {
 	tilesetGen    *TilesetGenerator
 	b3dmGen       *B3DMGenerator
 	basePath      string
+	visitedTiles  map[string]bool
+	visitedDirs   map[string]bool
 }
 
 func NewConverter(opts *ConverterOptions) *Converter {
-	coordTrans := NewCoordinateTransformer(opts.SourceSRS, opts.TargetSRS)
-	coordTrans.SetCenter(opts.CenterLongitude, opts.CenterLatitude, opts.CenterHeight)
-
 	geoidConv := NewGeoidConverter(opts.GeoidModel, opts.GeoidDataPath)
+
+	coordTrans := NewCoordinateTransformer(opts.SourceSRS, opts.TargetSRS)
+	coordTrans.SetGeoidConverter(geoidConv)
 
 	geomConverter := NewGeometryConverter(opts, coordTrans, geoidConv)
 
@@ -357,6 +434,8 @@ func NewConverter(opts *ConverterOptions) *Converter {
 		tilesetGen:    tilesetGen,
 		b3dmGen:       b3dmGen,
 		basePath:      "",
+		visitedTiles:  make(map[string]bool),
+		visitedDirs:   make(map[string]bool),
 	}
 }
 
@@ -367,14 +446,17 @@ func (c *Converter) Convert(inputPath, outputPath string) error {
 
 	c.basePath = filepath.Dir(inputPath)
 
+	c.detectMetadata(inputPath)
+
 	node, err := LoadOSGB(inputPath)
 	if err != nil {
 		return err
 	}
 
 	tile := c.convertNodeToTile(node, filepath.Base(inputPath))
-	fmt.Printf("DEBUG Convert: root tile ID=%s, bbox center = (%f, %f, %f)\n",
-		tile.ID, tile.BoundingBox[0], tile.BoundingBox[1], tile.BoundingBox[2])
+	tile.SourcePath = inputPath
+	fmt.Printf("DEBUG Convert: root tile ID=%s, SourcePath=%s, bbox center = (%f, %f, %f)\n",
+		tile.ID, tile.SourcePath, tile.BoundingBox[0], tile.BoundingBox[1], tile.BoundingBox[2])
 
 	if c.opts.MaxLOD < 0 {
 		c.loadPagedLODs(tile, outputPath)
@@ -390,6 +472,32 @@ func (c *Converter) Convert(inputPath, outputPath string) error {
 
 	tileset := c.tilesetGen.Generate(tile)
 
+	if c.coordTrans.HasGeoReference() {
+		center := c.coordTrans.GetCenter()
+		latRad := center[1] * math.Pi / 180.0
+		lonRad := center[0] * math.Pi / 180.0
+		height := center[2]
+
+		ecef := c.coordTrans.ToECEFFromLatLon(latRad, lonRad, height)
+
+		sinLat := math.Sin(latRad)
+		cosLat := math.Cos(latRad)
+		sinLon := math.Sin(lonRad)
+		cosLon := math.Cos(lonRad)
+
+		transform := []float64{
+			-sinLon, -sinLat * cosLon, cosLat * cosLon, 0,
+			cosLon, -sinLat * sinLon, cosLat * sinLon, 0,
+			0, cosLat, sinLat, 0,
+			ecef[0], ecef[1], ecef[2], 1,
+		}
+
+		if tileset.Root != nil {
+			tileset.Root.Transform = transform
+		}
+		fmt.Printf("DEBUG Convert: added transform matrix, ECEF=(%f, %f, %f)\n", ecef[0], ecef[1], ecef[2])
+	}
+
 	if err := c.tilesetGen.Write(tileset, filepath.Join(outputPath, "tileset.json")); err != nil {
 		return err
 	}
@@ -397,17 +505,93 @@ func (c *Converter) Convert(inputPath, outputPath string) error {
 	return c.writeTiles(tile, outputPath)
 }
 
+func (c *Converter) detectMetadata(inputPath string) {
+	searchPaths := []string{
+		filepath.Dir(inputPath),
+		filepath.Join(filepath.Dir(inputPath), "OSGB"),
+		filepath.Join(filepath.Dir(inputPath), ".."),
+		filepath.Join(filepath.Dir(inputPath), "..", "OSGB"),
+		filepath.Join(filepath.Dir(inputPath), "..", ".."),
+		filepath.Join(filepath.Dir(inputPath), "..", "..", "OSGB"),
+		filepath.Join(filepath.Dir(inputPath), "..", "..", ".."),
+		filepath.Join(filepath.Dir(inputPath), "..", "..", "..", "OSGB"),
+	}
+
+	var metadataPath string
+	for _, p := range searchPaths {
+		if p != "" {
+			path, err := FindMetadataFile(p)
+			if err == nil {
+				metadataPath = path
+				break
+			}
+		}
+	}
+
+	if metadataPath == "" {
+		fmt.Printf("DEBUG detectMetadata: no metadata.xml found, using provided options\n")
+		if c.opts.CenterLongitude != 0 || c.opts.CenterLatitude != 0 {
+			c.coordTrans.SetCenter(c.opts.CenterLongitude, c.opts.CenterLatitude, c.opts.CenterHeight)
+		}
+		return
+	}
+
+	fmt.Printf("DEBUG detectMetadata: found metadata.xml at %s\n", metadataPath)
+
+	metadata, err := ParseMetadataXML(metadataPath)
+	if err != nil {
+		fmt.Printf("DEBUG detectMetadata: failed to parse metadata.xml: %v\n", err)
+		if c.opts.CenterLongitude != 0 || c.opts.CenterLatitude != 0 {
+			c.coordTrans.SetCenter(c.opts.CenterLongitude, c.opts.CenterLatitude, c.opts.CenterHeight)
+		}
+		return
+	}
+
+	fmt.Printf("DEBUG detectMetadata: SRS=%q, SRSOrigin=%q\n", metadata.SRS, metadata.SRSOrigin)
+
+	if c.opts.SourceSRS != "" {
+		fmt.Printf("DEBUG detectMetadata: using user-provided SourceSRS=%q\n", c.opts.SourceSRS)
+		metadata.SRS = c.opts.SourceSRS
+	}
+
+	err = c.coordTrans.SetGeoReferenceFromMetadata(metadata, c.opts.GeoidDataPath)
+	if err != nil {
+		fmt.Printf("DEBUG detectMetadata: failed to set geo reference: %v\n", err)
+		if c.opts.CenterLongitude != 0 || c.opts.CenterLatitude != 0 {
+			c.coordTrans.SetCenter(c.opts.CenterLongitude, c.opts.CenterLatitude, c.opts.CenterHeight)
+		}
+		return
+	}
+
+	fmt.Printf("DEBUG detectMetadata: geo reference set successfully\n")
+	fmt.Printf("DEBUG detectMetadata: center=(%f, %f, %f)\n",
+		c.coordTrans.GetCenter()[0], c.coordTrans.GetCenter()[1], c.coordTrans.GetCenter()[2])
+	fmt.Printf("DEBUG detectMetadata: originOffset=(%f, %f, %f)\n",
+		c.coordTrans.GetOriginOffset()[0], c.coordTrans.GetOriginOffset()[1], c.coordTrans.GetOriginOffset()[2])
+}
+
+var loadCount = 0
+
 func (c *Converter) loadPagedLODs(tile *Tile, outputPath string) {
 	if tile == nil {
 		return
 	}
 
 	children := c.getPagedLODChildren(tile)
+	fmt.Printf("DEBUG loadPagedLODs: tile=%s, children=%d\n", tile.ID, len(children))
+
 	for _, childPath := range children {
 		fullPath := childPath
-		if !filepath.IsAbs(fullPath) && c.basePath != "" {
-			fullPath = filepath.Join(c.basePath, childPath)
+		if !filepath.IsAbs(fullPath) {
+			if tile.SourcePath != "" {
+				tileDir := filepath.Dir(tile.SourcePath)
+				fullPath = filepath.Join(tileDir, childPath)
+			} else if c.basePath != "" {
+				fullPath = filepath.Join(c.basePath, childPath)
+			}
 		}
+
+		fmt.Printf("DEBUG loadPagedLODs: Loading %s -> %s\n", childPath, fullPath)
 
 		defer func() {
 			if r := recover(); r != nil {
@@ -421,8 +605,14 @@ func (c *Converter) loadPagedLODs(tile *Tile, outputPath string) {
 			continue
 		}
 
+		loadCount++
+		if loadCount%10 == 0 {
+			fmt.Printf("Progress: Loaded %d files...\n", loadCount)
+		}
+
 		childTile := c.convertNodeToTile(node, filepath.Base(childPath))
 		childTile.Path = filepath.Base(childPath) + ".b3dm"
+		childTile.SourcePath = fullPath
 
 		tile.Children = append(tile.Children, childTile)
 
@@ -435,18 +625,28 @@ func (c *Converter) loadPagedLODsLimited(tile *Tile, outputPath string, currentL
 		return
 	}
 
+	fmt.Printf(">>> loadPagedLODsLimited: START tile=%s, level=%d/%d\n", tile.ID, currentLevel, maxLevel)
+
 	children := c.getPagedLODChildren(tile)
-	fmt.Printf("DEBUG loadPagedLODsLimited: tile=%s, level=%d/%d, found %d children\n",
-		tile.ID, currentLevel, maxLevel, len(children))
-	if tile.ID == "Tile_+002_+000_L22_000020.osgb" {
-		fmt.Printf("DEBUG: L22 loaded, checking children...\n")
-	}
-	for _, childPath := range children {
-		fullPath := childPath
-		if !filepath.IsAbs(fullPath) && c.basePath != "" {
-			fullPath = filepath.Join(c.basePath, childPath)
+	fmt.Printf(">>> loadPagedLODsLimited: AFTER getPagedLODChildren tile=%s, found %d children\n",
+		tile.ID, len(children))
+
+	for i, childPath := range children {
+		if c.visitedTiles[childPath] {
+			fmt.Printf("DEBUG: Skipping visited tile: %s\n", childPath)
+			continue
 		}
-		fmt.Printf("DEBUG: Loading child: %s -> %s\n", childPath, fullPath)
+
+		fullPath := childPath
+		if !filepath.IsAbs(fullPath) {
+			if tile.SourcePath != "" {
+				tileDir := filepath.Dir(tile.SourcePath)
+				fullPath = filepath.Join(tileDir, childPath)
+			} else if c.basePath != "" {
+				fullPath = filepath.Join(c.basePath, childPath)
+			}
+		}
+		fmt.Printf(">>> [%d/%d] Loading child: %s -> %s\n", i+1, len(children), childPath, fullPath)
 
 		defer func() {
 			if r := recover(); r != nil {
@@ -460,8 +660,13 @@ func (c *Converter) loadPagedLODsLimited(tile *Tile, outputPath string, currentL
 			continue
 		}
 
+		fmt.Printf(">>> Loaded successfully: %s\n", childPath)
+
+		c.visitedTiles[childPath] = true
+
 		childTile := c.convertNodeToTile(node, filepath.Base(childPath))
 		childTile.Path = filepath.Base(childPath) + ".b3dm"
+		childTile.SourcePath = fullPath
 
 		tile.Children = append(tile.Children, childTile)
 
@@ -472,6 +677,223 @@ func (c *Converter) loadPagedLODsLimited(tile *Tile, outputPath string, currentL
 func (c *Converter) getPagedLODChildren(tile *Tile) []string {
 	if tile == nil || tile.Node == nil {
 		fmt.Printf("DEBUG getPagedLODChildren: tile=%s has nil Node!\n", tile.ID)
+		return nil
+	}
+
+	var result []string
+
+	// First, get children from PagedLOD
+	pagedLODChildren := c.getPagedLODChildrenFromNode(tile)
+
+	// Then, scan directory for sibling tiles at the same LOD level
+	// Only scan for L21-L25 levels (middle LODs)
+	lodLevel := extractLODLevel(tile.ID)
+	isMidLevel := false
+	if lodLevel != "" {
+		// Parse LOD level number
+		if len(lodLevel) >= 2 && lodLevel[0] == 'L' {
+			levelNum := 0
+			fmt.Sscanf(lodLevel[1:], "%d", &levelNum)
+			// Only scan siblings for mid-level LODs (L21-L25)
+			if levelNum >= 21 && levelNum <= 25 {
+				isMidLevel = true
+			}
+		}
+	}
+
+	var dirChildren []string
+	if isMidLevel {
+		dirChildren = c.scanDirectoryForSiblingsBylod(tile)
+	}
+
+	// Merge both lists (avoid duplicates)
+	childMap := make(map[string]bool)
+	for _, child := range pagedLODChildren {
+		if child != "" {
+			childMap[child] = true
+		}
+	}
+	for _, child := range dirChildren {
+		if child != "" && !childMap[child] {
+			childMap[child] = true
+		}
+	}
+
+	for child := range childMap {
+		result = append(result, child)
+	}
+
+	fmt.Printf("DEBUG getPagedLODChildren: tile=%s, pagedLOD=%d, dir=%d, total=%d\n",
+		tile.ID, len(pagedLODChildren), len(dirChildren), len(result))
+
+	return result
+}
+
+func (c *Converter) scanDirectoryForSiblings(tile *Tile) []string {
+	if tile == nil || c.basePath == "" {
+		return nil
+	}
+
+	// Get the directory of the current tile (use basePath directly since that's where the tile was loaded from)
+	tileDir := c.basePath
+	fmt.Printf("DEBUG scanDirectoryForSiblings: tile=%s, tileDir=%q, basePath=%q\n",
+		tile.ID, tileDir, c.basePath)
+	if tileDir == "" {
+		return nil
+	}
+
+	// Resolve full path
+	fullTileDir := tileDir
+	if !filepath.IsAbs(fullTileDir) {
+		fullTileDir = filepath.Join(c.basePath, tileDir)
+	}
+
+	// Skip if already scanned this directory
+	if c.visitedDirs[fullTileDir] {
+		fmt.Printf("DEBUG scanDirectoryForSiblings: dir already scanned: %s\n", fullTileDir)
+		return nil
+	}
+	c.visitedDirs[fullTileDir] = true
+
+	// Check if directory exists
+	info, err := os.Stat(fullTileDir)
+	if err != nil || !info.IsDir() {
+		return nil
+	}
+
+	// Read all osgb files in the directory
+	entries, err := os.ReadDir(fullTileDir)
+	if err != nil {
+		return nil
+	}
+
+	// Extract current tile name for exclusion
+	currentTileName := filepath.Base(tile.Path)
+
+	var siblings []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if !strings.HasSuffix(name, ".osgb") {
+			continue
+		}
+		// Skip self
+		if name == currentTileName {
+			continue
+		}
+
+		// Calculate relative path from basePath
+		relPath, err := filepath.Rel(c.basePath, filepath.Join(fullTileDir, name))
+		if err != nil {
+			continue
+		}
+		relPath = filepath.ToSlash(relPath)
+		siblings = append(siblings, relPath)
+	}
+
+	if len(siblings) > 0 {
+		fmt.Printf("DEBUG scanDirectoryForSiblings: tile=%s, dir=%s, found %d siblings\n",
+			tile.ID, fullTileDir, len(siblings))
+	}
+
+	return siblings
+}
+
+func (c *Converter) scanDirectoryForSiblingsBylod(tile *Tile) []string {
+	if tile == nil || c.basePath == "" {
+		return nil
+	}
+
+	// Extract LOD level from tile ID (e.g., "L21" from "Tile_+002_+000_L21_00000.osgb")
+	lodLevel := extractLODLevel(tile.ID)
+	if lodLevel == "" {
+		return nil
+	}
+
+	// Use basePath as the directory to scan
+	tileDir := c.basePath
+	if tileDir == "" {
+		return nil
+	}
+
+	// Skip if already scanned this LOD level (only scan once per LOD level)
+	scanKey := tileDir + ":" + lodLevel
+	if c.visitedDirs[scanKey] {
+		fmt.Printf("DEBUG scanDirectoryForSiblingsBylod: already scanned %s\n", scanKey)
+		return nil
+	}
+	c.visitedDirs[scanKey] = true
+
+	// Limit: don't scan siblings for very detailed levels (L22+) to avoid explosion
+	if lodLevel == "L22" || lodLevel == "L23" || lodLevel == "L24" {
+		fmt.Printf("DEBUG scanDirectoryForSiblingsBylod: skipping high LOD level %s to avoid explosion\n", lodLevel)
+		return nil
+	}
+
+	// Read all osgb files in the directory
+	entries, err := os.ReadDir(tileDir)
+	if err != nil {
+		return nil
+	}
+
+	// Extract current tile name for exclusion (strip .b3dm extension if present)
+	currentTileName := filepath.Base(tile.Path)
+	currentTileName = strings.TrimSuffix(currentTileName, ".b3dm")
+
+	var siblings []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if !strings.HasSuffix(name, ".osgb") {
+			continue
+		}
+		// Skip self
+		if name == currentTileName {
+			continue
+		}
+		// Only include tiles with the same LOD level
+		if !strings.Contains(name, "_"+lodLevel+"_") {
+			continue
+		}
+
+		// Calculate relative path from basePath
+		relPath, err := filepath.Rel(c.basePath, filepath.Join(tileDir, name))
+		if err != nil {
+			continue
+		}
+		relPath = filepath.ToSlash(relPath)
+		siblings = append(siblings, relPath)
+	}
+
+	if len(siblings) > 0 {
+		fmt.Printf("DEBUG scanDirectoryForSiblingsBylod: tile=%s, lod=%s, found %d siblings\n",
+			tile.ID, lodLevel, len(siblings))
+	}
+
+	return siblings
+}
+
+func extractLODLevel(tileID string) string {
+	// Extract LOD level like "L21" from "Tile_+002_+000_L21_00000.osgb"
+	// Pattern: Tile_+XXX_+YYY_L<level>_<index>
+	parts := strings.Split(tileID, "_")
+	for i, part := range parts {
+		if len(part) >= 2 && part[0] == 'L' {
+			// Check if following parts are numbers
+			if i+1 < len(parts) {
+				return part
+			}
+		}
+	}
+	return ""
+}
+
+func (c *Converter) getPagedLODChildrenFromNode(tile *Tile) []string {
+	if tile == nil || tile.Node == nil {
 		return nil
 	}
 

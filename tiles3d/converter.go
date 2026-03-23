@@ -11,6 +11,7 @@ import (
 	"github.com/flywave/go-meshopt"
 	"github.com/flywave/go-osg"
 	"github.com/flywave/go-osg/model"
+	"gonum.org/v1/gonum/mat"
 )
 
 type GeometryConverter struct {
@@ -86,7 +87,6 @@ func (c *GeometryConverter) extractGeometry(geom *model.Geometry) *TileContent {
 	}
 
 	bbox := c.calculateBoundingBox(vertices)
-	fmt.Printf("DEBUG extractGeometry: bbox center = (%f, %f, %f)\n", bbox[0], bbox[1], bbox[2])
 	content.BoundingBox = bbox
 	content.Vertices = vertices
 
@@ -96,6 +96,8 @@ func (c *GeometryConverter) extractGeometry(geom *model.Geometry) *TileContent {
 
 	if len(geom.TexCoordArrayList) > 0 && geom.TexCoordArrayList[0] != nil {
 		content.TexCoords = c.extractTexCoords(geom.TexCoordArrayList[0])
+	} else {
+		content.TexCoords = c.generateDefaultTexCoords(vertices)
 	}
 
 	if geom.Primitives != nil && len(geom.Primitives) > 0 {
@@ -103,6 +105,19 @@ func (c *GeometryConverter) extractGeometry(geom *model.Geometry) *TileContent {
 	}
 
 	content.BatchLength = 1
+
+	if len(vertices) >= 12 {
+		fmt.Printf("DEBUG extractGeometry first 3 vertices: (%.6f, %.6f, %.6f)\n", vertices[0], vertices[1], vertices[2])
+		fmt.Printf("DEBUG extractGeometry next 3 vertices: (%.6f, %.6f, %.6f)\n", vertices[len(vertices)-9], vertices[len(vertices)-8], vertices[len(vertices)-7])
+		fmt.Printf("DEBUG extractGeometry last 3 vertices: (%.6f, %.6f, %.6f)\n", vertices[len(vertices)-6], vertices[len(vertices)-5], vertices[len(vertices)-4])
+	}
+
+	stateset := geom.GetStates()
+	if stateset != nil {
+		if tex := c.extractTextureFromStateSet(stateset, "", 0); tex != nil {
+			content.Textures = append(content.Textures, tex.Data)
+		}
+	}
 
 	return content
 }
@@ -186,6 +201,15 @@ func (c *GeometryConverter) extractVertices(arr *model.Array) []float32 {
 		return nil
 	}
 
+	fmt.Printf("DEBUG extractVertices: Array properties:\n")
+	fmt.Printf("  Type: %d\n", arr.Type)
+	fmt.Printf("  DataType: %d\n", arr.DataType)
+	fmt.Printf("  DataSize: %d\n", arr.DataSize)
+	fmt.Printf("  Binding: %d\n", arr.Binding)
+	fmt.Printf("  Normalize: %v\n", arr.Normalize)
+	fmt.Printf("  PreserveDataType: %v\n", arr.PreserveDataType)
+	fmt.Printf("  Data type: %T\n", arr.Data)
+
 	var vertices []float32
 
 	switch data := arr.Data.(type) {
@@ -241,35 +265,186 @@ func (c *GeometryConverter) extractVertices(arr *model.Array) []float32 {
 		vertices = vertices[:len(vertices)/3*3]
 	}
 
+	fmt.Printf("DEBUG extractVertices: len(vertices) = %d\n", len(vertices))
+
+	// 打印原始顶点数据（前3个顶点）
+	if len(vertices) >= 9 {
+		fmt.Printf("DEBUG extractVertices: raw vertices (first 3):\n")
+		for i := 0; i < 9; i += 3 {
+			fmt.Printf("  [%d] x=%.6f, y=%.6f, z=%.6f\n", i/3, vertices[i], vertices[i+1], vertices[i+2])
+		}
+	} else {
+		fmt.Printf("DEBUG extractVertices: len(vertices) < 9, cannot print raw vertices\n")
+	}
+
 	originOffset := c.coordTrans.GetOriginOffset()
+	hasGeoRef := c.coordTrans.HasGeoReference()
 
-	// Debug output
-	fmt.Printf("DEBUG: originOffset = (%f, %f, %f)\n", originOffset[0], originOffset[1], originOffset[2])
-	fmt.Printf("DEBUG: center = (%f, %f, %f)\n", c.coordTrans.GetCenter()[0], c.coordTrans.GetCenter()[1], c.coordTrans.GetCenter()[2])
+	fmt.Printf("DEBUG extractVertices: originOffset=(%.6f, %.6f, %.6f)\n", originOffset[0], originOffset[1], originOffset[2])
+	fmt.Printf("DEBUG extractVertices: hasGeoRef=%v\n", hasGeoRef)
 
-	// Transform vertices from source SRS to ENU using the geographic origin
-	// First add SRSOrigin offset to get absolute coordinates (if any)
-	// Then convert to ENU
+	if !hasGeoRef {
+		result := make([]float32, len(vertices))
+		for i := 0; i < len(vertices); i += 3 {
+			result[i] = vertices[i] + float32(originOffset[0])
+			result[i+1] = vertices[i+1] + float32(originOffset[1])
+			result[i+2] = vertices[i+2] + float32(originOffset[2])
+		}
+		return result
+	}
+
+	// Use least squares method for coordinate transformation (matching C++ 3dtiles approach)
+	// Step 1: Calculate bounding box
+	minX, maxX := math.MaxFloat64, -math.MaxFloat64
+	minY, maxY := math.MaxFloat64, -math.MaxFloat64
+	minZ, maxZ := math.MaxFloat64, -math.MaxFloat64
+
+	fmt.Printf("DEBUG extractVertices: calculating bounding box\n")
 	for i := 0; i < len(vertices); i += 3 {
-		// Add offset first to get absolute coordinates
+		x := float64(vertices[i]) + originOffset[0]
+		y := float64(vertices[i+1]) + originOffset[1]
+		z := float64(vertices[i+2]) + originOffset[2]
+
+		if i < 9 {
+			fmt.Printf("DEBUG extractVertices: vertex[%d] after offset: x=%.6f, y=%.6f, z=%.6f\n", i/3, x, y, z)
+		}
+
+		if x < minX {
+			minX = x
+		}
+		if x > maxX {
+			maxX = x
+		}
+		if y < minY {
+			minY = y
+		}
+		if y > maxY {
+			maxY = y
+		}
+		if z < minZ {
+			minZ = z
+		}
+		if z > maxZ {
+			maxZ = z
+		}
+	}
+
+	// Step 2: Transform 8 corner points
+	originalCorners := [8][3]float64{
+		{minX, minY, minZ},
+		{maxX, minY, minZ},
+		{minX, maxY, minZ},
+		{minX, minY, maxZ},
+		{maxX, maxY, minZ},
+		{minX, maxY, maxZ},
+		{maxX, minY, maxZ},
+		{maxX, maxY, maxZ},
+	}
+
+	correctedCorners := make([][3]float64, 8)
+	for i, corner := range originalCorners {
+		correctedCorners[i] = c.coordTrans.ToLocalENUFromSource(corner)
+	}
+
+	// Step 3: Calculate transformation matrix using least squares
+	// Solve A * X = B where A is 8x4 (original corners), B is 8x4 (corrected corners)
+	A := mat.NewDense(8, 4, nil)
+	B := mat.NewDense(8, 4, nil)
+
+	for i := 0; i < 8; i++ {
+		A.Set(i, 0, originalCorners[i][0])
+		A.Set(i, 1, originalCorners[i][1])
+		A.Set(i, 2, originalCorners[i][2])
+		A.Set(i, 3, 1.0)
+		B.Set(i, 0, correctedCorners[i][0])
+		B.Set(i, 1, correctedCorners[i][1])
+		B.Set(i, 2, correctedCorners[i][2])
+		B.Set(i, 3, 1.0)
+	}
+
+	var svd mat.SVD
+	ok := svd.Factorize(A, mat.SVDFull)
+	if !ok {
+		fmt.Printf("DEBUG: SVD factorization failed, using direct transform\n")
+		return c.transformVerticesDirectly(vertices, originOffset)
+	}
+
+	var X mat.Dense
+	err := svd.SolveTo(&X, B, 0)
+	if err != nil {
+		fmt.Printf("DEBUG: SVD solve failed: %v, using direct transform\n", err)
+		return c.transformVerticesDirectly(vertices, originOffset)
+	}
+
+	fmt.Printf("DEBUG: Transform matrix calculated:\n")
+	for i := 0; i < 4; i++ {
+		fmt.Printf("  [%.6f, %.6f, %.6f, %.6f]\n", X.At(i, 0), X.At(i, 1), X.At(i, 2), X.At(i, 3))
+	}
+
+	// Step 4: Apply transformation to all vertices
+	result := make([]float32, len(vertices))
+	for i := 0; i < len(vertices); i += 3 {
+		x := float64(vertices[i]) + originOffset[0]
+		y := float64(vertices[i+1]) + originOffset[1]
+		z := float64(vertices[i+2]) + originOffset[2]
+
+		// Apply 4x4 transformation matrix
+		// FIX: Correct indexing - multiply row by point components
+		newX := X.At(0, 0)*x + X.At(0, 1)*y + X.At(0, 2)*z + X.At(0, 3)
+		newY := X.At(1, 0)*x + X.At(1, 1)*y + X.At(1, 2)*z + X.At(1, 3)
+		newZ := X.At(2, 0)*x + X.At(2, 1)*y + X.At(2, 2)*z + X.At(2, 3)
+
+		result[i] = float32(newX)
+		result[i+1] = float32(newY)
+		result[i+2] = float32(newZ)
+
+		if i == 0 {
+			fmt.Printf("DEBUG: First vertex: original=(%f, %f, %f) -> transformed=(%f, %f, %f)\n",
+				x, y, z, newX, newY, newZ)
+		}
+	}
+
+	return result
+}
+
+func (c *GeometryConverter) transformVerticesDirectly(vertices []float32, originOffset [3]float64) []float32 {
+	result := make([]float32, 0, len(vertices))
+	invalidCount := 0
+
+	for i := 0; i < len(vertices); i += 3 {
 		absX := float64(vertices[i]) + originOffset[0]
 		absY := float64(vertices[i+1]) + originOffset[1]
 		absZ := float64(vertices[i+2]) + originOffset[2]
 
+		const maxValidZ = 10000.0
+		const maxValidXY = 1e12
+
+		if absZ > maxValidZ || absZ < -maxValidZ {
+			invalidCount++
+			continue
+		}
+		if absX > maxValidXY || absX < -maxValidXY || absY > maxValidXY || absY < -maxValidXY {
+			invalidCount++
+			continue
+		}
+
 		localCoords := [3]float64{absX, absY, absZ}
 		enuCoords := c.coordTrans.ToLocalENUFromSource(localCoords)
 
-		vertices[i] = float32(enuCoords[0])
-		vertices[i+1] = float32(enuCoords[1])
-		vertices[i+2] = float32(enuCoords[2])
-		if i == 0 {
-			fmt.Printf("DEBUG: First vertex: local=(%f, %f, %f) -> ENU=(%f, %f, %f)\n",
-				localCoords[0], localCoords[1], localCoords[2],
-				enuCoords[0], enuCoords[1], enuCoords[2])
+		if math.IsNaN(enuCoords[0]) || math.IsNaN(enuCoords[1]) || math.IsNaN(enuCoords[2]) ||
+			math.IsInf(enuCoords[0], 0) || math.IsInf(enuCoords[1], 0) || math.IsInf(enuCoords[2], 0) {
+			invalidCount++
+			continue
 		}
+
+		result = append(result, float32(enuCoords[0]), float32(enuCoords[1]), float32(enuCoords[2]))
 	}
 
-	return vertices
+	if invalidCount > 0 {
+		fmt.Printf("DEBUG: Filtered %d invalid vertices out of %d total\n", invalidCount, len(vertices)/3)
+	}
+
+	return result
 }
 
 func (c *GeometryConverter) extractNormals(arr *model.Array) []float32 {
@@ -311,6 +486,52 @@ func (c *GeometryConverter) extractTexCoords(arr *model.Array) []float32 {
 	}
 
 	return nil
+}
+
+func (c *GeometryConverter) generateDefaultTexCoords(vertices []float32) []float32 {
+	if len(vertices) == 0 {
+		return nil
+	}
+
+	vertexCount := len(vertices) / 3
+
+	minX, maxX := vertices[0], vertices[0]
+	minY, maxY := vertices[1], vertices[1]
+
+	for i := 0; i < len(vertices); i += 3 {
+		if vertices[i] < minX {
+			minX = vertices[i]
+		}
+		if vertices[i] > maxX {
+			maxX = vertices[i]
+		}
+		if vertices[i+1] < minY {
+			minY = vertices[i+1]
+		}
+		if vertices[i+1] > maxY {
+			maxY = vertices[i+1]
+		}
+	}
+
+	width := maxX - minX
+	height := maxY - minY
+
+	if width == 0 {
+		width = 1.0
+	}
+	if height == 0 {
+		height = 1.0
+	}
+
+	texCoords := make([]float32, vertexCount*2)
+	for i := 0; i < vertexCount; i++ {
+		x := vertices[i*3]
+		y := vertices[i*3+1]
+		texCoords[i*2] = (x - minX) / width
+		texCoords[i*2+1] = (y - minY) / height
+	}
+
+	return texCoords
 }
 
 func (c *GeometryConverter) calculateBoundingBox(vertices []float32) [12]float64 {
@@ -378,6 +599,7 @@ func (c *TileContent) Merge(other *TileContent) {
 	c.Normals = append(c.Normals, other.Normals...)
 	c.TexCoords = append(c.TexCoords, other.TexCoords...)
 	c.Indices = append(c.Indices, other.Indices...)
+	c.Textures = append(c.Textures, other.Textures...)
 
 	if c.BatchLength == 0 {
 		c.BoundingBox = other.BoundingBox
