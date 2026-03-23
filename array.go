@@ -63,7 +63,11 @@ func setDataSize(obj interface{}, fc interface{}) {
 
 func registerArrayWrapper(name string, arrayType int, elemType int, elemSize int) {
 	fn := func() interface{} {
-		return model.NewArray2()
+		// FIX: Use NewArray instead of NewArray2 to set Type, DataType, DataSize
+		ty := model.ArrayTable(arrayType)
+		dt := int32(elemType)
+		dsize := int32(elemSize)
+		return model.NewArray(ty, dt, dsize)
 	}
 	wrap := NewObjectWrapper(name, fn, "osg::Object osg::BufferData osg::Array "+name)
 	{
