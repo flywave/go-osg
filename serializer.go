@@ -1,8 +1,6 @@
 package osg
 
 import (
-	"fmt"
-
 	"github.com/flywave/go-osg/model"
 )
 
@@ -526,15 +524,9 @@ func (ser *IsAVectorSerializer) genVect(is *OsgIstream, size int32) interface{} 
 	switch ser.ElementType {
 	case RWFLOAT:
 		vec := make([]float32, int(size)*int(ser.NumElementOnRow))
-		fmt.Printf("DEBUG genVect: reading %d float32 values (size=%d, NumElementOnRow=%d)\n",
-			len(vec), size, ser.NumElementOnRow)
 		for i := range vec {
 			is.Read(&vec[i])
-			if i < 12 {
-				fmt.Printf("DEBUG genVect: vec[%d] = %.6f\n", i, vec[i])
-			}
 		}
-		fmt.Printf("DEBUG genVect: finished reading %d values\n", len(vec))
 		switch ser.NumElementOnRow {
 		case 1:
 			return vec
@@ -551,11 +543,6 @@ func (ser *IsAVectorSerializer) genVect(is *OsgIstream, size int32) interface{} 
 				res[i][0] = vec[i*3]
 				res[i][1] = vec[i*3+1]
 				res[i][2] = vec[i*3+2]
-			}
-			fmt.Printf("DEBUG genVect: returning [][3]float32 with %d elements\n", len(res))
-			if len(res) > 0 {
-				fmt.Printf("DEBUG genVect: first element = (%.6f, %.6f, %.6f)\n",
-					res[0][0], res[0][1], res[0][2])
 			}
 			return res
 		case 4:

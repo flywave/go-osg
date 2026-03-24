@@ -69,7 +69,7 @@ func registerArrayWrapper(name string, arrayType int, elemType int, elemSize int
 		dsize := int32(elemSize)
 		return model.NewArray(ty, dt, dsize)
 	}
-	wrap := NewObjectWrapper(name, fn, "osg::Object osg::BufferData osg::Array "+name)
+	wrap := NewObjectWrapper(name, fn, "osg::Object osg::BufferData osg::Array osg::"+name)
 	{
 		uv := AddUpdateWrapperVersionProxy(wrap, 117)
 		wrap.MarkSerializerAsAdded("osg::BufferData")
@@ -100,16 +100,16 @@ func registerArrayWrapper(name string, arrayType int, elemType int, elemSize int
 
 	switch elemSize {
 	case 1:
-		serData := NewIsAVectorSerializer("Array", RWFLOAT, 1, getArrayData, setArrayData)
+		serData := NewIsAVectorSerializer("vector", RWFLOAT, 1, getArrayData, setArrayData)
 		wrap.AddSerializer(serData, RWVECTOR)
 	case 2:
-		serData := NewIsAVectorSerializer("Array", RWFLOAT, 2, getArrayData, setArrayData)
+		serData := NewIsAVectorSerializer("vector", RWFLOAT, 2, getArrayData, setArrayData)
 		wrap.AddSerializer(serData, RWVECTOR)
 	case 3:
-		serData := NewIsAVectorSerializer("Array", RWFLOAT, 3, getArrayData, setArrayData)
+		serData := NewIsAVectorSerializer("vector", RWFLOAT, 3, getArrayData, setArrayData)
 		wrap.AddSerializer(serData, RWVECTOR)
 	case 4:
-		serData := NewIsAVectorSerializer("Array", RWFLOAT, 4, getArrayData, setArrayData)
+		serData := NewIsAVectorSerializer("vector", RWFLOAT, 4, getArrayData, setArrayData)
 		wrap.AddSerializer(serData, RWVECTOR)
 	}
 
