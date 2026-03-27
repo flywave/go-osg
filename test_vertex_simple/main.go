@@ -46,7 +46,6 @@ func findFirstGeometryWithArray(node interface{}, depth int) {
 				printGeometryInfo(geom, prefix+"  ")
 				if geom.VertexArray != nil && geom.VertexArray.Data != nil {
 					fmt.Printf("%s*** Found Geometry with VertexArray ***\n", prefix)
-					printArrayData(geom.VertexArray)
 					return
 				}
 			}

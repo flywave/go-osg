@@ -28,6 +28,9 @@ type Array struct {
 	Binding          int32
 	Normalize        bool
 	PreserveDataType bool
+	ElementSize      int32
+	TotalDataSize    int32
+	NumElements      int32
 	Data             interface{}
 }
 

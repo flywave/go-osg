@@ -35,6 +35,9 @@ type OsgInputIterator interface {
 	GetIterator() *bufio.Reader
 	SetIterator(*bufio.Reader)
 	SetSupportBinaryBrackets(sbb bool)
+	GetSupportBinaryBrackets() bool
+	GetLastBlockSize() int64
+	GetInputStream() *OsgIstream
 }
 
 type InputIterator struct {
@@ -57,6 +60,9 @@ func NewInputIterator(in *bufio.Reader, bysp int) *InputIterator {
 func (it *InputIterator) SetSupportBinaryBrackets(sbb bool) {
 	it.SupportBinaryBrackets = sbb
 }
+func (it *InputIterator) GetSupportBinaryBrackets() bool {
+	return it.SupportBinaryBrackets
+}
 func (it *InputIterator) SetInputSteam(is *OsgIstream) {
 	it.InputStream = is
 }
@@ -70,6 +76,14 @@ func (iter *InputIterator) GetIterator() *bufio.Reader {
 
 func (iter *InputIterator) SetIterator(bf *bufio.Reader) {
 	iter.In = bf
+}
+
+func (iter *InputIterator) GetLastBlockSize() int64 {
+	return 0
+}
+
+func (iter *InputIterator) GetInputStream() *OsgIstream {
+	return iter.InputStream
 }
 
 type BinaryInputIterator struct {
@@ -198,21 +212,15 @@ func (iter *BinaryInputIterator) ReadProperty(val *model.ObjectProperty) {
 func (iter *BinaryInputIterator) ReadMark(mark *model.ObjectMark) {
 	if iter.SupportBinaryBrackets {
 		if mark.Name == "{" {
-			// ⚠️ 关键修复：BlockSizes 中的 size 包括 size 字段本身
-			// 参考：BinaryStreamOperator.h:270-288
-			// C++ 中：_beginPositions 保存的是读取 size 之前的位置
-			// _blockSizes 保存的 size 是块的总大小（包括 size 字段本身）
 			iter.BeginPositions = append(iter.BeginPositions, iter.Offset)
 
 			if iter.InputStream.FileVersion > 148 {
 				var size int64
 				iter.ReadLong(&size)
-				// size 包括了这个 8 字节的 size 字段本身
 				iter.BlockSizes = append(iter.BlockSizes, size)
 			} else {
 				var size int32
 				iter.ReadInt(&size)
-				// size 包括了这个 4 字节的 size 字段本身
 				iter.BlockSizes = append(iter.BlockSizes, int64(size))
 			}
 		} else if mark.Name == "}" && len(iter.BeginPositions) > 0 {
@@ -245,4 +253,12 @@ func (iter *BinaryInputIterator) AdvanceToCurrentEndBracket() {
 		iter.BeginPositions = iter.BeginPositions[:len(iter.BeginPositions)-1]
 		iter.BlockSizes = iter.BlockSizes[:len(iter.BlockSizes)-1]
 	}
+}
+
+func (iter *BinaryInputIterator) GetLastBlockSize() int64 {
+	l := len(iter.BlockSizes)
+	if l > 0 {
+		return iter.BlockSizes[l-1]
+	}
+	return 0
 }

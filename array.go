@@ -36,7 +36,6 @@ func setArrayData(obj interface{}, fc interface{}) {
 	obj.(*model.Array).Data = fc
 }
 
-// FIX: Add getters and setters for Type, DataType, DataSize
 func getType(obj interface{}) interface{} {
 	return obj.(*model.Array).Type
 }
@@ -61,57 +60,72 @@ func setDataSize(obj interface{}, fc interface{}) {
 	obj.(*model.Array).DataSize = *fc.(*int32)
 }
 
-func registerArrayWrapper(name string, arrayType int, elemType int, elemSize int) {
+func getElementSize(obj interface{}) interface{} {
+	return obj.(*model.Array).ElementSize
+}
+
+func setElementSize(obj interface{}, fc interface{}) {
+	obj.(*model.Array).ElementSize = *fc.(*int32)
+}
+
+func getTotalDataSize(obj interface{}) interface{} {
+	return obj.(*model.Array).TotalDataSize
+}
+
+func setTotalDataSize(obj interface{}, fc interface{}) {
+	obj.(*model.Array).TotalDataSize = *fc.(*int32)
+}
+
+func getNumElements(obj interface{}) interface{} {
+	return obj.(*model.Array).NumElements
+}
+
+func setNumElements(obj interface{}, fc interface{}) {
+	obj.(*model.Array).NumElements = *fc.(*int32)
+}
+
+func registerArrayWrapper(name string, arrayType int, elemType SerType, dataSize int) {
 	fn := func() interface{} {
-		// FIX: Use NewArray instead of NewArray2 to set Type, DataType, DataSize
 		ty := model.ArrayTable(arrayType)
-		dt := int32(elemType)
-		dsize := int32(elemSize)
+		var dt int32
+		switch elemType {
+		case RWFLOAT, RWVEC2F, RWVEC3F, RWVEC4F:
+			dt = model.GLFLOAT
+		case RWDOUBLE, RWVEC2D, RWVEC3D, RWVEC4D:
+			dt = model.GLDOUBLE
+		case RWCHAR, RWVEC2B, RWVEC3B, RWVEC4B:
+			dt = model.GLBYTE
+		case RWUCHAR, RWVEC2UB, RWVEC3UB, RWVEC4UB:
+			dt = model.GLUNSIGNEDBYTE
+		case RWSHORT, RWVEC2S, RWVEC3S, RWVEC4S:
+			dt = model.GLSHORT
+		case RWUSHORT, RWVEC2US, RWVEC3US, RWVEC4US:
+			dt = model.GLUNSIGNEDSHORT
+		case RWINT, RWVEC2I, RWVEC3I, RWVEC4I:
+			dt = model.GLINT
+		case RWUINT, RWVEC2UI, RWVEC3UI, RWVEC4UI:
+			dt = model.GLUNSIGNEDINT
+		default:
+			dt = model.GLFLOAT
+		}
+		dsize := int32(dataSize)
 		return model.NewArray(ty, dt, dsize)
 	}
 	wrap := NewObjectWrapper(name, fn, "osg::Object osg::BufferData osg::Array osg::"+name)
 	{
-		uv := AddUpdateWrapperVersionProxy(wrap, 117)
+		uv := AddUpdateWrapperVersionProxy(wrap, 147)
 		wrap.MarkSerializerAsAdded("osg::BufferData")
 		uv.SetLastVersion()
 	}
 
-	ser := NewEnumSerializer("Binding", getBinding, setBinding)
-	ser.Add("BINDUNDEFINED", model.BINDUNDEFINED)
-	ser.Add("BINDOFF", model.BINDOFF)
-	ser.Add("BINDOVERALL", model.BINDOVERALL)
-	ser.Add("BINDPERPRIMITIVESET", model.BINDPERPRIMITIVESET)
-	ser.Add("BINDPERVERTEX", model.BINDPERVERTEX)
-
-	serb1 := NewPropByValSerializer("Normalize", false, getNormalize, setNormalize)
-	serb2 := NewPropByValSerializer("PreserveDataType", false, getPreserveDataType, setPreserveDataType)
-
-	// FIX: Add Type, DataType, DataSize serializers for FileVersion >= 112
-	serType := NewPropByRefSerializer("Type", getType, setType)
-	serDataType := NewPropByRefSerializer("DataType", getArrayDataType, setArrayDataType)
-	serDataSize := NewPropByRefSerializer("DataSize", getDataSize, setDataSize)
-
-	wrap.AddSerializer(ser, RWENUM)
-	wrap.AddSerializer(serb1, RWBOOL)
-	wrap.AddSerializer(serb2, RWBOOL)
-	wrap.AddSerializer(serType, RWINT)
-	wrap.AddSerializer(serDataType, RWINT)
-	wrap.AddSerializer(serDataSize, RWINT)
-
-	switch elemSize {
-	case 1:
-		serData := NewIsAVectorSerializer("vector", RWFLOAT, 1, getArrayData, setArrayData)
-		wrap.AddSerializer(serData, RWVECTOR)
-	case 2:
-		serData := NewIsAVectorSerializer("vector", RWFLOAT, 2, getArrayData, setArrayData)
-		wrap.AddSerializer(serData, RWVECTOR)
-	case 3:
-		serData := NewIsAVectorSerializer("vector", RWFLOAT, 3, getArrayData, setArrayData)
-		wrap.AddSerializer(serData, RWVECTOR)
-	case 4:
-		serData := NewIsAVectorSerializer("vector", RWFLOAT, 4, getArrayData, setArrayData)
-		wrap.AddSerializer(serData, RWVECTOR)
+	serData := NewIsAVectorSerializer("vector", elemType, 1, getArrayData, setArrayData)
+	serData.GetDataSize = func(obj interface{}) int32 {
+		if arr, ok := obj.(*model.Array); ok {
+			return arr.DataSize
+		}
+		return 0
 	}
+	wrap.AddSerializer(serData, RWVECTOR)
 
 	GetObjectWrapperManager().AddWrap(wrap)
 }
@@ -138,49 +152,52 @@ func init() {
 	serb1 := NewPropByValSerializer("Normalize", false, getNormalize, setNormalize)
 	serb2 := NewPropByValSerializer("PreserveDataType", false, getPreserveDataType, setPreserveDataType)
 
-	// FIX: Add Type, DataType, DataSize serializers for FileVersion >= 112
-	serType := NewPropByRefSerializer("Type", getType, setType)
-	serDataType := NewPropByRefSerializer("DataType", getArrayDataType, setArrayDataType)
 	serDataSize := NewPropByRefSerializer("DataSize", getDataSize, setDataSize)
+	serDataType := NewPropByRefSerializer("DataType", getArrayDataType, setArrayDataType)
+	serElementSize := NewPropByRefSerializer("ElementSize", getElementSize, setElementSize)
+	serTotalDataSize := NewPropByRefSerializer("TotalDataSize", getTotalDataSize, setTotalDataSize)
+	serNumElements := NewPropByRefSerializer("NumElements", getNumElements, setNumElements)
 
+	wrap.AddSerializer(serDataSize, RWINT)
+	wrap.AddSerializer(serDataType, RWINT)
+	wrap.AddSerializer(serElementSize, RWINT)
+	wrap.AddSerializer(serTotalDataSize, RWINT)
+	wrap.AddSerializer(serNumElements, RWINT)
 	wrap.AddSerializer(ser, RWENUM)
 	wrap.AddSerializer(serb1, RWBOOL)
 	wrap.AddSerializer(serb2, RWBOOL)
-	wrap.AddSerializer(serType, RWINT)
-	wrap.AddSerializer(serDataType, RWINT)
-	wrap.AddSerializer(serDataSize, RWINT)
 	GetObjectWrapperManager().AddWrap(wrap)
 
-	registerArrayWrapper("FloatArray", model.IDFLOATARRAY, model.GLFLOAT, 1)
-	registerArrayWrapper("Vec2Array", model.IDVEC2ARRAY, model.GLFLOAT, 2)
-	registerArrayWrapper("Vec3Array", model.IDVEC3ARRAY, model.GLFLOAT, 3)
-	registerArrayWrapper("Vec4Array", model.IDVEC4ARRAY, model.GLFLOAT, 4)
-	registerArrayWrapper("DoubleArray", model.IDDOUBLEARRAY, model.GLDOUBLE, 1)
-	registerArrayWrapper("Vec2dArray", model.IDVEC2DARRAY, model.GLDOUBLE, 2)
-	registerArrayWrapper("Vec3dArray", model.IDVEC3DARRAY, model.GLDOUBLE, 3)
-	registerArrayWrapper("Vec4dArray", model.IDVEC4DARRAY, model.GLDOUBLE, 4)
-	registerArrayWrapper("ByteArray", model.IDBYTEARRAY, model.GLBYTE, 1)
-	registerArrayWrapper("Vec2bArray", model.IDVEC2BARRAY, model.GLBYTE, 2)
-	registerArrayWrapper("Vec3bArray", model.IDVEC3BARRAY, model.GLBYTE, 3)
-	registerArrayWrapper("Vec4bArray", model.IDVEC4BARRAY, model.GLBYTE, 4)
-	registerArrayWrapper("UByteArray", model.IDUBYTEARRAY, model.GLUNSIGNEDBYTE, 1)
-	registerArrayWrapper("Vec2ubArray", model.IDVEC2UBARRAY, model.GLUNSIGNEDBYTE, 2)
-	registerArrayWrapper("Vec3ubArray", model.IDVEC3UBARRAY, model.GLUNSIGNEDBYTE, 3)
-	registerArrayWrapper("Vec4ubArray", model.IDVEC4UBARRAY, model.GLUNSIGNEDBYTE, 4)
-	registerArrayWrapper("ShortArray", model.IDSHORTARRAY, model.GLSHORT, 1)
-	registerArrayWrapper("Vec2sArray", model.IDVEC2SARRAY, model.GLSHORT, 2)
-	registerArrayWrapper("Vec3sArray", model.IDVEC3SARRAY, model.GLSHORT, 3)
-	registerArrayWrapper("Vec4sArray", model.IDVEC4SARRAY, model.GLSHORT, 4)
-	registerArrayWrapper("UShortArray", model.IDUSHORTARRAY, model.GLUNSIGNEDSHORT, 1)
-	registerArrayWrapper("Vec2usArray", model.IDVEC2USARRAY, model.GLUNSIGNEDSHORT, 2)
-	registerArrayWrapper("Vec3usArray", model.IDVEC3USARRAY, model.GLUNSIGNEDSHORT, 3)
-	registerArrayWrapper("Vec4usArray", model.IDVEC4USARRAY, model.GLUNSIGNEDSHORT, 4)
-	registerArrayWrapper("IntArray", model.IDINTARRAY, model.GLINT, 1)
-	registerArrayWrapper("Vec2iArray", model.IDVEC2IARRAY, model.GLINT, 2)
-	registerArrayWrapper("Vec3iArray", model.IDVEC3IARRAY, model.GLINT, 3)
-	registerArrayWrapper("Vec4iArray", model.IDVEC4IARRAY, model.GLINT, 4)
-	registerArrayWrapper("UIntArray", model.IDUINTARRAY, model.GLUNSIGNEDINT, 1)
-	registerArrayWrapper("Vec2uiArray", model.IDVEC2UIARRAY, model.GLUNSIGNEDINT, 2)
-	registerArrayWrapper("Vec3uiArray", model.IDVEC3UIARRAY, model.GLUNSIGNEDINT, 3)
-	registerArrayWrapper("Vec4uiArray", model.IDVEC4UIARRAY, model.GLUNSIGNEDINT, 4)
+	registerArrayWrapper("FloatArray", model.IDFLOATARRAY, RWFLOAT, 1)
+	registerArrayWrapper("Vec2Array", model.IDVEC2ARRAY, RWVEC2F, 2)
+	registerArrayWrapper("Vec3Array", model.IDVEC3ARRAY, RWVEC3F, 3)
+	registerArrayWrapper("Vec4Array", model.IDVEC4ARRAY, RWVEC4F, 4)
+	registerArrayWrapper("DoubleArray", model.IDDOUBLEARRAY, RWDOUBLE, 1)
+	registerArrayWrapper("Vec2dArray", model.IDVEC2DARRAY, RWVEC2D, 2)
+	registerArrayWrapper("Vec3dArray", model.IDVEC3DARRAY, RWVEC3D, 3)
+	registerArrayWrapper("Vec4dArray", model.IDVEC4DARRAY, RWVEC4D, 4)
+	registerArrayWrapper("ByteArray", model.IDBYTEARRAY, RWCHAR, 1)
+	registerArrayWrapper("Vec2bArray", model.IDVEC2BARRAY, RWVEC2B, 2)
+	registerArrayWrapper("Vec3bArray", model.IDVEC3BARRAY, RWVEC3B, 3)
+	registerArrayWrapper("Vec4bArray", model.IDVEC4BARRAY, RWVEC4B, 4)
+	registerArrayWrapper("UByteArray", model.IDUBYTEARRAY, RWUCHAR, 1)
+	registerArrayWrapper("Vec2ubArray", model.IDVEC2UBARRAY, RWVEC2UB, 2)
+	registerArrayWrapper("Vec3ubArray", model.IDVEC3UBARRAY, RWVEC3UB, 3)
+	registerArrayWrapper("Vec4ubArray", model.IDVEC4UBARRAY, RWVEC4UB, 4)
+	registerArrayWrapper("ShortArray", model.IDSHORTARRAY, RWSHORT, 1)
+	registerArrayWrapper("Vec2sArray", model.IDVEC2SARRAY, RWVEC2S, 2)
+	registerArrayWrapper("Vec3sArray", model.IDVEC3SARRAY, RWVEC3S, 3)
+	registerArrayWrapper("Vec4sArray", model.IDVEC4SARRAY, RWVEC4S, 4)
+	registerArrayWrapper("UShortArray", model.IDUSHORTARRAY, RWUSHORT, 1)
+	registerArrayWrapper("Vec2usArray", model.IDVEC2USARRAY, RWVEC2US, 2)
+	registerArrayWrapper("Vec3usArray", model.IDVEC3USARRAY, RWVEC3US, 3)
+	registerArrayWrapper("Vec4usArray", model.IDVEC4USARRAY, RWVEC4US, 4)
+	registerArrayWrapper("IntArray", model.IDINTARRAY, RWINT, 1)
+	registerArrayWrapper("Vec2iArray", model.IDVEC2IARRAY, RWVEC2I, 2)
+	registerArrayWrapper("Vec3iArray", model.IDVEC3IARRAY, RWVEC3I, 3)
+	registerArrayWrapper("Vec4iArray", model.IDVEC4IARRAY, RWVEC4I, 4)
+	registerArrayWrapper("UIntArray", model.IDUINTARRAY, RWUINT, 1)
+	registerArrayWrapper("Vec2uiArray", model.IDVEC2UIARRAY, RWVEC2UI, 2)
+	registerArrayWrapper("Vec3uiArray", model.IDVEC3UIARRAY, RWVEC3UI, 3)
+	registerArrayWrapper("Vec4uiArray", model.IDVEC4UIARRAY, RWVEC4UI, 4)
 }

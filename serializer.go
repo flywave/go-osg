@@ -1,6 +1,8 @@
 package osg
 
 import (
+	"fmt"
+
 	"github.com/flywave/go-osg/model"
 )
 
@@ -492,6 +494,8 @@ type IsAVectorSerializer struct {
 	TemplateSerializer
 	ElementType     SerType
 	NumElementOnRow uint
+	GetNumElements  func(obj interface{}) int32
+	GetDataSize     func(obj interface{}) int32
 }
 
 func (ser *IsAVectorSerializer) Read(is *OsgIstream, obj interface{}) {
@@ -501,7 +505,7 @@ func (ser *IsAVectorSerializer) Read(is *OsgIstream, obj interface{}) {
 	if is.IsBinary() {
 		var size int32
 		is.Read(&size)
-		vec := ser.genVect(is, size)
+		vec := ser.genVect(is, size, obj)
 		if vec != nil {
 			ser.Setter(obj, vec)
 		}
@@ -509,7 +513,7 @@ func (ser *IsAVectorSerializer) Read(is *OsgIstream, obj interface{}) {
 		if is.MatchString(ser.Name) {
 			var size int32
 			is.Read(&size)
-			vec := ser.genVect(is, size)
+			vec := ser.genVect(is, size, obj)
 			if vec != nil {
 				ser.Setter(obj, vec)
 			}
@@ -517,17 +521,24 @@ func (ser *IsAVectorSerializer) Read(is *OsgIstream, obj interface{}) {
 	}
 }
 
-func (ser *IsAVectorSerializer) genVect(is *OsgIstream, size int32) interface{} {
+func (ser *IsAVectorSerializer) genVect(is *OsgIstream, size int32, obj interface{}) interface{} {
 	if size < 0 || size > 1<<30 {
 		return nil
 	}
+	dataSize := int(ser.NumElementOnRow)
+	if ser.GetDataSize != nil && obj != nil {
+		ds := ser.GetDataSize(obj)
+		if ds > 0 {
+			dataSize = int(ds)
+		}
+	}
 	switch ser.ElementType {
 	case RWFLOAT:
-		vec := make([]float32, int(size)*int(ser.NumElementOnRow))
+		vec := make([]float32, size*int32(dataSize))
 		for i := range vec {
 			is.Read(&vec[i])
 		}
-		switch ser.NumElementOnRow {
+		switch dataSize {
 		case 1:
 			return vec
 		case 2:
@@ -576,6 +587,45 @@ func (ser *IsAVectorSerializer) genVect(is *OsgIstream, size int32) interface{} 
 		return vec
 	case RWUINT:
 		vec := make([]uint32, int(size))
+		for i := range vec {
+			is.Read(&vec[i])
+		}
+		return vec
+	case RWVEC2F:
+		vec := make([][2]float32, int(size))
+		for i := range vec {
+			is.Read(&vec[i])
+		}
+		return vec
+	case RWVEC3F:
+		vec := make([][3]float32, int(size))
+		for i := range vec {
+			is.Read(&vec[i])
+		}
+		if len(vec) > 0 {
+			fmt.Printf("DEBUG RWVEC3F: size=%d, first vertex: %v\n", size, vec[0])
+		}
+		return vec
+	case RWVEC4F:
+		vec := make([][4]float32, int(size))
+		for i := range vec {
+			is.Read(&vec[i])
+		}
+		return vec
+	case RWVEC2D:
+		vec := make([][2]float64, int(size))
+		for i := range vec {
+			is.Read(&vec[i])
+		}
+		return vec
+	case RWVEC3D:
+		vec := make([][3]float64, int(size))
+		for i := range vec {
+			is.Read(&vec[i])
+		}
+		return vec
+	case RWVEC4D:
+		vec := make([][4]float64, int(size))
 		for i := range vec {
 			is.Read(&vec[i])
 		}

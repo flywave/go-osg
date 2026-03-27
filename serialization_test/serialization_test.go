@@ -102,8 +102,8 @@ func TestReadGeometry(t *testing.T) {
 		}
 	case [][3]float32:
 		t.Logf("Vertex count: %d", len(data))
-		if len(data) > 0 {
-			t.Logf("First vertex: (%.6f, %.6f, %.6f)", data[0][0], data[0][1], data[0][2])
+		for i := 0; i < len(data); i++ {
+			t.Logf("Vertex[%d]: (%.6f, %.6f, %.6f)", i, data[i][0], data[i][1], data[i][2])
 		}
 	default:
 		t.Errorf("Unexpected VertexArray.Data type: %T", data)
