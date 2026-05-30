@@ -12,6 +12,7 @@ import (
 	"github.com/flywave/go-osg/model"
 
 	"github.com/flywave/gltf"
+	"github.com/flywave/gltf/ext/draco"
 	"github.com/flywave/go-3dtile"
 )
 
@@ -91,6 +92,19 @@ func (g *B3DMGenerator) Generate(tile *Tile) ([]byte, error) {
 
 	doc := g.buildGLTF(tile.Content)
 
+	if g.opts != nil && g.opts.EnableDraco {
+		quantOpts := map[string]interface{}{
+			"quantization": map[string]int{
+				"position": g.opts.DracoPositionBits,
+				"normal":   g.opts.DracoNormalBits,
+				"texcoord": g.opts.DracoTexCoordBits,
+			},
+		}
+		if err := draco.EncodeAll(doc, quantOpts); err != nil {
+			return nil, fmt.Errorf("draco encode failed: %w", err)
+		}
+	}
+
 	b3dm := tile3d.NewB3dm()
 	b3dm.Header.Version = 1
 	b3dm.Model = doc
@@ -125,6 +139,19 @@ func (g *B3DMGenerator) GenerateGLB(tile *Tile) ([]byte, error) {
 	}
 
 	doc := g.buildGLTF(tile.Content)
+
+	if g.opts != nil && g.opts.EnableDraco {
+		quantOpts := map[string]interface{}{
+			"quantization": map[string]int{
+				"position": g.opts.DracoPositionBits,
+				"normal":   g.opts.DracoNormalBits,
+				"texcoord": g.opts.DracoTexCoordBits,
+			},
+		}
+		if err := draco.EncodeAll(doc, quantOpts); err != nil {
+			return nil, fmt.Errorf("draco encode failed: %w", err)
+		}
+	}
 
 	var buf bytes.Buffer
 	encoder := gltf.NewEncoder(&buf)
@@ -675,7 +702,10 @@ func (c *Converter) loadPagedLODsLimited(tile *Tile, outputPath string, currentL
 }
 
 func (c *Converter) getPagedLODChildren(tile *Tile) []string {
-	if tile == nil || tile.Node == nil {
+	if tile == nil {
+		return nil
+	}
+	if tile.Node == nil {
 		fmt.Printf("DEBUG getPagedLODChildren: tile=%s has nil Node!\n", tile.ID)
 		return nil
 	}
@@ -1051,6 +1081,11 @@ func (c *Converter) calcGeometricError(tile *Tile) {
 
 func (c *Converter) convertNodeToTile(node interface{}, id string) *Tile {
 	content := c.geomConverter.Convert(node)
+
+	if content != nil {
+		content.Vertices, content.Normals, content.TexCoords, content.Indices =
+			c.geomConverter.optimizeMesh(content.Vertices, content.Normals, content.TexCoords, content.Indices)
+	}
 
 	tile := &Tile{
 		ID:       id,
