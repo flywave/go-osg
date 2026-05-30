@@ -6,9 +6,10 @@ const (
 
 type PositionAttitudeTransform struct {
 	Transform
-	Position [3]float64
-	Attitude [4]float64
-	Scale    [3]float64
+	Position   [3]float64
+	Attitude   [4]float64
+	Scale      [3]float64
+	PivotPoint [3]float64
 }
 
 func NewPositionAttitudeTransform() *PositionAttitudeTransform {

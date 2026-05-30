@@ -414,7 +414,7 @@ func init() {
 	ser4 := NewUserSerializer("MIN_FILTER", checkMINFILTER, readMINFILTER, writeMINFILTER)
 	ser5 := NewUserSerializer("MAG_FILTER", checkMAGFILTER, readMAGFILTER, writeMAGFILTER)
 	ser6 := NewPropByValSerializer("MaxAnisotropy", false, getMaxAnisotropy, setMaxAnisotropy)
-	ser7 := NewPropByValSerializer("UseHardwareMipmapGeneration", false, getUseHardwareMipMapGeneration, setUseHardwareMipMapGeneration)
+	ser7 := NewPropByValSerializer("UseHardwareMipMapGeneration", false, getUseHardwareMipMapGeneration, setUseHardwareMipMapGeneration)
 	ser8 := NewPropByValSerializer("UnRefImageDataAfterApply", false, getUnRefImageDataAfterApply, setUnRefImageDataAfterApply)
 	ser9 := NewPropByValSerializer("ClientStorageHint", false, getClientStorageHint, setClientStorageHint)
 	ser10 := NewPropByValSerializer("ResizeNonPowerOfTwoHint", false, getResizeNonPowerOfTwoHint, setResizeNonPowerOfTwoHint)

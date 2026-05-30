@@ -26,6 +26,14 @@ func setPositionAttitudeTransformScale(obj interface{}, val interface{}) {
 	obj.(*model.PositionAttitudeTransform).Scale = val.([3]float64)
 }
 
+func getPositionAttitudeTransformPivotPoint(obj interface{}) interface{} {
+	return &obj.(*model.PositionAttitudeTransform).PivotPoint
+}
+
+func setPositionAttitudeTransformPivotPoint(obj interface{}, val interface{}) {
+	obj.(*model.PositionAttitudeTransform).PivotPoint = val.([3]float64)
+}
+
 func init() {
 	fn := func() interface{} {
 		return model.NewPositionAttitudeTransform()
@@ -34,8 +42,10 @@ func init() {
 	ser1 := NewPropByValSerializer("Position", false, getPositionAttitudeTransformPosition, setPositionAttitudeTransformPosition)
 	ser2 := NewPropByValSerializer("Attitude", false, getPositionAttitudeTransformAttitude, setPositionAttitudeTransformAttitude)
 	ser3 := NewPropByValSerializer("Scale", false, getPositionAttitudeTransformScale, setPositionAttitudeTransformScale)
+	ser4 := NewPropByValSerializer("PivotPoint", false, getPositionAttitudeTransformPivotPoint, setPositionAttitudeTransformPivotPoint)
 	wrap.AddSerializer(ser1, RWDOUBLE|0xF0000000)
 	wrap.AddSerializer(ser2, RWDOUBLE|0xF0000000)
 	wrap.AddSerializer(ser3, RWDOUBLE|0xF0000000)
+	wrap.AddSerializer(ser4, RWDOUBLE|0xF0000000)
 	GetObjectWrapperManager().AddWrap(wrap)
 }

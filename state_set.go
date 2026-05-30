@@ -413,10 +413,15 @@ func init() {
 	wrap.AddSerializer(ser10, RWBOOL)
 	wrap.AddSerializer(ser11, RWOBJECT)
 	wrap.AddSerializer(ser12, RWOBJECT)
-	GetObjectWrapperManager().AddWrap(wrap)
 	{
 		uv := AddUpdateWrapperVersionProxy(wrap, 151)
-		wrap.MarkSerializerAsAdded("DefineList")
+		serDefineList := NewUserSerializer("DefineList",
+			func(obj interface{}) bool { return false },
+			func(is *OsgIstream, obj interface{}) {},
+			func(os *OsgOstream, obj interface{}) {},
+		)
+		wrap.AddSerializer(serDefineList, RWUSER)
 		uv.SetLastVersion()
 	}
+	GetObjectWrapperManager().AddWrap(wrap)
 }

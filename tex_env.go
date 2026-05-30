@@ -40,5 +40,5 @@ func init() {
 
 	ser2 := NewPropByRefSerializer("Color", getEnvColor, setEnvColor)
 	wrap.AddSerializer(ser2, RWVEC4F)
-
+	GetObjectWrapperManager().AddWrap(wrap)
 }

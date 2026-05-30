@@ -17,7 +17,7 @@ func setReferenceFrame(obj interface{}, val interface{}) {
 func init() {
 	fn := func() interface{} {
 		td := model.NewTransform()
-		return &td
+		return td
 	}
 	wrap := NewObjectWrapper("Transform", fn, "osg::Object osg::Node osg::Group osg::Transform")
 	ser1 := NewEnumSerializer("ReferenceFrame", getReferenceFrame, setReferenceFrame)
@@ -25,4 +25,5 @@ func init() {
 	ser1.Add("ABSOLUTERF", model.ABSOLUTERF)
 	ser1.Add("ABSOLUTERFINHERITVIEWPOINT", model.ABSOLUTERFINHERITVIEWPOINT)
 	wrap.AddSerializer(ser1, RWENUM)
+	GetObjectWrapperManager().AddWrap(wrap)
 }

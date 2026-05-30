@@ -5,7 +5,7 @@ import (
 )
 
 func getBinding(obj interface{}) interface{} {
-	return obj.(*model.Array).Binding
+	return &obj.(*model.Array).Binding
 }
 
 func setBinding(obj interface{}, fc interface{}) {
@@ -13,7 +13,7 @@ func setBinding(obj interface{}, fc interface{}) {
 }
 
 func getNormalize(obj interface{}) interface{} {
-	return obj.(*model.Array).Normalize
+	return &obj.(*model.Array).Normalize
 }
 
 func setNormalize(obj interface{}, fc interface{}) {
@@ -21,7 +21,7 @@ func setNormalize(obj interface{}, fc interface{}) {
 }
 
 func getPreserveDataType(obj interface{}) interface{} {
-	return obj.(*model.Array).PreserveDataType
+	return &obj.(*model.Array).PreserveDataType
 }
 
 func setPreserveDataType(obj interface{}, fc interface{}) {
@@ -37,7 +37,7 @@ func setArrayData(obj interface{}, fc interface{}) {
 }
 
 func getType(obj interface{}) interface{} {
-	return obj.(*model.Array).Type
+	return &obj.(*model.Array).Type
 }
 
 func setType(obj interface{}, fc interface{}) {
@@ -45,7 +45,7 @@ func setType(obj interface{}, fc interface{}) {
 }
 
 func getArrayDataType(obj interface{}) interface{} {
-	return obj.(*model.Array).DataType
+	return &obj.(*model.Array).DataType
 }
 
 func setArrayDataType(obj interface{}, fc interface{}) {
@@ -53,7 +53,7 @@ func setArrayDataType(obj interface{}, fc interface{}) {
 }
 
 func getDataSize(obj interface{}) interface{} {
-	return obj.(*model.Array).DataSize
+	return &obj.(*model.Array).DataSize
 }
 
 func setDataSize(obj interface{}, fc interface{}) {
@@ -61,7 +61,7 @@ func setDataSize(obj interface{}, fc interface{}) {
 }
 
 func getElementSize(obj interface{}) interface{} {
-	return obj.(*model.Array).ElementSize
+	return &obj.(*model.Array).ElementSize
 }
 
 func setElementSize(obj interface{}, fc interface{}) {
@@ -69,7 +69,7 @@ func setElementSize(obj interface{}, fc interface{}) {
 }
 
 func getTotalDataSize(obj interface{}) interface{} {
-	return obj.(*model.Array).TotalDataSize
+	return &obj.(*model.Array).TotalDataSize
 }
 
 func setTotalDataSize(obj interface{}, fc interface{}) {
@@ -77,7 +77,7 @@ func setTotalDataSize(obj interface{}, fc interface{}) {
 }
 
 func getNumElements(obj interface{}) interface{} {
-	return obj.(*model.Array).NumElements
+	return &obj.(*model.Array).NumElements
 }
 
 func setNumElements(obj interface{}, fc interface{}) {
@@ -152,17 +152,6 @@ func init() {
 	serb1 := NewPropByValSerializer("Normalize", false, getNormalize, setNormalize)
 	serb2 := NewPropByValSerializer("PreserveDataType", false, getPreserveDataType, setPreserveDataType)
 
-	serDataSize := NewPropByRefSerializer("DataSize", getDataSize, setDataSize)
-	serDataType := NewPropByRefSerializer("DataType", getArrayDataType, setArrayDataType)
-	serElementSize := NewPropByRefSerializer("ElementSize", getElementSize, setElementSize)
-	serTotalDataSize := NewPropByRefSerializer("TotalDataSize", getTotalDataSize, setTotalDataSize)
-	serNumElements := NewPropByRefSerializer("NumElements", getNumElements, setNumElements)
-
-	wrap.AddSerializer(serDataSize, RWINT)
-	wrap.AddSerializer(serDataType, RWINT)
-	wrap.AddSerializer(serElementSize, RWINT)
-	wrap.AddSerializer(serTotalDataSize, RWINT)
-	wrap.AddSerializer(serNumElements, RWINT)
 	wrap.AddSerializer(ser, RWENUM)
 	wrap.AddSerializer(serb1, RWBOOL)
 	wrap.AddSerializer(serb2, RWBOOL)

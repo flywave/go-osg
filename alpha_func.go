@@ -5,7 +5,7 @@ import (
 )
 
 func getComparisonFunc(obj interface{}) interface{} {
-	return obj.(*model.AlphaFunc).ComparisonFunc
+	return &obj.(*model.AlphaFunc).ComparisonFunc
 }
 
 func setComparisonFunc(obj interface{}, fc interface{}) {
@@ -13,7 +13,7 @@ func setComparisonFunc(obj interface{}, fc interface{}) {
 }
 
 func getReferenceValue(obj interface{}) interface{} {
-	return obj.(*model.AlphaFunc).ReferenceValue
+	return &obj.(*model.AlphaFunc).ReferenceValue
 }
 
 func setReferenceValue(obj interface{}, fc interface{}) {
@@ -29,7 +29,7 @@ func init() {
 	ser.Add("GREATER", model.GLGREATER)
 	ser.Add("NOTEQUAL", model.GLNOTEQUAL)
 	ser.Add("GEQUAL", model.GLGEQUAL)
-	ser.Add("GEQUAL", model.GLALWAYS)
+	ser.Add("ALWAYS", model.GLALWAYS)
 
 	serf := NewPropByValSerializer("ReferenceValue", false, getReferenceValue, setReferenceValue)
 

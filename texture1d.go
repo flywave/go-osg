@@ -26,12 +26,12 @@ func setTexWidth(obj interface{}, val interface{}) {
 
 func getTexHeight(obj interface{}) interface{} {
 	td := obj.(*model.Texture)
-	return &td.TextureWidth
+	return &td.TextureHeight
 }
 
 func setTexHeight(obj interface{}, val interface{}) {
 	td := obj.(*model.Texture)
-	td.TextureWidth = val.(uint32)
+	td.TextureHeight = val.(uint32)
 }
 
 func init() {

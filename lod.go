@@ -86,7 +86,7 @@ func init() {
 	wrap.AddSerializer(ser1, RWENUM)
 
 	ser2 := NewUserSerializer("UserCenter", checkUserCenter, readUserCenter, writeUserCenter)
-	wrap.AddSerializer(ser2, RWENUM)
+	wrap.AddSerializer(ser2, RWUSER)
 
 	ser3 := NewEnumSerializer("RangeMode", getRangeMode, setRangeMode)
 	ser3.Add("DISTANCEFROMEYEPOINT", model.DISTANCEFROMEYEPOINT)

@@ -227,7 +227,6 @@ func init() {
 		wrap1.MarkSerializerAsAdded("osg::BufferData")
 		uv.SetLastVersion()
 	}
-	ser1 := NewPropByValSerializer("NumInstances", false, getNumInstances, setNumInstances)
 	ser2 := NewEnumSerializer("Mode", getPrimitMode, setPrimitMode)
 	ser2.Add("POINTS", model.GLPOINTS)
 	ser2.Add("LINES", model.GLLINES)
@@ -244,8 +243,13 @@ func init() {
 	ser2.Add("TRIANGLESADJACENCY", model.GLTRIANGLESADJACENCY)
 	ser2.Add("TRIANGLESTRIPADJACENCY", model.GLTRIANGLESTRIPADJACENCY)
 	ser2.Add("PATCHES", model.GLPATCHES)
-	wrap1.AddSerializer(ser1, RWINT)
 	wrap1.AddSerializer(ser2, RWENUM)
+	{
+		uv := AddUpdateWrapperVersionProxy(wrap1, 96)
+		ser1 := NewPropByValSerializer("NumInstances", false, getNumInstances, setNumInstances)
+		wrap1.AddSerializer(ser1, RWINT)
+		uv.SetLastVersion()
+	}
 	GetObjectWrapperManager().AddWrap(wrap1)
 
 	wrap2 := NewObjectWrapper("DrawArrays", fn2, "osg::Object osg::BufferData osg::PrimitiveSet osg::DrawArrays")
@@ -260,9 +264,9 @@ func init() {
 	wrap2.AddSerializer(ser4, RWUINT)
 	GetObjectWrapperManager().AddWrap(wrap2)
 
-	wrap3 := NewObjectWrapper("DrawArrayLengths", fn3, "osg::Object osg::BufferData osg::PrimitiveSet osg::DrawArrays")
+	wrap3 := NewObjectWrapper("DrawArrayLengths", fn3, "osg::Object osg::BufferData osg::PrimitiveSet osg::DrawArrayLengths")
 	{
-		uv := AddUpdateWrapperVersionProxy(wrap2, 147)
+		uv := AddUpdateWrapperVersionProxy(wrap3, 147)
 		wrap3.MarkSerializerAsAdded("osg::BufferData")
 		uv.SetLastVersion()
 	}
