@@ -186,7 +186,7 @@ func getColorMode(obj interface{}) interface{} {
 
 func setColorMode(obj interface{}, pro interface{}) {
 	mt := obj.(*model.Material)
-	mt.Cmod = pro.(int)
+	mt.Cmod = int(pro.(int32))
 }
 
 func init() {

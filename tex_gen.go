@@ -59,7 +59,7 @@ func getTXMode(obj interface{}) interface{} {
 
 func setTXMode(obj interface{}, val interface{}) {
 	tx := obj.(*model.TexGen)
-	tx.Mode = val.(int)
+	tx.Mode = int(val.(int32))
 }
 
 func init() {

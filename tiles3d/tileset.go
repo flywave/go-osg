@@ -1090,7 +1090,7 @@ func (c *Converter) writeTiles(tile *Tile, outputPath string) error {
 
 func calculateBoundingBox(vertices []float32) [12]float64 {
 	if len(vertices) == 0 {
-		return [12]float64{0, 0, 0, 0.01, 0, 0, 0, 0.01, 0, 0, 0.01}
+		return [12]float64{0, 0, 0, 0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01}
 	}
 
 	minX, maxX := float64(vertices[0]), float64(vertices[0])

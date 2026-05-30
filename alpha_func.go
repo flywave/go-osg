@@ -9,7 +9,7 @@ func getComparisonFunc(obj interface{}) interface{} {
 }
 
 func setComparisonFunc(obj interface{}, fc interface{}) {
-	obj.(*model.AlphaFunc).ComparisonFunc = *fc.(*int)
+	obj.(*model.AlphaFunc).ComparisonFunc = int(fc.(int32))
 }
 
 func getReferenceValue(obj interface{}) interface{} {

@@ -5,7 +5,7 @@ import (
 )
 
 func setCenterMode(obj interface{}, pro interface{}) {
-	obj.(model.LodInterface).SetCmode(pro.(uint32))
+	obj.(model.LodInterface).SetCmode(uint32(pro.(int32)))
 }
 
 func getCenterMode(obj interface{}) interface{} {
@@ -13,7 +13,7 @@ func getCenterMode(obj interface{}) interface{} {
 }
 
 func setRangeMode(obj interface{}, pro interface{}) {
-	obj.(model.LodInterface).SetRmode(pro.(uint32))
+	obj.(model.LodInterface).SetRmode(uint32(pro.(int32)))
 }
 
 func getRangeMode(obj interface{}) interface{} {

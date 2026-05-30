@@ -9,7 +9,7 @@ func getMode(obj interface{}) interface{} {
 }
 
 func setMode(obj interface{}, fc interface{}) {
-	obj.(*model.CullFace).Mode = *fc.(*int)
+	obj.(*model.CullFace).Mode = int(fc.(int32))
 }
 
 func init() {

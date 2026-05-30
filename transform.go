@@ -11,7 +11,7 @@ func getReferenceFrame(obj interface{}) interface{} {
 
 func setReferenceFrame(obj interface{}, val interface{}) {
 	tran := obj.(*model.Transform)
-	tran.ReferenceFrame = val.(int)
+	tran.ReferenceFrame = int(val.(int32))
 }
 
 func init() {

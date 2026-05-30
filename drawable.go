@@ -66,7 +66,7 @@ func getSupportsDisplayList(obj interface{}) interface{} {
 }
 
 func setSupportsDisplayList(obj interface{}, pro interface{}) {
-	obj.(model.DrawableInterface).SetSupportsDisplayList(pro.(bool))
+	obj.(model.DrawableInterface).SetSupportsDisplayList(pro.(int32) != 0)
 }
 
 func getUseDisplayList(obj interface{}) interface{} {
@@ -74,7 +74,7 @@ func getUseDisplayList(obj interface{}) interface{} {
 }
 
 func setUseDisplayList(obj interface{}, pro interface{}) {
-	obj.(model.DrawableInterface).SetUseDisplayList(pro.(bool))
+	obj.(model.DrawableInterface).SetUseDisplayList(pro.(int32) != 0)
 }
 
 func getUseVertexBufferObjects(obj interface{}) interface{} {
@@ -82,7 +82,7 @@ func getUseVertexBufferObjects(obj interface{}) interface{} {
 }
 
 func setUseVertexBufferObjects(obj interface{}, pro interface{}) {
-	obj.(model.DrawableInterface).SetUseVertexBufferObjects(pro.(bool))
+	obj.(model.DrawableInterface).SetUseVertexBufferObjects(pro.(int32) != 0)
 }
 
 func getDrawCallback(obj interface{}) interface{} {

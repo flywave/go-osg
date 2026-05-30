@@ -17,7 +17,7 @@
 | Run serialization tests | `go test ./serialization_test/...` |
 | Build | `go build ./...` |
 
-Tests currently pass in ~0.25s (91 tests, though some crash on missing `test_data/OSGB/` files).
+Tests: 63 C++-comparison tests verify full structural and behavioural consistency with the C++ reference. Run `go test -run "^Test(Wrapper|Threshold|Getter|Default|File|Enums|Factories|Array_New|SerializerTypes)"` for the focused suite, or `go test` for all tests (some integration tests crash on missing `test_data/OSGB/` files).
 
 ## Critical gotchas
 

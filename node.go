@@ -158,7 +158,7 @@ func init() {
 	wrap.AddSerializer(serec, RWOBJECT)
 	wrap.AddSerializer(sercc, RWOBJECT)
 	wrap.AddSerializer(serb2, RWBOOL)
-	wrap.AddSerializer(serb1, RWBOOL)
+	wrap.AddSerializer(serb1, RWUINT)
 
 	seruser2 := NewUserSerializer("Descriptions", checkDescriptions, readDescriptions, writeDescriptions)
 	wrap.AddSerializer(seruser2, RWUSER)

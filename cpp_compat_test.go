@@ -195,7 +195,7 @@ func TestWrapper_Node(t *testing.T) {
 		ser("EventCallback", RWOBJECT),
 		ser("CullCallback", RWOBJECT),
 		ser("CullingActive", RWBOOL),
-		ser("NodeMask", RWBOOL),
+		ser("NodeMask", RWUINT),
 		serV("Descriptions", RWUSER, 0, 76),
 		ser("StateSet", RWOBJECT),
 	})
@@ -697,6 +697,107 @@ func TestGetters_ReturnPointers(t *testing.T) {
 		case *int32, *bool, *float32, *float64, *uint32, *int, *uint, *model.ArrayTable:
 		default:
 			t.Errorf("%s returns %T (want pointer)", tt.name, tt.val)
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Serializer type consistency: verify SerType tags match C++ ADD_* macros
+// ---------------------------------------------------------------------------
+
+func TestSerializerTypes_DrawableBoolFields(t *testing.T) {
+	wrap := GetObjectWrapperManager().FindWrap("osg::Drawable")
+	if wrap == nil {
+		t.Fatal("Drawable wrapper not found")
+	}
+	// C++: ADD_BOOL_SERIALIZER(SupportsDisplayList/UseDisplayList/UseVertexBufferObjects)
+	// Go must use RWBOOL for these
+	want := map[string]SerType{
+		"SupportsDisplayList":    RWBOOL,
+		"UseDisplayList":         RWBOOL,
+		"UseVertexBufferObjects": RWBOOL,
+	}
+	for _, s := range wrap.Serializers {
+		ser := s.(Serializer)
+		name := ser.GetSerializerName()
+		if _, ok := want[name]; ok {
+			got := findSerType(wrap, name)
+			if got != want[name] {
+				t.Errorf("%s SerType = %d, want %d (RWBOOL)", name, got, RWBOOL)
+			}
+			delete(want, name)
+		}
+	}
+	for name := range want {
+		t.Errorf("missing serializer %q in Drawable wrapper", name)
+	}
+}
+
+func TestSerializerTypes_NodeMask(t *testing.T) {
+	wrap := GetObjectWrapperManager().FindWrap("osg::Node")
+	if wrap == nil {
+		t.Fatal("Node wrapper not found")
+	}
+	// C++: ADD_HEXINT_SERIALIZER(NodeMask) → stored as uint32 → RWUINT
+	if got := findSerType(wrap, "NodeMask"); got != RWUINT {
+		t.Errorf("NodeMask SerType = %d, want %d (RWUINT)", got, RWUINT)
+	}
+}
+
+func TestSerializerTypes_ArrayBindingNormalize(t *testing.T) {
+	wrap := GetObjectWrapperManager().FindWrap("osg::Array")
+	if wrap == nil {
+		t.Fatal("Array wrapper not found")
+	}
+	// C++: Array.cpp: Binding → ADD_ENUM_SERIALIZER → RWENUM
+	if got := findSerType(wrap, "Binding"); got != RWENUM {
+		t.Errorf("Binding SerType = %d, want %d (RWENUM)", got, RWENUM)
+	}
+	// C++: Normalize → ADD_BOOL_SERIALIZER → RWBOOL
+	if got := findSerType(wrap, "Normalize"); got != RWBOOL {
+		t.Errorf("Normalize SerType = %d, want %d (RWBOOL)", got, RWBOOL)
+	}
+	// C++: PreserveDataType → ADD_BOOL_SERIALIZER → RWBOOL
+	if got := findSerType(wrap, "PreserveDataType"); got != RWBOOL {
+		t.Errorf("PreserveDataType SerType = %d, want %d (RWBOOL)", got, RWBOOL)
+	}
+}
+
+func TestSerializerTypes_ImageEnumTypes(t *testing.T) {
+	wrap := GetObjectWrapperManager().FindWrap("osg::Image")
+	if wrap == nil {
+		t.Fatal("Image wrapper not found")
+	}
+	// C++: WriteHint → ADD_ENUM_SERIALIZER → RWENUM
+	if got := findSerType(wrap, "WriteHint"); got != RWENUM {
+		t.Errorf("WriteHint SerType = %d, want %d (RWENUM)", got, RWENUM)
+	}
+	// C++: RowLength → ADD_INT_SERIALIZER → RWINT
+	if got := findSerType(wrap, "RowLength"); got != RWINT {
+		t.Errorf("RowLength SerType = %d, want %d (RWINT)", got, RWINT)
+	}
+	// C++: InternalTextureFormat → ADD_GLENUM_SERIALIZER → RWGLENUM
+	if got := findSerType(wrap, "InternalTextureFormat"); got != RWGLENUM {
+		t.Errorf("InternalTextureFormat SerType = %d, want %d (RWGLENUM)", got, RWGLENUM)
+	}
+	// C++: FileName → ADD_STRING_SERIALIZER → RWSTRING
+	if got := findSerType(wrap, "FileName"); got != RWSTRING {
+		t.Errorf("FileName SerType = %d, want %d (RWSTRING)", got, RWSTRING)
+	}
+}
+
+func TestSerializerTypes_PositionAttitudeTransform(t *testing.T) {
+	wrap := GetObjectWrapperManager().FindWrap("osg::PositionAttitudeTransform")
+	if wrap == nil {
+		t.Fatal("PositionAttitudeTransform wrapper not found")
+	}
+	// C++: Position/Attitude/Scale/PivotPoint → ADD_VEC3D_SERIALIZER → VEC3D
+	// Go uses RWDOUBLE|0xF0000000 as encoding type
+	// We just verify they exist and have the right flag
+	for _, name := range []string{"Position", "Attitude", "Scale", "PivotPoint"} {
+		got := findSerType(wrap, name)
+		if got&0xF0000000 == 0 {
+			t.Errorf("%s SerType = 0x%08X, missing 0xF0000000 flag", name, got)
 		}
 	}
 }

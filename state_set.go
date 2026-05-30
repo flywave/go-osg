@@ -350,7 +350,7 @@ func getNestRenderBins(obj interface{}) interface{} {
 
 func setNestRenderBins(obj interface{}, val interface{}) {
 	ss := obj.(*model.StateSet)
-	ss.NestRenderBins = val.(bool)
+	ss.NestRenderBins = val.(int32) != 0
 }
 
 func getUpdateCallbackSS(obj interface{}) interface{} {

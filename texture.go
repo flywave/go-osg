@@ -334,7 +334,7 @@ func getInternalFormatMode(obj interface{}) interface{} {
 
 func setInternalFormatMode(obj interface{}, val interface{}) {
 	tex := obj.(*model.Texture)
-	tex.InternalFormatMode = val.(uint32)
+	tex.InternalFormatMode = uint32(val.(int32))
 }
 
 func getShadowComparison(obj interface{}) interface{} {
