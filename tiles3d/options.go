@@ -44,11 +44,18 @@ type Tile struct {
 	Node           interface{}
 }
 
+type PrimitiveInfo struct {
+	Indices []uint32
+	Mode    int32
+}
+
 type TileContent struct {
 	Vertices    []float32
 	Normals     []float32
 	TexCoords   []float32
 	Indices     []uint32
+	Primitives  []PrimitiveInfo
+	Mode        int32
 	Material    *Material
 	Textures    [][]byte
 	BatchLength int

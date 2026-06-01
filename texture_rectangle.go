@@ -45,5 +45,4 @@ func init() {
 	wrap.AddSerializer(ser2, RWINT)
 	wrap.AddSerializer(ser3, RWINT)
 	GetObjectWrapperManager().AddWrap(wrap)
-
 }

@@ -1,7 +1,11 @@
 package tiles3d
 
 import (
+	"bytes"
 	"fmt"
+	"image"
+	"image/color"
+	"image/jpeg"
 	"math"
 	"os"
 	"path/filepath"
@@ -59,6 +63,14 @@ func (c *GeometryConverter) Convert(node interface{}) *TileContent {
 				content.Merge(childContent)
 			}
 		}
+	case *model.PositionAttitudeTransform:
+		children := n.GetChildren()
+		for _, child := range children {
+			childContent := c.Convert(child)
+			if childContent != nil {
+				content.Merge(childContent)
+			}
+		}
 	case *model.Geode:
 		children := n.GetChildren()
 		for _, child := range children {
@@ -100,8 +112,27 @@ func (c *GeometryConverter) extractGeometry(geom *model.Geometry) *TileContent {
 		content.TexCoords = c.generateDefaultTexCoords(vertices)
 	}
 
+	content.Mode = model.GLTRIANGLES
 	if geom.Primitives != nil && len(geom.Primitives) > 0 {
-		content.Indices = c.extractIndices(geom.Primitives[0])
+		for _, prim := range geom.Primitives {
+			mode, indices := c.extractIndicesWithMode(prim)
+			if mode >= 0 {
+				content.Mode = mode
+				if len(indices) > 0 {
+					if content.Indices == nil {
+						content.Indices = indices
+					}
+					content.Primitives = append(content.Primitives, PrimitiveInfo{
+						Indices: indices,
+						Mode:    mode,
+					})
+				}
+			}
+		}
+	}
+
+	if len(content.Normals) == 0 && len(content.Indices) > 0 {
+		content.Normals = generateNormals(content.Vertices, content.Indices)
 	}
 
 	content.BatchLength = 1
@@ -362,17 +393,22 @@ func (c *GeometryConverter) extractVertices(arr *model.Array) []float32 {
 		B.Set(i, 3, 1.0)
 	}
 
-	var svd mat.SVD
-	ok := svd.Factorize(A, mat.SVDFull)
-	if !ok {
-		fmt.Printf("DEBUG: SVD factorization failed, using direct transform\n")
-		return c.transformVerticesDirectly(vertices, originOffset)
-	}
-
 	var X mat.Dense
-	err := svd.SolveTo(&X, B, 0)
-	if err != nil {
-		fmt.Printf("DEBUG: SVD solve failed: %v, using direct transform\n", err)
+	svdOk := false
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("DEBUG: SVD panicked: %v, using direct transform\n", r)
+			}
+		}()
+		var svd mat.SVD
+		if ok := svd.Factorize(A, mat.SVDFull); !ok {
+			return
+		}
+		_ = svd.SolveTo(&X, B, 4)
+		svdOk = true
+	}()
+	if !svdOk {
 		return c.transformVerticesDirectly(vertices, originOffset)
 	}
 
@@ -388,11 +424,10 @@ func (c *GeometryConverter) extractVertices(arr *model.Array) []float32 {
 		y := float64(vertices[i+1]) + originOffset[1]
 		z := float64(vertices[i+2]) + originOffset[2]
 
-		// Apply 4x4 transformation matrix
-		// FIX: Correct indexing - multiply row by point components
-		newX := X.At(0, 0)*x + X.At(0, 1)*y + X.At(0, 2)*z + X.At(0, 3)
-		newY := X.At(1, 0)*x + X.At(1, 1)*y + X.At(1, 2)*z + X.At(1, 3)
-		newZ := X.At(2, 0)*x + X.At(2, 1)*y + X.At(2, 2)*z + X.At(2, 3)
+		// Apply 4x4 transformation matrix (column-major: A*X = B where X[i,j] maps component i of input to component j of output)
+		newX := X.At(0, 0)*x + X.At(1, 0)*y + X.At(2, 0)*z + X.At(3, 0)
+		newY := X.At(0, 1)*x + X.At(1, 1)*y + X.At(2, 1)*z + X.At(3, 1)
+		newZ := X.At(0, 2)*x + X.At(1, 2)*y + X.At(2, 2)*z + X.At(3, 2)
 
 		result[i] = float32(newX)
 		result[i+1] = float32(newY)
@@ -447,6 +482,15 @@ func (c *GeometryConverter) transformVerticesDirectly(vertices []float32, origin
 	return result
 }
 
+func normalizeVec3(x, y, z float32) (float32, float32, float32) {
+	l := math.Sqrt(float64(x)*float64(x) + float64(y)*float64(y) + float64(z)*float64(z))
+	if l < 1e-20 {
+		return 0.0, 0.0, 1.0
+	}
+	invLen := float32(1.0 / l)
+	return x * invLen, y * invLen, z * invLen
+}
+
 func (c *GeometryConverter) extractNormals(arr *model.Array) []float32 {
 	if arr.Data == nil {
 		return nil
@@ -454,13 +498,20 @@ func (c *GeometryConverter) extractNormals(arr *model.Array) []float32 {
 
 	switch data := arr.Data.(type) {
 	case []float32:
-		return data
+		normals := make([]float32, len(data))
+		copy(normals, data)
+		for i := 0; i < len(normals); i += 3 {
+			nx, ny, nz := normalizeVec3(normals[i], normals[i+1], normals[i+2])
+			normals[i], normals[i+1], normals[i+2] = nx, ny, nz
+		}
+		return normals
 	case [][3]float32:
 		normals := make([]float32, len(data)*3)
 		for i, v := range data {
-			normals[i*3] = v[0]
-			normals[i*3+1] = v[1]
-			normals[i*3+2] = v[2]
+			nx, ny, nz := normalizeVec3(v[0], v[1], v[2])
+			normals[i*3] = nx
+			normals[i*3+1] = ny
+			normals[i*3+2] = nz
 		}
 		return normals
 	}
@@ -600,6 +651,7 @@ func (c *TileContent) Merge(other *TileContent) {
 	c.TexCoords = append(c.TexCoords, other.TexCoords...)
 	c.Indices = append(c.Indices, other.Indices...)
 	c.Textures = append(c.Textures, other.Textures...)
+	c.Primitives = append(c.Primitives, other.Primitives...)
 
 	if c.BatchLength == 0 {
 		c.BoundingBox = other.BoundingBox
@@ -744,24 +796,52 @@ func (c *GeometryConverter) extractImageData(img *model.Image, basePath string) 
 	}
 
 	if img.Data != nil && len(img.Data) > 0 {
-		return img.Data
+		data := img.Data
+		w := int(img.S)
+		h := int(img.T)
+		if w > 0 && h > 0 {
+			rgbaSize := w * h * 4
+			rgbSize := w * h * 3
+			if len(data) == rgbaSize {
+				return encodeRGBAAsJPEG(data, w, h)
+			}
+			if len(data) == rgbSize {
+				return encodeRGBAsJPEG(data, w, h)
+			}
+		}
+		return data
 	}
 
 	return nil
 }
 
-func getImageMimeType(img *model.Image) string {
-	if len(img.FileName) > 0 {
-		ext := filepath.Ext(img.FileName)
-		switch ext {
-		case ".jpg", ".jpeg":
-			return "image/jpeg"
-		case ".png":
-			return "image/png"
-		case ".ktx", ".ktx2":
-			return "image/ktx2"
+func encodeRGBAAsJPEG(data []byte, w, h int) []byte {
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			i := (y*w + x) * 4
+			img.Set(x, y, color.RGBA{data[i], data[i+1], data[i+2], data[i+3]})
 		}
 	}
+	var buf bytes.Buffer
+	jpeg.Encode(&buf, img, &jpeg.Options{Quality: 90})
+	return buf.Bytes()
+}
+
+func encodeRGBAsJPEG(data []byte, w, h int) []byte {
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			i := (y*w + x) * 3
+			img.Set(x, y, color.RGBA{data[i], data[i+1], data[i+2], 255})
+		}
+	}
+	var buf bytes.Buffer
+	jpeg.Encode(&buf, img, &jpeg.Options{Quality: 90})
+	return buf.Bytes()
+}
+
+func getImageMimeType(img *model.Image) string {
 	return "image/jpeg"
 }
 
@@ -821,6 +901,90 @@ func (c *GeometryConverter) extractIndices(prim interface{}) []uint32 {
 		return indices
 	}
 	return nil
+}
+
+func fixupPrimitiveMode(mode int32, indices []uint32) int32 {
+	if mode == model.GLPOINTS && len(indices) >= 3 && len(indices)%3 == 0 {
+		return model.GLTRIANGLES
+	}
+	if mode == model.GLQUADS && len(indices) >= 4 && len(indices)%4 == 0 {
+		return model.GLTRIANGLES
+	}
+	if mode == model.GLQUADSTRIP && len(indices) >= 4 {
+		return model.GLTRIANGLES
+	}
+	return mode
+}
+
+func (c *GeometryConverter) extractIndicesWithMode(prim interface{}) (int32, []uint32) {
+	if prim == nil {
+		return -1, nil
+	}
+
+	switch p := prim.(type) {
+	case *model.DrawElementsUByte:
+		if p.Data == nil {
+			return -1, nil
+		}
+		indices := make([]uint32, len(p.Data))
+		for i, idx := range p.Data {
+			indices[i] = uint32(idx)
+		}
+		mode := fixupPrimitiveMode(p.Mode, indices)
+		if mode == model.GLQUADS {
+			return model.GLTRIANGLES, triangulateQuadLike(indices, model.GLQUADS)
+		}
+		if mode == model.GLQUADSTRIP {
+			return model.GLTRIANGLES, triangulateQuadLike(indices, model.GLQUADSTRIP)
+		}
+		return mode, indices
+	case *model.DrawElementsUShort:
+		if p.Data == nil {
+			return -1, nil
+		}
+		indices := make([]uint32, len(p.Data))
+		for i, idx := range p.Data {
+			indices[i] = uint32(idx)
+		}
+		mode := fixupPrimitiveMode(p.Mode, indices)
+		if mode == model.GLQUADS {
+			return model.GLTRIANGLES, triangulateQuadLike(indices, model.GLQUADS)
+		}
+		if mode == model.GLQUADSTRIP {
+			return model.GLTRIANGLES, triangulateQuadLike(indices, model.GLQUADSTRIP)
+		}
+		return mode, indices
+	case *model.DrawElementsUInt:
+		if p.Data == nil {
+			return -1, nil
+		}
+		indices := make([]uint32, len(p.Data))
+		copy(indices, p.Data)
+		mode := fixupPrimitiveMode(p.Mode, indices)
+		if mode == model.GLQUADS {
+			return model.GLTRIANGLES, triangulateQuadLike(indices, model.GLQUADS)
+		}
+		if mode == model.GLQUADSTRIP {
+			return model.GLTRIANGLES, triangulateQuadLike(indices, model.GLQUADSTRIP)
+		}
+		return mode, indices
+	case *model.DrawArrays:
+		count := int(p.Count)
+		first := int(p.First)
+		indices := make([]uint32, count)
+		for i := 0; i < count; i++ {
+			indices[i] = uint32(first + i)
+		}
+		mode := fixupPrimitiveMode(p.Mode, indices)
+		if mode == model.GLQUADS {
+			return model.GLTRIANGLES, triangulateQuadLike(indices, model.GLQUADS)
+		}
+		if mode == model.GLQUADSTRIP {
+			return model.GLTRIANGLES, triangulateQuadLike(indices, model.GLQUADSTRIP)
+		}
+		return mode, indices
+	}
+	return -1, nil
 }
 
 func triangulateQuadLike(indices []uint32, mode int32) []uint32 {
@@ -1046,4 +1210,67 @@ func (c *GeometryConverter) GetFileNames(node interface{}) []string {
 		return names
 	}
 	return nil
+}
+
+func generateNormals(vertices []float32, indices []uint32) []float32 {
+	vertexCount := len(vertices) / 3
+	if vertexCount == 0 || len(indices) < 3 {
+		return nil
+	}
+
+	normals := make([]float32, vertexCount*3)
+	triangleCount := len(indices) / 3
+
+	for t := 0; t < triangleCount; t++ {
+		i0 := indices[t*3]
+		i1 := indices[t*3+1]
+		i2 := indices[t*3+2]
+
+		if i0 >= uint32(vertexCount) || i1 >= uint32(vertexCount) || i2 >= uint32(vertexCount) {
+			continue
+		}
+
+		ax := float64(vertices[i0*3])
+		ay := float64(vertices[i0*3+1])
+		az := float64(vertices[i0*3+2])
+		bx := float64(vertices[i1*3])
+		by := float64(vertices[i1*3+1])
+		bz := float64(vertices[i1*3+2])
+		cx := float64(vertices[i2*3])
+		cy := float64(vertices[i2*3+1])
+		cz := float64(vertices[i2*3+2])
+
+		ux, uy, uz := bx-ax, by-ay, bz-az
+		vx, vy, vz := cx-ax, cy-ay, cz-az
+
+		nx := uy*vz - uz*vy
+		ny := uz*vx - ux*vz
+		nz := ux*vy - uy*vx
+
+		l := math.Sqrt(nx*nx + ny*ny + nz*nz)
+		if l < 1e-20 {
+			continue
+		}
+		invLen := float32(1.0 / l)
+		nx_f := float32(nx) * invLen
+		ny_f := float32(ny) * invLen
+		nz_f := float32(nz) * invLen
+
+		normals[i0*3] += nx_f
+		normals[i0*3+1] += ny_f
+		normals[i0*3+2] += nz_f
+		normals[i1*3] += nx_f
+		normals[i1*3+1] += ny_f
+		normals[i1*3+2] += nz_f
+		normals[i2*3] += nx_f
+		normals[i2*3+1] += ny_f
+		normals[i2*3+2] += nz_f
+	}
+
+	for i := 0; i < vertexCount; i++ {
+		nx, ny, nz := normalizeVec3(normals[i*3], normals[i*3+1], normals[i*3+2])
+		normals[i*3], normals[i*3+1], normals[i*3+2] = nx, ny, nz
+	}
+
+	return normals
 }

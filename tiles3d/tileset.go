@@ -36,26 +36,33 @@ func (g *TilesetGenerator) Generate(tile *Tile) *TileJSON {
 
 	if tile != nil {
 		tileset.Root = g.convertTileToJSON(tile, true)
+		if tileset.Root != nil && tile.Content != nil && len(tile.Content.Vertices) < 3 && len(tile.Children) > 0 {
+			tileset.Root.GeometricError = 0
+			for _, c := range tile.Children {
+				if c.GeometricError > tileset.Root.GeometricError {
+					tileset.Root.GeometricError = c.GeometricError
+				}
+			}
+		}
 	}
 
 	return tileset
 }
 
 func (g *TilesetGenerator) convertTileToJSON(tile *Tile, isRoot bool) *TileJSONNode {
+	bbox := tile.BoundingBox
+
 	node := &TileJSONNode{
 		GeometricError: tile.GeometricError,
 		BoundVolume: BoundVolumeJSON{
-			Box: tile.BoundingBox[:],
+			Box: bbox[:],
 		},
 	}
 
-	// Only add refine and content for non-root tiles (matching C++ structure)
-	if !isRoot {
-		node.Refine = "REPLACE"
-		if tile.Content != nil && tile.Path != "" {
-			node.Content = &ContentJSON{
-				URI: filepath.Base(tile.Path),
-			}
+	node.Refine = "REPLACE"
+	if tile.Content != nil && tile.Path != "" && len(tile.Content.Vertices) >= 3 {
+		node.Content = &ContentJSON{
+			URI: "./" + filepath.Base(tile.Path),
 		}
 	}
 
@@ -111,15 +118,6 @@ func (g *B3DMGenerator) Generate(tile *Tile) ([]byte, error) {
 
 	view := tile3d.B3dmFeatureTableView{
 		BatchLength: tile.Content.BatchLength,
-	}
-
-	if len(tile.Content.BoundingBox) == 12 {
-		center := []float64{
-			tile.Content.BoundingBox[0],
-			tile.Content.BoundingBox[1],
-			tile.Content.BoundingBox[2],
-		}
-		view.RtcCenter = center
 	}
 
 	b3dm.SetFeatureTable(view)
@@ -187,234 +185,274 @@ func uint32ToByte(data []uint32) []byte {
 	return result
 }
 
+func osgModeToGLTF(mode int32) gltf.PrimitiveMode {
+	switch mode {
+	case model.GLPOINTS:
+		return gltf.PrimitivePoints
+	case model.GLLINES:
+		return gltf.PrimitiveLines
+	case model.GLLINELOOP:
+		return gltf.PrimitiveLineLoop
+	case model.GLLINESTRIP:
+		return gltf.PrimitiveLineStrip
+	case model.GLTRIANGLES:
+		return gltf.PrimitiveTriangles
+	case model.GLTRIANGLESTRIP:
+		return gltf.PrimitiveTriangleStrip
+	case model.GLTRIANGLEFAN:
+		return gltf.PrimitiveTriangleFan
+	case model.GLQUADS, model.GLQUADSTRIP:
+		return gltf.PrimitiveTriangles
+	default:
+		return gltf.PrimitiveTriangles
+	}
+}
+
+func pickIndexComponentType(maxIndex uint32) gltf.ComponentType {
+	if maxIndex <= 255 {
+		return gltf.ComponentUbyte
+	} else if maxIndex <= 65535 {
+		return gltf.ComponentUshort
+	}
+	return gltf.ComponentUint
+}
+
+func indicesToBytes(indices []uint32, ct gltf.ComponentType) []byte {
+	switch ct {
+	case gltf.ComponentUbyte:
+		buf := make([]byte, len(indices))
+		for i, idx := range indices {
+			buf[i] = byte(idx)
+		}
+		return buf
+	case gltf.ComponentUshort:
+		buf := make([]byte, len(indices)*2)
+		for i, idx := range indices {
+			buf[i*2] = byte(idx)
+			buf[i*2+1] = byte(idx >> 8)
+		}
+		return buf
+	default:
+		return uint32ToByte(indices)
+	}
+}
+
+func align4(n int) int {
+	return (n + 3) & ^3
+}
+
 func (g *B3DMGenerator) buildGLTF(content *TileContent) *gltf.Document {
 	doc := gltf.NewDocument()
 
-	vertexData := content.Vertices
-	vertexBuffer := &gltf.Buffer{
-		Data:       float32ToByte(vertexData),
-		ByteLength: uint32(len(vertexData) * 4),
+	var bin bytes.Buffer
+	type bufferRegion struct {
+		offset   int
+		length   int
+		stride   int
+		target   gltf.Target
 	}
-	vertexBufferID := uint32(len(doc.Buffers))
-	doc.Buffers = append(doc.Buffers, vertexBuffer)
 
-	vertexBufferView := &gltf.BufferView{
-		Buffer:     vertexBufferID,
-		ByteOffset: 0,
-		ByteLength: uint32(len(vertexData) * 4),
-		ByteStride: 12,
+	writeRegion := func(data []byte, stride int, target gltf.Target) bufferRegion {
+		offset := bin.Len()
+		bin.Write(data)
+		padding := align4(bin.Len()) - bin.Len()
+		bin.Write(make([]byte, padding))
+		return bufferRegion{offset: offset, length: len(data), stride: stride, target: target}
 	}
-	vertexBufferViewID := uint32(len(doc.BufferViews))
-	doc.BufferViews = append(doc.BufferViews, vertexBufferView)
 
-	vertexAccessor := &gltf.Accessor{
-		BufferView:    &vertexBufferViewID,
+	posData := float32ToByte(content.Vertices)
+	posRegion := writeRegion(posData, 12, gltf.TargetArrayBuffer)
+
+	posBV := uint32(len(doc.BufferViews))
+	doc.BufferViews = append(doc.BufferViews, &gltf.BufferView{
+		Buffer:     0,
+		ByteOffset: uint32(posRegion.offset),
+		ByteLength: uint32(posRegion.length),
+		ByteStride: uint32(posRegion.stride),
+		Target:     posRegion.target,
+	})
+
+	posAcc := &gltf.Accessor{
+		BufferView:    &posBV,
 		ComponentType: gltf.ComponentFloat,
 		Count:         uint32(len(content.Vertices) / 3),
 		Type:          gltf.AccessorVec3,
-		Max:           []float32{float32(content.BoundingBox[3]), float32(content.BoundingBox[4]), float32(content.BoundingBox[5])},
-		Min:           []float32{float32(content.BoundingBox[0]), float32(content.BoundingBox[1]), float32(content.BoundingBox[2])},
+		Min: []float32{
+			float32(content.BoundingBox[0] - content.BoundingBox[3]),
+			float32(content.BoundingBox[1] - content.BoundingBox[7]),
+			float32(content.BoundingBox[2] - content.BoundingBox[11]),
+		},
+		Max: []float32{
+			float32(content.BoundingBox[0] + content.BoundingBox[3]),
+			float32(content.BoundingBox[1] + content.BoundingBox[7]),
+			float32(content.BoundingBox[2] + content.BoundingBox[11]),
+		},
 	}
-	doc.Accessors = append(doc.Accessors, vertexAccessor)
+	doc.Accessors = append(doc.Accessors, posAcc)
 
-	var normalAccessor *gltf.Accessor
+	normalAccessorIdx := -1
 	if len(content.Normals) > 0 {
-		normalBuffer := &gltf.Buffer{
-			Data:       float32ToByte(content.Normals),
-			ByteLength: uint32(len(content.Normals) * 4),
-		}
-		normalBufferID := uint32(len(doc.Buffers))
-		doc.Buffers = append(doc.Buffers, normalBuffer)
-
-		normalBufferView := &gltf.BufferView{
-			Buffer:     normalBufferID,
-			ByteOffset: 0,
-			ByteLength: uint32(len(content.Normals) * 4),
-			ByteStride: 12,
-		}
-		normalBufferViewID := uint32(len(doc.BufferViews))
-		doc.BufferViews = append(doc.BufferViews, normalBufferView)
-
-		normalAccessor = &gltf.Accessor{
-			BufferView:    &normalBufferViewID,
+		normData := float32ToByte(content.Normals)
+		normRegion := writeRegion(normData, 12, gltf.TargetArrayBuffer)
+		normBV := uint32(len(doc.BufferViews))
+		doc.BufferViews = append(doc.BufferViews, &gltf.BufferView{
+			Buffer:     0,
+			ByteOffset: uint32(normRegion.offset),
+			ByteLength: uint32(normRegion.length),
+			ByteStride: uint32(normRegion.stride),
+			Target:     normRegion.target,
+		})
+		doc.Accessors = append(doc.Accessors, &gltf.Accessor{
+			BufferView:    &normBV,
 			ComponentType: gltf.ComponentFloat,
 			Count:         uint32(len(content.Normals) / 3),
 			Type:          gltf.AccessorVec3,
-		}
-		doc.Accessors = append(doc.Accessors, normalAccessor)
+		})
+		normalAccessorIdx = len(doc.Accessors) - 1
 	}
 
-	var texCoordAccessor *gltf.Accessor
+	texCoordAccessorIdx := -1
 	if len(content.TexCoords) > 0 {
-		texCoordBuffer := &gltf.Buffer{
-			Data:       float32ToByte(content.TexCoords),
-			ByteLength: uint32(len(content.TexCoords) * 4),
-		}
-		texCoordBufferID := uint32(len(doc.Buffers))
-		doc.Buffers = append(doc.Buffers, texCoordBuffer)
-
-		texCoordBufferView := &gltf.BufferView{
-			Buffer:     texCoordBufferID,
-			ByteOffset: 0,
-			ByteLength: uint32(len(content.TexCoords) * 4),
-			ByteStride: 8,
-		}
-		texCoordBufferViewID := uint32(len(doc.BufferViews))
-		doc.BufferViews = append(doc.BufferViews, texCoordBufferView)
-
-		texCoordAccessor = &gltf.Accessor{
-			BufferView:    &texCoordBufferViewID,
+		tcData := float32ToByte(content.TexCoords)
+		tcRegion := writeRegion(tcData, 8, gltf.TargetArrayBuffer)
+		tcBV := uint32(len(doc.BufferViews))
+		doc.BufferViews = append(doc.BufferViews, &gltf.BufferView{
+			Buffer:     0,
+			ByteOffset: uint32(tcRegion.offset),
+			ByteLength: uint32(tcRegion.length),
+			ByteStride: uint32(tcRegion.stride),
+			Target:     tcRegion.target,
+		})
+		doc.Accessors = append(doc.Accessors, &gltf.Accessor{
+			BufferView:    &tcBV,
 			ComponentType: gltf.ComponentFloat,
 			Count:         uint32(len(content.TexCoords) / 2),
 			Type:          gltf.AccessorVec2,
+		})
+		texCoordAccessorIdx = len(doc.Accessors) - 1
+	}
+
+	makePrimitive := func(indices []uint32, mode int32) *gltf.Primitive {
+		prim := &gltf.Primitive{
+			Attributes: map[string]uint32{
+				"POSITION": 0,
+			},
+			Mode: osgModeToGLTF(mode),
 		}
-		doc.Accessors = append(doc.Accessors, texCoordAccessor)
+		if normalAccessorIdx >= 0 {
+			prim.Attributes["NORMAL"] = uint32(normalAccessorIdx)
+		}
+		if texCoordAccessorIdx >= 0 {
+			prim.Attributes["TEXCOORD_0"] = uint32(texCoordAccessorIdx)
+		}
+		if len(indices) > 0 {
+			maxIdx := uint32(0)
+			for _, idx := range indices {
+				if idx > maxIdx {
+					maxIdx = idx
+				}
+			}
+			ct := pickIndexComponentType(maxIdx)
+			idxBytes := indicesToBytes(indices, ct)
+			idxRegion := writeRegion(idxBytes, 0, gltf.TargetElementArrayBuffer)
+			idxBV := uint32(len(doc.BufferViews))
+			doc.BufferViews = append(doc.BufferViews, &gltf.BufferView{
+				Buffer:     0,
+				ByteOffset: uint32(idxRegion.offset),
+				ByteLength: uint32(idxRegion.length),
+				Target:     idxRegion.target,
+			})
+			doc.Accessors = append(doc.Accessors, &gltf.Accessor{
+				BufferView:    &idxBV,
+				ComponentType: ct,
+				Count:         uint32(len(indices)),
+				Type:          gltf.AccessorScalar,
+			})
+			prim.Indices = gltf.Index(uint32(len(doc.Accessors) - 1))
+		}
+		return prim
 	}
 
-	primitive := &gltf.Primitive{
-		Attributes: map[string]uint32{
-			"POSITION": 0,
-		},
-		Mode: gltf.PrimitiveTriangles,
+	var primitives []*gltf.Primitive
+	if len(content.Primitives) > 0 {
+		for _, p := range content.Primitives {
+			primitives = append(primitives, makePrimitive(p.Indices, p.Mode))
+		}
+	} else if len(content.Indices) > 0 {
+		primitives = append(primitives, makePrimitive(content.Indices, content.Mode))
+	} else {
+		primitives = append(primitives, makePrimitive(nil, content.Mode))
 	}
 
-	if normalAccessor != nil {
-		normalAccessorID := uint32(len(doc.Accessors) - 1)
-		primitive.Attributes["NORMAL"] = normalAccessorID
-	}
-
-	if texCoordAccessor != nil {
-		texCoordAccessorID := uint32(len(doc.Accessors) - 1)
-		primitive.Attributes["TEXCOORD_0"] = texCoordAccessorID
-	}
-
+	imageBVOffsets := make([]uint32, 0)
 	if len(content.Textures) > 0 {
-		textureIndices := make([]uint32, 0, len(content.Textures))
-
 		for i, texData := range content.Textures {
-			textureBuffer := &gltf.Buffer{
-				Data:       texData,
+			off := bin.Len()
+			bin.Write(texData)
+			padding := align4(bin.Len()) - bin.Len()
+			bin.Write(make([]byte, padding))
+			imgBV := uint32(len(doc.BufferViews))
+			doc.BufferViews = append(doc.BufferViews, &gltf.BufferView{
+				Buffer:     0,
+				ByteOffset: uint32(off),
 				ByteLength: uint32(len(texData)),
-			}
-			textureBufferID := uint32(len(doc.Buffers))
-			doc.Buffers = append(doc.Buffers, textureBuffer)
+			})
+			imageBVOffsets = append(imageBVOffsets, imgBV)
 
-			textureBufferView := &gltf.BufferView{
-				Buffer:     textureBufferID,
-				ByteOffset: 0,
-				ByteLength: uint32(len(texData)),
-			}
-			textureBufferViewID := uint32(len(doc.BufferViews))
-			doc.BufferViews = append(doc.BufferViews, textureBufferView)
-
-			image := &gltf.Image{
+			doc.Images = append(doc.Images, &gltf.Image{
 				URI:        "",
-				BufferView: &textureBufferViewID,
+				BufferView: &imgBV,
 				MimeType:   "image/jpeg",
-			}
-			imageID := uint32(len(doc.Images))
-			doc.Images = append(doc.Images, image)
-
-			sampler := &gltf.Sampler{
+			})
+			doc.Samplers = append(doc.Samplers, &gltf.Sampler{
 				MagFilter: gltf.MagLinear,
 				MinFilter: gltf.MinLinearMipMapLinear,
 				WrapS:     gltf.WrapRepeat,
 				WrapT:     gltf.WrapRepeat,
-			}
-			samplerID := uint32(len(doc.Samplers))
-			doc.Samplers = append(doc.Samplers, sampler)
-
-			texture := &gltf.Texture{
+			})
+			doc.Textures = append(doc.Textures, &gltf.Texture{
 				Name:    fmt.Sprintf("texture_%d", i),
-				Source:  &imageID,
-				Sampler: &samplerID,
-			}
-			textureID := uint32(len(doc.Textures))
-			doc.Textures = append(doc.Textures, texture)
-			textureIndices = append(textureIndices, textureID)
+				Source:  gltf.Index(uint32(len(doc.Images) - 1)),
+				Sampler: gltf.Index(uint32(len(doc.Samplers) - 1)),
+			})
 		}
 
-		if len(textureIndices) > 0 {
-			baseColor := [4]float32{1.0, 1.0, 1.0, 1.0}
-			metallic := float32(0.0)
-			roughness := float32(1.0)
-
-			baseColorTexture := textureIndices[0]
-
-			material := &gltf.Material{
-				Name: "TexturedMaterial",
-				PBRMetallicRoughness: &gltf.PBRMetallicRoughness{
-					BaseColorFactor: &baseColor,
-					MetallicFactor:  &metallic,
-					RoughnessFactor: &roughness,
-					BaseColorTexture: &gltf.TextureInfo{
-						Index: baseColorTexture,
-					},
+		doc.Materials = append(doc.Materials, &gltf.Material{
+			Name: "TexturedMaterial",
+			PBRMetallicRoughness: &gltf.PBRMetallicRoughness{
+				BaseColorFactor: &[4]float32{1.0, 1.0, 1.0, 1.0},
+				MetallicFactor:  &[]float32{0.0}[0],
+				RoughnessFactor: &[]float32{1.0}[0],
+				BaseColorTexture: &gltf.TextureInfo{
+					Index: uint32(len(doc.Textures) - 1),
 				},
-				DoubleSided: false,
-			}
-			matID := uint32(len(doc.Materials))
-			doc.Materials = append(doc.Materials, material)
-			primitive.Material = &matID
+			},
+			DoubleSided: false,
+		})
+		matID := uint32(len(doc.Materials) - 1)
+		for _, prim := range primitives {
+			prim.Material = &matID
 		}
 	}
 
-	if len(content.Indices) > 0 {
-		indexBuffer := &gltf.Buffer{
-			Data:       uint32ToByte(content.Indices),
-			ByteLength: uint32(len(content.Indices) * 4),
-		}
-		indexBufferID := uint32(len(doc.Buffers))
-		doc.Buffers = append(doc.Buffers, indexBuffer)
+	doc.Buffers = append(doc.Buffers, &gltf.Buffer{
+		Data:       bin.Bytes(),
+		ByteLength: uint32(bin.Len()),
+	})
 
-		indexBufferView := &gltf.BufferView{
-			Buffer:     indexBufferID,
-			ByteOffset: 0,
-			ByteLength: uint32(len(content.Indices) * 4),
-		}
-		indexBufferViewID := uint32(len(doc.BufferViews))
-		doc.BufferViews = append(doc.BufferViews, indexBufferView)
-
-		indexAccessor := &gltf.Accessor{
-			BufferView:    &indexBufferViewID,
-			ComponentType: gltf.ComponentUint,
-			Count:         uint32(len(content.Indices)),
-			Type:          gltf.AccessorScalar,
-		}
-		doc.Accessors = append(doc.Accessors, indexAccessor)
-
-		primitive.Indices = gltf.Index(uint32(len(doc.Accessors) - 1))
-	}
-
-	mesh := &gltf.Mesh{
+	doc.Meshes = append(doc.Meshes, &gltf.Mesh{
 		Name:       "Mesh",
-		Primitives: []*gltf.Primitive{primitive},
+		Primitives: primitives,
+	})
+
+	doc.Nodes = append(doc.Nodes, &gltf.Node{
+		Mesh: gltf.Index(0),
+	})
+
+	doc.Scene = gltf.Index(0)
+	if len(doc.Scenes) > 0 {
+		doc.Scenes[0].Nodes = []uint32{0}
 	}
-	meshID := uint32(len(doc.Meshes))
-	doc.Meshes = append(doc.Meshes, mesh)
-
-	node := &gltf.Node{
-		Mesh: &meshID,
-	}
-	doc.Nodes = append(doc.Nodes, node)
-
-	sceneIndex := uint32(len(doc.Nodes) - 1)
-	doc.Scene = &sceneIndex
-
-	baseColor := [4]float32{1.0, 1.0, 1.0, 1.0}
-	metallic := float32(0.0)
-	roughness := float32(1.0)
-
-	material := &gltf.Material{
-		Name: "DefaultMaterial",
-		PBRMetallicRoughness: &gltf.PBRMetallicRoughness{
-			BaseColorFactor: &baseColor,
-			MetallicFactor:  &metallic,
-			RoughnessFactor: &roughness,
-		},
-		DoubleSided: false,
-	}
-	doc.Materials = append(doc.Materials, material)
 
 	doc.ExtensionsUsed = []string{"KHR_materials_unlit"}
 
@@ -513,9 +551,9 @@ func (c *Converter) Convert(inputPath, outputPath string) error {
 		cosLon := math.Cos(lonRad)
 
 		transform := []float64{
-			-sinLon, -sinLat * cosLon, cosLat * cosLon, 0,
-			cosLon, -sinLat * sinLon, cosLat * sinLon, 0,
-			0, cosLat, sinLat, 0,
+			-sinLon, cosLon, 0, 0,
+			-sinLat * cosLon, -sinLat * sinLon, cosLat, 0,
+			cosLat * cosLon, cosLat * sinLon, sinLat, 0,
 			ecef[0], ecef[1], ecef[2], 1,
 		}
 
@@ -1051,9 +1089,16 @@ func (c *Converter) extendTileBox(tile *Tile) {
 	tile.BoundingBox[0] = (maxX + minX) / 2
 	tile.BoundingBox[1] = (maxY + minY) / 2
 	tile.BoundingBox[2] = (maxZ + minZ) / 2
-	tile.BoundingBox[3] = (maxX - minX) / 2
-	tile.BoundingBox[7] = (maxY - minY) / 2
-	tile.BoundingBox[11] = (maxZ - minZ) / 2
+	xHalf := (maxX - minX) / 2
+	yHalf := (maxY - minY) / 2
+	zHalf := (maxZ - minZ) / 2
+	// extend bbox by 10% margin per C++ reference (TileBox::extend(0.2))
+	if xHalf > 0 { xHalf *= 1.1 }
+	if yHalf > 0 { yHalf *= 1.1 }
+	if zHalf > 0 { zHalf *= 1.1 }
+	tile.BoundingBox[3] = xHalf
+	tile.BoundingBox[7] = yHalf
+	tile.BoundingBox[11] = zHalf
 	fmt.Printf("DEBUG extendTileBox: tile=%s computed bbox center = (%f, %f, %f)\n",
 		tile.ID, tile.BoundingBox[0], tile.BoundingBox[1], tile.BoundingBox[2])
 }
@@ -1108,7 +1153,7 @@ func (c *Converter) convertNodeToTile(node interface{}, id string) *Tile {
 }
 
 func (c *Converter) writeTiles(tile *Tile, outputPath string) error {
-	if tile.Content != nil && tile.Path != "" {
+	if tile.Content != nil && tile.Path != "" && len(tile.Content.Vertices) >= 3 {
 		if err := c.b3dmGen.Write(tile, filepath.Join(outputPath, tile.Path)); err != nil {
 			return err
 		}
@@ -1186,7 +1231,14 @@ func calculateGeometricError(bbox [12]float64) float64 {
 	dx := xHalf * 2
 	dy := yHalf * 2
 	dz := zHalf * 2
-	return (dx + dy + dz) / 6.0 * 2.0
+	maxDim := dx
+	if dy > maxDim {
+		maxDim = dy
+	}
+	if dz > maxDim {
+		maxDim = dz
+	}
+	return maxDim / 2.0
 }
 
 type ConvertResult struct {

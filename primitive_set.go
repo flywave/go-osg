@@ -244,6 +244,7 @@ func init() {
 	ser2.Add("TRIANGLESTRIPADJACENCY", model.GLTRIANGLESTRIPADJACENCY)
 	ser2.Add("PATCHES", model.GLPATCHES)
 	wrap1.AddSerializer(ser2, RWENUM)
+	ser2.SetFirstVersion(0)
 	{
 		uv := AddUpdateWrapperVersionProxy(wrap1, 96)
 		ser1 := NewPropByValSerializer("NumInstances", false, getNumInstances, setNumInstances)

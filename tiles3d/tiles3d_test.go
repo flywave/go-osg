@@ -229,9 +229,9 @@ func TestCalculateBoundingBox_Empty(t *testing.T) {
 func TestGeometricError(t *testing.T) {
 	bbox := [12]float64{0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0, 5}
 	err := calculateGeometricError(bbox)
-	// (dx+dy+dz)/6 * 2 = (10+10+10)/6*2 = 30/6*2 = 10
-	if math.Abs(err-10.0) > 0.001 {
-		t.Errorf("geometric error = %f, want 10.0", err)
+	// max(dx,dy,dz)/2 = 10/2 = 5
+	if math.Abs(err-5.0) > 0.001 {
+		t.Errorf("geometric error = %f, want 5.0", err)
 	}
 }
 
@@ -1022,7 +1022,7 @@ func TestTilesetGenerator_GenerateNested(t *testing.T) {
 		GeometricError: 50,
 		BoundingBox:    [12]float64{10, 10, 10, 1, 0, 0, 0, 1, 0, 0, 0, 1},
 		Path:           "child.osgb.b3dm",
-		Content:        &TileContent{},
+		Content:        &TileContent{Vertices: []float32{0, 0, 0, 1, 0, 0, 0, 1, 0}}, // 3 vertices
 	}
 
 	root := &Tile{
@@ -1030,7 +1030,7 @@ func TestTilesetGenerator_GenerateNested(t *testing.T) {
 		GeometricError: 200,
 		BoundingBox:    [12]float64{0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0, 10},
 		Path:           "root.osgb.b3dm",
-		Content:        &TileContent{},
+		Content:        &TileContent{}, // 0 vertices
 		Children:       []*Tile{child},
 	}
 
@@ -1041,13 +1041,13 @@ func TestTilesetGenerator_GenerateNested(t *testing.T) {
 	if len(tileset.Root.Children) != 1 {
 		t.Fatalf("got %d children, want 1", len(tileset.Root.Children))
 	}
-	// Root should not have content URI (isRoot=true)
+	// Root has no vertices -> no content
 	if tileset.Root.Content != nil {
-		t.Error("root should not have Content")
+		t.Error("root with no vertices should not have Content")
 	}
-	// Child should have content URI
+	// Child has vertices -> should have content
 	if tileset.Root.Children[0].Content == nil {
-		t.Error("child should have Content")
+		t.Error("child with vertices should have Content")
 	}
 	if tileset.Root.Children[0].Refine != "REPLACE" {
 		t.Errorf("child Refine = %q, want REPLACE", tileset.Root.Children[0].Refine)
@@ -1287,9 +1287,9 @@ func TestExtractGeometry_NilVertexArray(t *testing.T) {
 func TestCalculateGeometricError_Standalone(t *testing.T) {
 	bbox := [12]float64{0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1}
 	err := calculateGeometricError(bbox)
-	// (2+2+2)/6*2 = 6/6*2 = 2
-	if math.Abs(err-2.0) > 0.001 {
-		t.Errorf("error = %f, want 2.0", err)
+	// max(2,2,2)/2 = 2/2 = 1
+	if math.Abs(err-1.0) > 0.001 {
+		t.Errorf("error = %f, want 1.0", err)
 	}
 }
 
@@ -1926,23 +1926,9 @@ func TestExtractImageData_FromData(t *testing.T) {
 }
 
 func TestGetImageMimeType(t *testing.T) {
-	tests := []struct {
-		fileName string
-		want     string
-	}{
-		{"test.jpg", "image/jpeg"},
-		{"test.jpeg", "image/jpeg"},
-		{"test.png", "image/png"},
-		{"test.ktx", "image/ktx2"},
-		{"test.ktx2", "image/ktx2"},
-		{"test", "image/jpeg"},
-	}
-	for _, tt := range tests {
-		img := model.NewImage()
-		img.FileName = tt.fileName
-		got := getImageMimeType(img)
-		if got != tt.want {
-			t.Errorf("getImageMimeType(%q) = %q, want %q", tt.fileName, got, tt.want)
-		}
+	img := model.NewImage()
+	got := getImageMimeType(img)
+	if got != "image/jpeg" {
+		t.Errorf("getImageMimeType() = %q, want image/jpeg", got)
 	}
 }

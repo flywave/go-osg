@@ -121,6 +121,7 @@ func getCullingActive(obj interface{}) interface{} {
 func setCullingActive(obj interface{}, pro interface{}) {
 	obj.(model.NodeInterface).SetCullingActive(pro.(bool))
 }
+
 func getNodeMask(obj interface{}) interface{} {
 	return obj.(model.NodeInterface).GetNodeMask()
 }
@@ -137,6 +138,7 @@ func setStateSet(obj interface{}, pro interface{}) {
 	t := obj.(model.NodeInterface)
 	t.SetStates(pro.(*model.StateSet))
 }
+
 func init() {
 	fn := func() interface{} {
 		nd := model.NewNode()
