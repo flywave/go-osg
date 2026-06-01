@@ -539,9 +539,12 @@ func (c *Converter) Convert(inputPath, outputPath string) error {
 
 	if c.coordTrans.HasGeoReference() {
 		center := c.coordTrans.GetCenter()
-		latRad := center[1] * math.Pi / 180.0
-		lonRad := center[0] * math.Pi / 180.0
+		latDeg := center[0]
+		lonDeg := center[1]
 		height := center[2]
+
+		latRad := latDeg * math.Pi / 180.0
+		lonRad := lonDeg * math.Pi / 180.0
 
 		ecef := c.coordTrans.ToECEFFromLatLon(latRad, lonRad, height)
 
@@ -560,7 +563,8 @@ func (c *Converter) Convert(inputPath, outputPath string) error {
 		if tileset.Root != nil {
 			tileset.Root.Transform = transform
 		}
-		fmt.Printf("DEBUG Convert: added transform matrix, ECEF=(%f, %f, %f)\n", ecef[0], ecef[1], ecef[2])
+		fmt.Printf("DEBUG Convert: added transform matrix, center=(%f, %f, %f) ECEF=(%f, %f, %f)\n",
+			lonDeg, latDeg, height, ecef[0], ecef[1], ecef[2])
 	}
 
 	if err := c.tilesetGen.Write(tileset, filepath.Join(outputPath, "tileset.json")); err != nil {

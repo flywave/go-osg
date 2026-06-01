@@ -311,8 +311,8 @@ func setTexCoordArrayList(obj interface{}, pro interface{}) {
 		return
 	}
 	if arr, ok := pro.(*model.Array); ok {
-		pl := obj.(*model.Geometry).TexCoordArrayList
-		pl = append(pl, arr)
+		geom := obj.(*model.Geometry)
+		geom.TexCoordArrayList = append(geom.TexCoordArrayList, arr)
 	}
 }
 
@@ -325,8 +325,8 @@ func setVertexAttribArrayList(obj interface{}, pro interface{}) {
 		return
 	}
 	if arr, ok := pro.(*model.Array); ok {
-		pl := obj.(*model.Geometry).VertexAttribList
-		pl = append(pl, arr)
+		geom := obj.(*model.Geometry)
+		geom.VertexAttribList = append(geom.VertexAttribList, arr)
 	}
 }
 

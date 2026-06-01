@@ -106,7 +106,7 @@ func (c *GeometryConverter) extractGeometry(geom *model.Geometry) *TileContent {
 		content.Normals = c.extractNormals(geom.NormalArray)
 	}
 
-	if len(geom.TexCoordArrayList) > 0 && geom.TexCoordArrayList[0] != nil {
+	if len(geom.TexCoordArrayList) > 0 && geom.TexCoordArrayList[0] != nil && geom.TexCoordArrayList[0].Data != nil {
 		content.TexCoords = c.extractTexCoords(geom.TexCoordArrayList[0])
 	} else {
 		content.TexCoords = c.generateDefaultTexCoords(vertices)
@@ -819,7 +819,10 @@ func encodeRGBAAsJPEG(data []byte, w, h int) []byte {
 	img := image.NewRGBA(image.Rect(0, 0, w, h))
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
-			i := (y*w + x) * 4
+			// OSG stores pixel data LOWER-LEFT origin (OpenGL convention).
+			// Go image.RGBA uses UPPER-LEFT origin, so flip Y.
+			srcY := h - 1 - y
+			i := (srcY*w + x) * 4
 			img.Set(x, y, color.RGBA{data[i], data[i+1], data[i+2], data[i+3]})
 		}
 	}
@@ -832,7 +835,10 @@ func encodeRGBAsJPEG(data []byte, w, h int) []byte {
 	img := image.NewRGBA(image.Rect(0, 0, w, h))
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
-			i := (y*w + x) * 3
+			// OSG stores pixel data LOWER-LEFT origin (OpenGL convention).
+			// Go image.RGBA uses UPPER-LEFT origin, so flip Y.
+			srcY := h - 1 - y
+			i := (srcY*w + x) * 3
 			img.Set(x, y, color.RGBA{data[i], data[i+1], data[i+2], 255})
 		}
 	}
